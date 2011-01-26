@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5CAC55EA-0093-4ED6-BEB6-D7E2082AD207}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>dtxUpload</RootNamespace>
+    <AssemblyName>dtxUpload</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Classes\Client.cs" />
+    <Compile Include="Classes\ClientActions.cs" />
+    <Compile Include="Classes\Core\Config.cs" />
+    <Compile Include="Classes\Core\Json\DataReaderProvider.cs" />
+    <Compile Include="Classes\Core\Json\DataWriterProvider.cs" />
+    <Compile Include="Classes\Core\Json\EcmaScriptIdentifier.cs" />
+    <Compile Include="Classes\Core\Json\EcmaScriptWriter.cs" />
+    <Compile Include="Classes\Core\Json\IDataReader.cs" />
+    <Compile Include="Classes\Core\Json\IDataWriter.cs" />
+    <Compile Include="Classes\Core\Json\IJsonSerializable.cs" />
+    <Compile Include="Classes\Core\Json\JsonDataReader.cs" />
+    <Compile Include="Classes\Core\Json\JsonDataWriter.cs" />
+    <Compile Include="Classes\Core\Json\JsonIgnoreAttribute.cs" />
+    <Compile Include="Classes\Core\Json\JsonNameAttribute.cs" />
+    <Compile Include="Classes\Core\Json\JsonReader.cs" />
+    <Compile Include="Classes\Core\Json\JsonReaderSettings.cs" />
+    <Compile Include="Classes\Core\Json\JsonSerializationException.cs" />
+    <Compile Include="Classes\Core\Json\JsonSpecifiedPropertyAttribute.cs" />
+    <Compile Include="Classes\Core\Json\JsonToken.cs" />
+    <Compile Include="Classes\Core\Json\JsonWriter.cs" />
+    <Compile Include="Classes\Core\Json\JsonWriterSettings.cs" />
+    <Compile Include="Classes\Core\Json\TypeCoercionUtility.cs" />
+    <Compile Include="Classes\Core\Utilities.cs" />
+    <Compile Include="Classes\DataClasses.cs" />
+    <Compile Include="Classes\ServerConnector.cs" />
+    <Compile Include="Classes\UploadingQueue.cs" />
+    <Compile Include="Forms\Controls\UploadFileItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Controls\UploadFileItem.Designer.cs">
+      <DependentUpon>UploadFileItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmConnector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmConnector.Designer.cs">
+      <DependentUpon>frmConnector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmDropBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmDropBox.Designer.cs">
+      <DependentUpon>frmDropBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmLogin.Designer.cs">
+      <DependentUpon>frmLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmQuickManage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmQuickManage.Designer.cs">
+      <DependentUpon>frmQuickManage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmSettings.Designer.cs">
+      <DependentUpon>frmSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Controls\TextBoxAndInfo.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Forms\Controls\TextBoxAndInfo.Designer.cs">
+      <DependentUpon>TextBoxAndInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmQuickUpload.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmQuickUpload.Designer.cs">
+      <DependentUpon>frmQuickUpload.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Forms\Controls\UploadFileItem.resx">
+      <DependentUpon>UploadFileItem.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmConnector.resx">
+      <DependentUpon>frmConnector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmDropBox.resx">
+      <DependentUpon>frmDropBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmLogin.resx">
+      <DependentUpon>frmLogin.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmQuickManage.resx">
+      <DependentUpon>frmQuickManage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmSettings.resx">
+      <DependentUpon>frmSettings.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Controls\TextBoxAndInfo.resx">
+      <DependentUpon>TextBoxAndInfo.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmQuickUpload.resx">
+      <DependentUpon>frmQuickUpload.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Classes\Core\Json\License.txt" />
+    <Content Include="Classes\Core\Json\Readme.txt" />
+    <Content Include="icon.ico" />
+    <Content Include="icon16.ico" />
+    <None Include="miniIcons\icon_24_message_warn.png" />
+    <None Include="miniIcons\icon_24_control_stop.png" />
+    <None Include="miniIcons\icon_24_em_up.png" />
+    <None Include="miniIcons\icon_24_em_cross.png" />
+    <None Include="miniIcons\icon_24_em_check.png" />
+    <None Include="miniIcons\icon_16_tool_b.png" />
+    <None Include="Resources\LoginLogoRev1.png" />
+    <None Include="Resources\LoginLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
