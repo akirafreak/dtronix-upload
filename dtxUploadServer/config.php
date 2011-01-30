@@ -22,6 +22,7 @@ $_CONFIG["server_max_upload_filesize"] = 1024 * 50;
 $_CONFIG["server_maintenance_mode"] = false;
 $_CONFIG["server_name"] = "Dtronix.com Hosting";
 $_CONFIG["server_email"] = "no-reply@dtronix.com";
+$_CONFIG["server_logo"] = $_CONFIG["uri"] . "logo.jpg";
 
 $_CONFIG["html_theme"] = "kiss";
 

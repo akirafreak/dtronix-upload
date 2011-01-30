@@ -33,12 +33,11 @@ function _fileDelete(){
 	$delete_id = $_GET["file_id"];
 
 	// MAJOR TODO!  Make sure the requested file is OWNED by the deleter.
+	$deleted = mysqlQuery("DELETE FROM `files` WHERE `url_id` = '%s' LIMIT 1 ", array(
+		$delete_id
+	), "successful");
 	if(file_exists($_CONFIG["upload_dir"] . $delete_id)){
 		if(unlink($_CONFIG["upload_dir"] . $delete_id)){
-			$deleted = mysqlQuery("DELETE FROM `files` WHERE `url_id` = '%s' LIMIT 1 ", array(
-				$delete_id
-				), "successful");
-			
 			if($deleted){
 				callClientMethod("file_delete_confirmation");
 
@@ -210,7 +209,7 @@ function _viewFile(){
 		if (file_exists($_CONFIG["upload_dir"] . $file["url_id"])) {
 			header("Content-Type: ". $file["file_mime"]);
 
-			if(strpos($file["file_mime"], "image") !== false){
+			if(strpos($file["file_mime"], "image") === false && strpos($file["file_mime"], "text/plain") === false){
 				header("Content-Description: File Transfer");
 				header("Content-Disposition: attachment; filename=\"". basename($file["file_name"]) ."\"");
 				header("Content-Transfer-Encoding: binary");
