@@ -8,11 +8,7 @@ function _getServerInfo(){
 		"max_upload_filesize" => $_CONFIG["server_max_upload_filesize"],
 		"allowed_filetypes" => $_CONFIG["server_allowed_filetypes"],
 		"upload_base_url" => $_CONFIG["upload_base_url"],
-		
-		"permissions" => array(
-			"registration_allowed" => $_CONFIG["registration_allowed"],
-			"key_required" => $_CONFIG["server_key_required"]
-		)
+		"server_logo" => $_CONFIG["server_logo"]
 	));		
 }
 
