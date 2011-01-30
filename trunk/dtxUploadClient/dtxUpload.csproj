@@ -47,6 +47,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -87,6 +88,7 @@
     <Compile Include="Classes\Core\Json\JsonWriter.cs" />
     <Compile Include="Classes\Core\Json\JsonWriterSettings.cs" />
     <Compile Include="Classes\Core\Json\TypeCoercionUtility.cs" />
+    <Compile Include="Classes\Core\Tween.cs" />
     <Compile Include="Classes\Core\Utilities.cs" />
     <Compile Include="Classes\DataClasses.cs" />
     <Compile Include="Classes\ServerConnector.cs" />
@@ -121,12 +123,6 @@
     <Compile Include="Forms\frmQuickManage.Designer.cs">
       <DependentUpon>frmQuickManage.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\frmSettings.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\frmSettings.Designer.cs">
-      <DependentUpon>frmSettings.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\Controls\TextBoxAndInfo.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -158,10 +154,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmQuickManage.resx">
       <DependentUpon>frmQuickManage.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\frmSettings.resx">
-      <DependentUpon>frmSettings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Controls\TextBoxAndInfo.resx">
@@ -197,6 +189,7 @@
     <Content Include="Classes\Core\Json\Readme.txt" />
     <Content Include="icon.ico" />
     <Content Include="icon16.ico" />
+    <None Include="Resources\LoginLogoRev2.png" />
     <None Include="miniIcons\icon_24_message_warn.png" />
     <None Include="miniIcons\icon_24_control_stop.png" />
     <None Include="miniIcons\icon_24_em_up.png" />

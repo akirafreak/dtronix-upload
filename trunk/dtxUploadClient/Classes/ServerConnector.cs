@@ -135,7 +135,7 @@ namespace dtxUpload {
 		/// Execute connection request and login.
 		/// </summary>
 		public void connect() {
-			user_info.client_password_md5 = Core.Utilities.md5Sum(user_info.client_password);
+			user_info.client_password_md5 = user_info.client_password;
 			callServerMethod("user_verification");
 		}
 

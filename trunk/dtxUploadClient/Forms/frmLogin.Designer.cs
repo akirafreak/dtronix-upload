@@ -41,12 +41,17 @@
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._chkSavePassword = new System.Windows.Forms.CheckBox();
 			this._lblWarnServer = new System.Windows.Forms.Label();
-			this.picLogo = new System.Windows.Forms.PictureBox();
+			this._btnRemoveServer = new System.Windows.Forms.Button();
+			this._picLogo = new System.Windows.Forms.PictureBox();
+			this.comboBox1 = new System.Windows.Forms.ComboBox();
+			this.label4 = new System.Windows.Forms.Label();
+			this.label5 = new System.Windows.Forms.Label();
+			this.comboBox2 = new System.Windows.Forms.ComboBox();
 			this._itxtPassword = new dtxUpload.TextBoxAndInfo();
 			this._itxtUsername = new dtxUpload.TextBoxAndInfo();
 			this.panel1.SuspendLayout();
 			this.contextMenuStrip.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.picLogo)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this._picLogo)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// _cmbServer
@@ -126,6 +131,7 @@
 			this._btnSettings.Size = new System.Drawing.Size(24, 23);
 			this._btnSettings.TabIndex = 2;
 			this._btnSettings.UseVisualStyleBackColor = true;
+			this._btnSettings.Click += new System.EventHandler(this._btnSettings_Click);
 			// 
 			// notifyIcon
 			// 
@@ -186,19 +192,79 @@
 			this._lblWarnServer.Size = new System.Drawing.Size(210, 16);
 			this._lblWarnServer.TabIndex = 10;
 			// 
-			// picLogo
+			// _btnRemoveServer
 			// 
-			this.picLogo.Dock = System.Windows.Forms.DockStyle.Top;
-			this.picLogo.Image = global::dtxUpload.Properties.Resources.LoginLogoRev1;
-			this.picLogo.Location = new System.Drawing.Point(0, 0);
-			this.picLogo.Name = "picLogo";
-			this.picLogo.Size = new System.Drawing.Size(234, 71);
-			this.picLogo.TabIndex = 2;
-			this.picLogo.TabStop = false;
-			this.picLogo.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseDown);
-			this.picLogo.MouseLeave += new System.EventHandler(this.picLogo_MouseLeave);
-			this.picLogo.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseMove);
-			this.picLogo.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseUp);
+			this._btnRemoveServer.Location = new System.Drawing.Point(254, 97);
+			this._btnRemoveServer.Name = "_btnRemoveServer";
+			this._btnRemoveServer.Size = new System.Drawing.Size(55, 23);
+			this._btnRemoveServer.TabIndex = 11;
+			this._btnRemoveServer.Text = "Remove";
+			this._btnRemoveServer.UseVisualStyleBackColor = true;
+			// 
+			// _picLogo
+			// 
+			this._picLogo.Dock = System.Windows.Forms.DockStyle.Top;
+			this._picLogo.ErrorImage = null;
+			this._picLogo.Image = global::dtxUpload.Properties.Resources.LoginLogoRev2;
+			this._picLogo.InitialImage = null;
+			this._picLogo.Location = new System.Drawing.Point(0, 0);
+			this._picLogo.Name = "_picLogo";
+			this._picLogo.Size = new System.Drawing.Size(234, 70);
+			this._picLogo.TabIndex = 2;
+			this._picLogo.TabStop = false;
+			this._picLogo.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseDown);
+			this._picLogo.MouseLeave += new System.EventHandler(this.picLogo_MouseLeave);
+			this._picLogo.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseMove);
+			this._picLogo.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseUp);
+			// 
+			// comboBox1
+			// 
+			this.comboBox1.FormattingEnabled = true;
+			this.comboBox1.Items.AddRange(new object[] {
+            "Auto (Always smaller image)",
+            "Jpeg (Smaller lossy format)",
+            "PNG (Large lossless format) "});
+			this.comboBox1.Location = new System.Drawing.Point(254, 153);
+			this.comboBox1.Name = "comboBox1";
+			this.comboBox1.Size = new System.Drawing.Size(157, 21);
+			this.comboBox1.TabIndex = 12;
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(251, 137);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(99, 13);
+			this.label4.TabIndex = 13;
+			this.label4.Text = "Screenshot Format:";
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(414, 137);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(42, 13);
+			this.label5.TabIndex = 14;
+			this.label5.Text = "Quality:";
+			// 
+			// comboBox2
+			// 
+			this.comboBox2.FormattingEnabled = true;
+			this.comboBox2.Items.AddRange(new object[] {
+            "100",
+            "90",
+            "80",
+            "70",
+            "60",
+            "50",
+            "40",
+            "30",
+            "20",
+            "10"});
+			this.comboBox2.Location = new System.Drawing.Point(417, 153);
+			this.comboBox2.Name = "comboBox2";
+			this.comboBox2.Size = new System.Drawing.Size(55, 21);
+			this.comboBox2.TabIndex = 15;
 			// 
 			// _itxtPassword
 			// 
@@ -235,19 +301,24 @@
 			this.CancelButton = this._btnCancel;
 			this.ClientSize = new System.Drawing.Size(234, 302);
 			this.ControlBox = false;
+			this.Controls.Add(this.comboBox2);
+			this.Controls.Add(this.label5);
+			this.Controls.Add(this.label4);
+			this.Controls.Add(this.comboBox1);
 			this.Controls.Add(this._cmbServer);
 			this.Controls.Add(this._lblWarnServer);
 			this.Controls.Add(this._chkSavePassword);
 			this.Controls.Add(this.panel1);
+			this.Controls.Add(this._btnRemoveServer);
 			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.label1);
-			this.Controls.Add(this.picLogo);
+			this.Controls.Add(this._picLogo);
 			this.Controls.Add(this._itxtPassword);
 			this.Controls.Add(this._itxtUsername);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
-			this.MaximumSize = new System.Drawing.Size(250, 318);
+			this.MaximumSize = new System.Drawing.Size(500, 318);
 			this.MinimizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(250, 318);
 			this.Name = "frmLogin";
@@ -263,7 +334,7 @@
 			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.frmLogin_MouseUp);
 			this.panel1.ResumeLayout(false);
 			this.contextMenuStrip.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.picLogo)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this._picLogo)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -273,7 +344,7 @@
 
 		private TextBoxAndInfo _itxtUsername;
 		private TextBoxAndInfo _itxtPassword;
-		private System.Windows.Forms.PictureBox picLogo;
+		private System.Windows.Forms.PictureBox _picLogo;
 		private System.Windows.Forms.ComboBox _cmbServer;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
@@ -290,5 +361,10 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
 		private System.Windows.Forms.Label _lblWarnServer;
+		private System.Windows.Forms.Button _btnRemoveServer;
+		private System.Windows.Forms.ComboBox comboBox1;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.ComboBox comboBox2;
 	}
 }

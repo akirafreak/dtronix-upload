@@ -7,6 +7,7 @@ namespace dtxUpload {
 		public string server_name;
 		public string server_url;
 		public string upload_base_url;
+		public string server_logo;
 		
 		public int max_upload_filesize;
 		public string allowed_filetypes;
@@ -21,13 +22,14 @@ namespace dtxUpload {
 	}
 
 	public class DC_Server {
-		public string server_name;
-		public string server_url;
+		public string name;
+		public string url;
 
 		public int times_connected;
+		public bool save_pass;
 
-		public string last_username;
-		public string last_password;
+		public string username;
+		public string password;
 	}
 
 
@@ -58,6 +60,7 @@ namespace dtxUpload {
 		public int upload_date;
 		public int hits;
 		public string upload_id;
+		public bool delete_after_upload = false;
 
 		/// <summary>
 		/// -1 = Unknown; 1 = Uploading; 2 = Uploaded; 3 = Deleted; 4 = Pending Deletion; 5 = Pending Upload; 5 = Disabled; 6 = Failed Uploading;
@@ -72,5 +75,10 @@ namespace dtxUpload {
 		public int[] shared_ids;
 	}
 
+	public class DC_ImageInformation {
+		public string full_location;
+		public long size;
+		public string type;
+	}
 
 }

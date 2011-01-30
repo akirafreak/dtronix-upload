@@ -71,6 +71,7 @@
 			this._btnCancelAll.TabIndex = 2;
 			this._btnCancelAll.Text = "Cancel &All";
 			this._btnCancelAll.UseVisualStyleBackColor = true;
+			this._btnCancelAll.Click += new System.EventHandler(this._btnCancelAll_Click);
 			// 
 			// _panFileItemContainer
 			// 
@@ -98,8 +99,8 @@
 			this.MinimizeBox = false;
 			this.Name = "frmQuickUpload";
 			this.Text = "Upload Queue";
-			this.Load += new System.EventHandler(this.frmQuickUpload_Load);
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmQuickUpload_FormClosing);
+			this.Load += new System.EventHandler(this.frmQuickUpload_Load);
 			this.panel1.ResumeLayout(false);
 			this.ResumeLayout(false);
 

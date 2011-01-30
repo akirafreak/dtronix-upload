@@ -43,6 +43,7 @@
 			// 
 			// _lblFileName
 			// 
+			this._lblFileName.AutoEllipsis = true;
 			this._lblFileName.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._lblFileName.Location = new System.Drawing.Point(33, 2);
 			this._lblFileName.Name = "_lblFileName";
@@ -81,6 +82,7 @@
 			this._btnCopyUrl.Text = "Copy URL";
 			this._btnCopyUrl.UseVisualStyleBackColor = false;
 			this._btnCopyUrl.Visible = false;
+			this._btnCopyUrl.Click += new System.EventHandler(this._btnCopyUrl_Click);
 			// 
 			// _picPreview
 			// 
