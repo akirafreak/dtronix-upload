@@ -58,6 +58,7 @@ namespace dtxUpload {
 			public string error_file;
 			public string error_line;
 		}
+
 		public void server_error(string input) {
 			JsonReader reader = new JsonReader(input);
 			server_error_class info = reader.Deserialize<server_error_class>();
@@ -96,6 +97,7 @@ namespace dtxUpload {
 			connector.server_info.maintenance_mode = info.maintenance_mode;
 			connector.server_info.allowed_filetypes = info.allowed_filetypes;
 			connector.server_info.upload_base_url = info.upload_base_url;
+			connector.server_info.server_logo = info.server_logo;
 
 			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.serverOnline);
 		}

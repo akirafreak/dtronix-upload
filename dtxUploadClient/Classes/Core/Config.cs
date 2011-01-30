@@ -58,6 +58,13 @@ namespace Core {
 			}
 		}
 
+		public static int getAndIncrement(string name){
+			int current_num = get<int>(name);
+			set(name, current_num + 1);
+			save();
+			return current_num;
+		}
+
 
 		public static void set(string name, object value) {
 			name = name.ToLower();
@@ -77,14 +84,13 @@ namespace Core {
 
 			DC_Server[] server_list = new DC_Server[1];
 			server_list[0] = new DC_Server {
-				server_name = "Dtronix Test Server",
-				last_username = "DoctorToxn",
-				last_password = "Password",
-				server_url = "http://192.168.1.40/2010/dtxUpload/dtxUploadServer/dtxUpload.php",
+				name = "NFGaming Upload Server",
+				url = "http://uploads.nfgaming.com",
 				times_connected = 0
 			};
 
 			set("frmlogin.servers_list", server_list);
+			set("uploads.total_screenshots", 0);
 
 			save();
 

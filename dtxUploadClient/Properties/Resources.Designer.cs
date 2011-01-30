@@ -102,9 +102,9 @@ namespace dtxUpload.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap LoginLogoRev1 {
+        internal static System.Drawing.Bitmap LoginLogoRev2 {
             get {
-                object obj = ResourceManager.GetObject("LoginLogoRev1", resourceCulture);
+                object obj = ResourceManager.GetObject("LoginLogoRev2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

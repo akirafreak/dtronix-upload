@@ -9,7 +9,6 @@ namespace dtxUpload {
 	/// </summary>
 	public static class Client {
 		public static frmDropBox form_DropBox;
-		public static frmSettings form_Settings;
 		public static frmLogin form_Login;
 		public static frmQuickUpload form_QuickUpload;
 

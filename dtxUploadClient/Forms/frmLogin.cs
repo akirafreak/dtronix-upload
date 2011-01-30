@@ -7,12 +7,20 @@ using System.Text;
 using System.Windows.Forms;
 using Core;
 using Core.Json;
+using System.Net;
 
 namespace dtxUpload {
 	public partial class frmLogin : Form {
 
 		private ServerConnector connector = new ServerConnector();
-		private DC_Server[] server_list;
+		private List<DC_Server> server_list;
+
+		private Tween tween_image_height;
+		private Tween tween_form_width;
+		private Tween tween_form_position = new Tween(Core.EasingEquations.expoEaseOut);
+
+		private BackgroundWorker loadLogoWorker = new BackgroundWorker();
+
 
 		// Hides the resize on the window.
 		protected override void WndProc(ref Message m) {
@@ -23,7 +31,6 @@ namespace dtxUpload {
 			base.WndProc(ref m);
 		}
 
-
 		public frmLogin() {
 #if DEBUG
 			new frmConnector().Show();
@@ -31,17 +38,29 @@ namespace dtxUpload {
 			Client.form_Login = this;
 			InitializeComponent();
 
+			tween_form_width = new Tween(this, "Width", Core.EasingEquations.expoEaseOut);
+			tween_image_height = new Tween(_picLogo, "Height", Core.EasingEquations.expoEaseOut);
+			_picLogo.LoadCompleted += new AsyncCompletedEventHandler(_picLogo_LoadCompleted);
+
+			// Threading
+			loadLogoWorker.DoWork += new DoWorkEventHandler(loadLogoWorker_DoWork);
+			loadLogoWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(loadLogoWorker_RunWorkerCompleted);
+
 			frmLogin_Activated(new object(), new EventArgs());
 		}
 
-
 		private void frmLogin_Load(object sender, EventArgs e) {
-			server_list = Config.get<DC_Server[]>("frmlogin.servers_list");
-			foreach(DC_Server server in server_list) {
-				_cmbServer.Items.Add(server.server_url);
-			}
+			// Select the last server connected to.
+			string last_server = Config.get<string>("frmlogin.last_server");
+			server_list = new List<DC_Server>(Config.get<DC_Server[]>("frmlogin.servers_list"));
 
-			_cmbServer.SelectedIndex = 0;
+			foreach(DC_Server server in server_list) {
+				_cmbServer.Items.Add(server.url);
+
+				if(last_server == server.name) {
+					_cmbServer.Text = server.url;
+				}
+			}
 		}
 
 		#region Moving events for the dragging of the form.
@@ -123,6 +142,11 @@ namespace dtxUpload {
 				_cmbServer.Focus();
 
 			} else {
+				// CHANGE?  If a user's password is exactly 32 characters, then it will never be hashed when sent to the server. Lets just hope nobody has a password an exact width of 32 characters.
+				if(_itxtPassword.Value.Length != 32) {
+					_itxtPassword.Value = Core.Utilities.md5Sum(_itxtPassword.Value);
+				}
+
 				connector.user_info.client_username = _itxtUsername.Value;
 				connector.user_info.client_password = _itxtPassword.Value;
 				connector.connect();
@@ -144,16 +168,41 @@ namespace dtxUpload {
 			}
 		}
 
-		//private void _cmbServer_TextChanged(object sender, EventArgs e) {
-		//    //try {
-		//        // Test the uri for validity.
+		private void _cmbServer_SelectedValueChanged(object sender, EventArgs e) {
 
+		}
 
-		//    //} catch {
-		//    //    _lblWarnServer.ForeColor = Color.Red;
-		//    //    _lblWarnServer.Text = "Server url is invalid.";
-		//    //}
-		//}
+		private void _cmbServer_Leave(object sender, EventArgs e) {
+			_cmbServer_SelectedIndexChanged(sender, e);
+		}
+
+		private void _cmbServer_SelectedIndexChanged(object sender, EventArgs e) {
+			string protocol = "";
+			if(!_cmbServer.Text.ToLower().Contains("http://")) {
+				protocol = "http://";
+			}
+
+			try {
+				new Uri(protocol + _cmbServer.Text);
+			} catch {
+				invalidServer();
+				return;
+			}
+
+			_lblWarnServer.Text = "";
+			connector.server_info.server_url = protocol + _cmbServer.Text;
+			connector.getServerInfo();
+
+			if(server_list != null) {
+				for(int i = 0; i < server_list.Count; i++) {
+					if(server_list[i].url == _cmbServer.Text) {
+						_itxtUsername.Value = server_list[i].username;
+						_itxtPassword.Value = server_list[i].password;
+						_chkSavePassword.Checked = server_list[i].save_pass;
+					}
+				}
+			}
+		}
 
 		public void invalidPassword() {
 			if(this.WindowState != FormWindowState.Normal) this.ShowDialog();
@@ -172,9 +221,11 @@ namespace dtxUpload {
 			if(this.WindowState != FormWindowState.Normal) this.ShowDialog();
 			_lblWarnServer.Text = "Server is not responding.";
 			_lblWarnServer.ForeColor = Color.Red;
-			_cmbServer.Focus();
 		}
 
+		/// <summary>
+		/// Method that is called when the server reports that the session has expired.
+		/// </summary>
 		public void sessionExpired() {
 			Client.form_QuickUpload.Hide();
 			if(this.WindowState != FormWindowState.Normal) this.ShowDialog();
@@ -183,9 +234,15 @@ namespace dtxUpload {
 			_cmbServer.Focus();
 		}
 
+		/// <summary>
+		/// Method that is called when the client successfully connectes to the server.
+		/// </summary>
 		public void serverConnected() {
 			bool updated = false;
 			string pass;
+
+			// Remove the warning text.
+			_lblWarnServer.Text = "";
 
 			// Only save the password if the user wants to.
 			if(_chkSavePassword.Checked) {
@@ -194,34 +251,42 @@ namespace dtxUpload {
 				pass = "";
 			}
 
+
 			// Check to see if this server already exsits in our list.  If so, update the username and password.
-			for(int i = 0; i < server_list.Length; i++) {
-				if(server_list[i].server_url == _cmbServer.Text) {
-					server_list[i].last_username = _itxtUsername.Value;
-					server_list[i].last_password = pass;
+			for(int i = 0; i < server_list.Count; i++) {
+				if(server_list[i].url == _cmbServer.Text) {
+					server_list[i].name = connector.server_info.server_name;
+					server_list[i].username = _itxtUsername.Value;
+					server_list[i].password = pass;
+					server_list[i].times_connected = server_list[i].times_connected++;
+					server_list[i].save_pass = _chkSavePassword.Checked;
 					updated = true;
 				}
 			}
 
-			// Need to create new entry for new server if it did not exist.
+			// Need to create new entry for new server, if it did not exist.
 			if(!updated) {
-				Array.Resize<DC_Server>(ref server_list, server_list.Length + 1);
-				server_list[server_list.Length - 1] = new DC_Server {
-					server_url = _cmbServer.Text,
-					last_username = _itxtUsername.Value,
-					last_password = pass,
-					times_connected = 1
-				};
+				server_list.Add(new DC_Server {
+					name = connector.server_info.server_name,
+					url = _cmbServer.Text,
+					username = _itxtUsername.Value,
+					password = pass,
+					times_connected = 1,
+					save_pass = _chkSavePassword.Checked
+				});
 			}
 
+			Config.set("frmlogin.last_server", connector.server_info.server_name);
 			Config.set("frmlogin.servers_list", server_list);
 			Config.save();
 
-			_lblWarnServer.Text = "";
+			// Hide the login window untill we need to login again.
 			if(this.WindowState == FormWindowState.Normal) this.Hide();
 
+			// Check to see if the quick upload form has already been loaded, if not, then create it, otherwise use the existing form.
 			if(Client.form_QuickUpload != null) {
 				Client.form_QuickUpload.Show();
+
 			} else {
 				new frmQuickUpload().Show();
 			}
@@ -230,33 +295,94 @@ namespace dtxUpload {
 		public void serverOnline() {
 			_lblWarnServer.Text = "Server is online.";
 			_lblWarnServer.ForeColor = Color.DarkGreen;
+
+			string im = _picLogo.ImageLocation;
+
+			// If the server has a logo, load it.
+			if(connector.server_info.server_logo != null) {
+				loadLogo(connector.server_info.server_logo);
+
+			} else if(_picLogo.ImageLocation != null) {
+				// Otherwise, juse use the default logo.
+				_picLogo.Image = dtxUpload.Properties.Resources.LoginLogoRev2;
+
+			} else {
+				_picLogo.Image = dtxUpload.Properties.Resources.LoginLogoRev2;
+			}
+
+
 		}
 
-		private void _cmbServer_SelectedValueChanged(object sender, EventArgs e) {
-
+		private void loadLogo(string url) {
+			if(!loadLogoWorker.IsBusy) {
+				tween_image_height.start(0);
+				loadLogoWorker.RunWorkerAsync(url);
+			}
 		}
 
-		private void _cmbServer_Leave(object sender, EventArgs e) {
-			_cmbServer_SelectedIndexChanged(sender, e);
+		void loadLogoWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+			tween_image_height.start(70);
+
+			if(e.Result != null) {
+				_picLogo.Image = (Image)e.Result;
+			}
 		}
 
-		private void _cmbServer_SelectedIndexChanged(object sender, EventArgs e) {
+		void loadLogoWorker_DoWork(object sender, DoWorkEventArgs e) {
 			try {
-				new Uri(_cmbServer.Text);
-			} catch {
-				invalidServer();
-				return;
-			}
-			_lblWarnServer.Text = "";
-			connector.server_info.server_url = _cmbServer.Text;
-			connector.getServerInfo();
+				WebRequest request = HttpWebRequest.Create((string)e.Argument);
+				WebResponse response = request.GetResponse();
+				int image_length = int.Parse(response.Headers.Get("Content-Length"));
 
-			for(int i = 0; i < server_list.Length; i++) {
-				if(server_list[i].server_url == _cmbServer.Text) {
-					_itxtUsername.Value = server_list[i].last_username;
-					_itxtPassword.Value = server_list[i].last_password;
+				// If the image is over 100k, we do not care to use it.  Reduce the image size!
+				if(image_length > 100000) {
+					response.Close();
+					return;
 				}
+
+				// Make sure this stream is closed...
+				e.Result = Image.FromStream(response.GetResponseStream());
+
+			} catch { }
+		}
+
+
+
+
+
+
+		void _picLogo_LoadCompleted(object sender, AsyncCompletedEventArgs e) {
+			tween_image_height.start(70);
+		}
+
+
+		private int original_form_width = -1;
+
+		private void _btnSettings_Click(object sender, EventArgs e) {
+			int width_new = 500;
+			int width_current = Width;
+			int original_point = Location.X;
+
+			if(original_form_width == -1) {
+				// Form is small.  Expand it!
+
+				original_form_width = width_current;
+
+				tween_form_width.start(width_new);
+				tween_form_position.start(original_point, original_point - 250, delegate(int current) {
+					Location = new Point(current, Location.Y);
+				});
+			} else {
+				// Form is already expanded.  Shrink it!
+				original_form_width = -1;
+
+				tween_form_width.start(250);
+				tween_form_position.start(original_point, original_point + 250, delegate(int current) {
+					Location = new Point(current, Location.Y);
+				});
+				
 			}
+			
 		}
 
 
