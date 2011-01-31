@@ -117,9 +117,9 @@ namespace dtxUpload {
 				sw.Write(Clipboard.GetText());
 				sw.Close();
 
-				
 
-				int total_text = Config.getAndIncrement("uploads.total_text_files");
+
+				int total_text = Client.config.getAndIncrement("uploads.total_text_files");
 				string new_filename = Path.GetTempPath() + "\\Clipboard_Text_" + total_text.ToString() + ".txt";
 
 				File.Move(temp_file, new_filename);
@@ -175,7 +175,7 @@ namespace dtxUpload {
 			stream_png.Close();
 			output_file.Close();
 
-			int screenshots = Config.getAndIncrement("uploads.total_screenshots");
+			int screenshots = Client.config.getAndIncrement("uploads.total_screenshots");
 
 			string new_file = Path.GetTempPath() + "\\" + file_prefix + "Image_" + screenshots.ToString() + "." + type;
 

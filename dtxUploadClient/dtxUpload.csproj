@@ -79,6 +79,10 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="dtxCore, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\dtxCore.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -89,28 +93,6 @@
   <ItemGroup>
     <Compile Include="Classes\Client.cs" />
     <Compile Include="Classes\ClientActions.cs" />
-    <Compile Include="Classes\Core\Config.cs" />
-    <Compile Include="Classes\Core\Json\DataReaderProvider.cs" />
-    <Compile Include="Classes\Core\Json\DataWriterProvider.cs" />
-    <Compile Include="Classes\Core\Json\EcmaScriptIdentifier.cs" />
-    <Compile Include="Classes\Core\Json\EcmaScriptWriter.cs" />
-    <Compile Include="Classes\Core\Json\IDataReader.cs" />
-    <Compile Include="Classes\Core\Json\IDataWriter.cs" />
-    <Compile Include="Classes\Core\Json\IJsonSerializable.cs" />
-    <Compile Include="Classes\Core\Json\JsonDataReader.cs" />
-    <Compile Include="Classes\Core\Json\JsonDataWriter.cs" />
-    <Compile Include="Classes\Core\Json\JsonIgnoreAttribute.cs" />
-    <Compile Include="Classes\Core\Json\JsonNameAttribute.cs" />
-    <Compile Include="Classes\Core\Json\JsonReader.cs" />
-    <Compile Include="Classes\Core\Json\JsonReaderSettings.cs" />
-    <Compile Include="Classes\Core\Json\JsonSerializationException.cs" />
-    <Compile Include="Classes\Core\Json\JsonSpecifiedPropertyAttribute.cs" />
-    <Compile Include="Classes\Core\Json\JsonToken.cs" />
-    <Compile Include="Classes\Core\Json\JsonWriter.cs" />
-    <Compile Include="Classes\Core\Json\JsonWriterSettings.cs" />
-    <Compile Include="Classes\Core\Json\TypeCoercionUtility.cs" />
-    <Compile Include="Classes\Core\Tween.cs" />
-    <Compile Include="Classes\Core\Utilities.cs" />
     <Compile Include="Classes\DataClasses.cs" />
     <Compile Include="Classes\ServerConnector.cs" />
     <Compile Include="Classes\UploadingQueue.cs" />
@@ -206,8 +188,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Classes\Core\Json\License.txt" />
-    <Content Include="Classes\Core\Json\Readme.txt" />
+    <None Include="dtxCore.dll" />
     <Content Include="icon.ico" />
     <Content Include="icon16.ico" />
     <None Include="Resources\LoginLogoRev2.png" />

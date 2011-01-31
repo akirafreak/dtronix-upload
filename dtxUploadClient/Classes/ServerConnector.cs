@@ -26,10 +26,11 @@ namespace dtxUpload {
 		///  Uses global client information for connecting.
 		/// </summary>
 		public ServerConnector() {
+
 			actions = new ClientActions(this);
 			server_info = Client.server_info;
 			user_info = Client.user_info;
-			max_concurrent_connections = Core.Config.get<short>("serverconnector.concurrent_connections_max");
+			max_concurrent_connections = Client.config.get<short>("serverconnector.concurrent_connections_max");
 		}
 
 		/// <summary>
