@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Core;
 
 namespace dtxUpload {
 
@@ -11,6 +12,8 @@ namespace dtxUpload {
 		public static frmDropBox form_DropBox;
 		public static frmLogin form_Login;
 		public static frmQuickUpload form_QuickUpload;
+
+		public static Config config;
 
 #if DEBUG
 		public static frmConnector form_connector;

@@ -51,8 +51,8 @@ namespace dtxUpload {
 
 		private void frmLogin_Load(object sender, EventArgs e) {
 			// Select the last server connected to.
-			string last_server = Config.get<string>("frmlogin.last_server");
-			server_list = new List<DC_Server>(Config.get<DC_Server[]>("frmlogin.servers_list"));
+			string last_server = Client.config.get<string>("frmlogin.last_server");
+			server_list = new List<DC_Server>(Client.config.get<DC_Server[]>("frmlogin.servers_list"));
 
 			foreach(DC_Server server in server_list) {
 				_cmbServer.Items.Add(server.url);
@@ -276,9 +276,9 @@ namespace dtxUpload {
 				});
 			}
 
-			Config.set("frmlogin.last_server", connector.server_info.server_name);
-			Config.set("frmlogin.servers_list", server_list);
-			Config.save();
+			Client.config.set("frmlogin.last_server", connector.server_info.server_name);
+			Client.config.set("frmlogin.servers_list", server_list);
+			Client.config.save();
 
 			// Hide the login window untill we need to login again.
 			if(this.WindowState == FormWindowState.Normal) this.Hide();
