@@ -89,12 +89,6 @@
     <Compile Include="Forms\frmConnector.Designer.cs">
       <DependentUpon>frmConnector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\frmDropBox.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\frmDropBox.Designer.cs">
-      <DependentUpon>frmDropBox.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\frmLogin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -130,10 +124,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmConnector.resx">
       <DependentUpon>frmConnector.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\frmDropBox.resx">
-      <DependentUpon>frmDropBox.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmLogin.resx">
       <DependentUpon>frmLogin.cs</DependentUpon>

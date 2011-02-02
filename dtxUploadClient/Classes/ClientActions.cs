@@ -44,6 +44,11 @@ namespace dtxUpload {
 			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.serverConnected);
 		}
 
+		public void logout_successful() {
+			clearSession();
+			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.loggedOut);
+		}
+
 		private void clearSession() {
 			connector.user_info.session_key = null;
 			connector.server_info.is_connected = false;

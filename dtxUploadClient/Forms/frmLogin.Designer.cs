@@ -34,11 +34,13 @@
 			this.panel1 = new System.Windows.Forms.Panel();
 			this._btnSettings = new System.Windows.Forms.Button();
 			this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-			this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.manageFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._ContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this._manageFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._toolStripSearator1 = new System.Windows.Forms.ToolStripSeparator();
+			this._loginToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._logoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._chkSavePassword = new System.Windows.Forms.CheckBox();
 			this._lblWarnServer = new System.Windows.Forms.Label();
 			this._btnRemoveServer = new System.Windows.Forms.Button();
@@ -47,10 +49,12 @@
 			this.label4 = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
 			this.comboBox2 = new System.Windows.Forms.ComboBox();
+			this._uploadFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._btnConfigDone = new System.Windows.Forms.Button();
 			this._itxtPassword = new dtxUpload.TextBoxAndInfo();
 			this._itxtUsername = new dtxUpload.TextBoxAndInfo();
 			this.panel1.SuspendLayout();
-			this.contextMenuStrip.SuspendLayout();
+			this._ContextMenu.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this._picLogo)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -94,9 +98,9 @@
 			// _btnCancel
 			// 
 			this._btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this._btnCancel.Location = new System.Drawing.Point(147, 2);
+			this._btnCancel.Location = new System.Drawing.Point(166, 2);
 			this._btnCancel.Name = "_btnCancel";
-			this._btnCancel.Size = new System.Drawing.Size(75, 23);
+			this._btnCancel.Size = new System.Drawing.Size(56, 23);
 			this._btnCancel.TabIndex = 1;
 			this._btnCancel.Text = "&Cancel";
 			this._btnCancel.UseVisualStyleBackColor = true;
@@ -104,9 +108,9 @@
 			// 
 			// _btnLogin
 			// 
-			this._btnLogin.Location = new System.Drawing.Point(66, 2);
+			this._btnLogin.Location = new System.Drawing.Point(104, 3);
 			this._btnLogin.Name = "_btnLogin";
-			this._btnLogin.Size = new System.Drawing.Size(75, 23);
+			this._btnLogin.Size = new System.Drawing.Size(56, 23);
 			this._btnLogin.TabIndex = 0;
 			this._btnLogin.Text = "&Login";
 			this._btnLogin.UseVisualStyleBackColor = true;
@@ -115,8 +119,9 @@
 			// panel1
 			// 
 			this.panel1.Controls.Add(this._btnSettings);
-			this.panel1.Controls.Add(this._btnLogin);
+			this.panel1.Controls.Add(this._btnConfigDone);
 			this.panel1.Controls.Add(this._btnCancel);
+			this.panel1.Controls.Add(this._btnLogin);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.panel1.Location = new System.Drawing.Point(0, 270);
 			this.panel1.Name = "panel1";
@@ -135,45 +140,67 @@
 			// 
 			// notifyIcon
 			// 
-			this.notifyIcon.ContextMenuStrip = this.contextMenuStrip;
+			this.notifyIcon.ContextMenuStrip = this._ContextMenu;
 			this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
 			this.notifyIcon.Text = "Dtronix Upload";
 			this.notifyIcon.Visible = true;
 			this.notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseClick);
 			// 
-			// contextMenuStrip
+			// _ContextMenu
 			// 
-			this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.manageFilesToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.settingsToolStripMenuItem,
-            this.exitToolStripMenuItem});
-			this.contextMenuStrip.Name = "contextMenuStrip";
-			this.contextMenuStrip.Size = new System.Drawing.Size(144, 76);
+			this._ContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._manageFilesToolStripMenuItem,
+            this._uploadFilesToolStripMenuItem,
+            this._toolStripSearator1,
+            this._loginToolStripMenuItem,
+            this._logoutToolStripMenuItem,
+            this._settingsToolStripMenuItem,
+            this._exitToolStripMenuItem});
+			this._ContextMenu.Name = "contextMenuStrip";
+			this._ContextMenu.Size = new System.Drawing.Size(153, 164);
 			// 
-			// manageFilesToolStripMenuItem
+			// _manageFilesToolStripMenuItem
 			// 
-			this.manageFilesToolStripMenuItem.Name = "manageFilesToolStripMenuItem";
-			this.manageFilesToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
-			this.manageFilesToolStripMenuItem.Text = "Manage Files";
+			this._manageFilesToolStripMenuItem.Name = "_manageFilesToolStripMenuItem";
+			this._manageFilesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._manageFilesToolStripMenuItem.Text = "Manage Files";
+			this._manageFilesToolStripMenuItem.Visible = false;
+			this._manageFilesToolStripMenuItem.Click += new System.EventHandler(this._manageFilesToolStripMenuItem_Click);
 			// 
-			// toolStripSeparator1
+			// _toolStripSearator1
 			// 
-			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(140, 6);
+			this._toolStripSearator1.Name = "_toolStripSearator1";
+			this._toolStripSearator1.Size = new System.Drawing.Size(149, 6);
+			this._toolStripSearator1.Visible = false;
 			// 
-			// settingsToolStripMenuItem
+			// _loginToolStripMenuItem
 			// 
-			this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-			this.settingsToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
-			this.settingsToolStripMenuItem.Text = "&Settings";
+			this._loginToolStripMenuItem.Name = "_loginToolStripMenuItem";
+			this._loginToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._loginToolStripMenuItem.Text = "Login";
+			this._loginToolStripMenuItem.Click += new System.EventHandler(this._loginToolStripMenuItem_Click);
 			// 
-			// exitToolStripMenuItem
+			// _logoutToolStripMenuItem
 			// 
-			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
-			this.exitToolStripMenuItem.Text = "E&xit";
-			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+			this._logoutToolStripMenuItem.Name = "_logoutToolStripMenuItem";
+			this._logoutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._logoutToolStripMenuItem.Text = "Logout";
+			this._logoutToolStripMenuItem.Visible = false;
+			this._logoutToolStripMenuItem.Click += new System.EventHandler(this.logoutToolStripMenuItem_Click);
+			// 
+			// _settingsToolStripMenuItem
+			// 
+			this._settingsToolStripMenuItem.Name = "_settingsToolStripMenuItem";
+			this._settingsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._settingsToolStripMenuItem.Text = "&Settings";
+			this._settingsToolStripMenuItem.Click += new System.EventHandler(this._settingsToolStripMenuItem_Click);
+			// 
+			// _exitToolStripMenuItem
+			// 
+			this._exitToolStripMenuItem.Name = "_exitToolStripMenuItem";
+			this._exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._exitToolStripMenuItem.Text = "E&xit";
+			this._exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
 			// _chkSavePassword
 			// 
@@ -266,6 +293,25 @@
 			this.comboBox2.Size = new System.Drawing.Size(55, 21);
 			this.comboBox2.TabIndex = 15;
 			// 
+			// _uploadFilesToolStripMenuItem
+			// 
+			this._uploadFilesToolStripMenuItem.Name = "_uploadFilesToolStripMenuItem";
+			this._uploadFilesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._uploadFilesToolStripMenuItem.Text = "Upload Files";
+			this._uploadFilesToolStripMenuItem.Visible = false;
+			this._uploadFilesToolStripMenuItem.Click += new System.EventHandler(this._uploadFilesToolStripMenuItem_Click);
+			// 
+			// _btnConfigDone
+			// 
+			this._btnConfigDone.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+			this._btnConfigDone.Location = new System.Drawing.Point(416, 2);
+			this._btnConfigDone.Name = "_btnConfigDone";
+			this._btnConfigDone.Size = new System.Drawing.Size(56, 23);
+			this._btnConfigDone.TabIndex = 3;
+			this._btnConfigDone.Text = "&Done";
+			this._btnConfigDone.UseVisualStyleBackColor = true;
+			this._btnConfigDone.Click += new System.EventHandler(this._btnConfigDone_Click);
+			// 
 			// _itxtPassword
 			// 
 			this._itxtPassword.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -326,14 +372,13 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
 			this.TopMost = true;
 			this.Activated += new System.EventHandler(this.frmLogin_Activated);
-			this.Deactivate += new System.EventHandler(this.frmLogin_Deactivate);
 			this.Load += new System.EventHandler(this.frmLogin_Load);
 			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.frmLogin_MouseDown);
 			this.MouseLeave += new System.EventHandler(this.frmLogin_MouseLeave);
 			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.frmLogin_MouseMove);
 			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.frmLogin_MouseUp);
 			this.panel1.ResumeLayout(false);
-			this.contextMenuStrip.ResumeLayout(false);
+			this._ContextMenu.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this._picLogo)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -355,16 +400,20 @@
 		private System.Windows.Forms.NotifyIcon notifyIcon;
 		private System.Windows.Forms.CheckBox _chkSavePassword;
 		private System.Windows.Forms.Button _btnSettings;
-		private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
-		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem manageFilesToolStripMenuItem;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-		private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+		private System.Windows.Forms.ContextMenuStrip _ContextMenu;
+		private System.Windows.Forms.ToolStripMenuItem _exitToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem _manageFilesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator _toolStripSearator1;
+		private System.Windows.Forms.ToolStripMenuItem _settingsToolStripMenuItem;
 		private System.Windows.Forms.Label _lblWarnServer;
 		private System.Windows.Forms.Button _btnRemoveServer;
 		private System.Windows.Forms.ComboBox comboBox1;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.ComboBox comboBox2;
+		private System.Windows.Forms.ToolStripMenuItem _logoutToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem _loginToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem _uploadFilesToolStripMenuItem;
+		private System.Windows.Forms.Button _btnConfigDone;
 	}
 }

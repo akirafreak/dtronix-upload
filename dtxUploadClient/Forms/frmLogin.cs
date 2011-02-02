@@ -112,11 +112,6 @@ namespace dtxUpload {
 		}
 		#endregion
 
-
-		private void frmLogin_Deactivate(object sender, EventArgs e) {
-			this.Hide();
-		}
-
 		private void _btnCancel_Click(object sender, EventArgs e) {
 			this.Hide();
 		}
@@ -173,7 +168,9 @@ namespace dtxUpload {
 		}
 
 		private void _cmbServer_Leave(object sender, EventArgs e) {
-			_cmbServer_SelectedIndexChanged(sender, e);
+			if(Client.server_info.server_url != null && !Client.server_info.server_url.Contains(_cmbServer.Text)) {
+				_cmbServer_SelectedIndexChanged(sender, e);
+			}
 		}
 
 		private void _cmbServer_SelectedIndexChanged(object sender, EventArgs e) {
@@ -280,6 +277,14 @@ namespace dtxUpload {
 			Client.config.set("frmlogin.servers_list", server_list);
 			Client.config.save();
 
+			// Show the logout function on the menu bar.
+			_logoutToolStripMenuItem.Visible = true;
+			_loginToolStripMenuItem.Visible = false;
+			_toolStripSearator1.Visible = true;
+			_manageFilesToolStripMenuItem.Visible = true;
+			_uploadFilesToolStripMenuItem.Visible = true;
+
+
 			// Hide the login window untill we need to login again.
 			if(this.WindowState == FormWindowState.Normal) this.Hide();
 
@@ -311,6 +316,19 @@ namespace dtxUpload {
 			}
 
 
+		}
+
+
+		public void loggedOut() {
+			if(Client.form_QuickUpload != null) Client.form_QuickUpload.Hide();
+
+			Client.form_Login.Show();
+			//Client.form_Login.Activate();
+			_logoutToolStripMenuItem.Visible = false;
+			_loginToolStripMenuItem.Visible = true;
+			_toolStripSearator1.Visible = false;
+			_manageFilesToolStripMenuItem.Visible = false;
+			_uploadFilesToolStripMenuItem.Visible = false;
 		}
 
 		private void loadLogo(string url) {
@@ -383,6 +401,33 @@ namespace dtxUpload {
 				
 			}
 			
+		}
+
+		private void logoutToolStripMenuItem_Click(object sender, EventArgs e) {
+			if(Client.server_info.is_connected) {
+				connector.disconnect();
+			}
+		}
+
+		private void _loginToolStripMenuItem_Click(object sender, EventArgs e) {
+			this.Show();
+		}
+
+		private void _settingsToolStripMenuItem_Click(object sender, EventArgs e) {
+			this.Show();
+			_btnSettings_Click(sender, e);
+		}
+
+		private void _btnConfigDone_Click(object sender, EventArgs e) {
+			_btnSettings_Click(sender, e);
+		}
+
+		private void _manageFilesToolStripMenuItem_Click(object sender, EventArgs e) {
+			System.Diagnostics.Process.Start(Client.server_info.server_url);
+		}
+
+		private void _uploadFilesToolStripMenuItem_Click(object sender, EventArgs e) {
+			Client.form_QuickUpload.Show();
 		}
 
 

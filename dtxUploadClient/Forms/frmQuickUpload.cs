@@ -201,5 +201,9 @@ namespace dtxUpload {
 				upload.cancelUpload();
 			}
 		}
+
+		private void button1_Click(object sender, EventArgs e) {
+			this.Close();
+		}
 	}
 }
