@@ -26,7 +26,6 @@ namespace dtxUpload {
 		///  Uses global client information for connecting.
 		/// </summary>
 		public ServerConnector() {
-
 			actions = new ClientActions(this);
 			server_info = Client.server_info;
 			user_info = Client.user_info;
@@ -138,6 +137,10 @@ namespace dtxUpload {
 		public void connect() {
 			user_info.client_password_md5 = user_info.client_password;
 			callServerMethod("user_verification");
+		}
+
+		public void disconnect() {
+			callServerMethod("logout");
 		}
 
 		/// <summary>

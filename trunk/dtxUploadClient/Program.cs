@@ -25,8 +25,6 @@ namespace dtxUpload {
 				current_config.set("uploads.total_screenshots", 0);
 			});
 
-			Client.config.load();
-
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new frmLogin());
