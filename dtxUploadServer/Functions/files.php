@@ -152,13 +152,13 @@ function incrementID($input, $curr_index = null){
 
 
 function _uploadNewFile(){
-	global $_USER, $_CONFIG, $morpher;
+	global $_USER, $_CONFIG, $morpher, $mime_types;
 	$url_id = createNewId();
 
 	if(move_uploaded_file($_FILES["file"]["tmp_name"], $_CONFIG["upload_dir"] . $url_id)) {
 		$file_parts = explode(".", $_FILES["file"]["name"]);
 		$file_extention = strtolower($file_parts[count($file_parts) - 1]);
-		$file_mime = (array_key_exists($file_extention, $_CONFIG["mime_types"]))? $_CONFIG["mime_types"][$file_extention] : $_CONFIG["mime_types"]["bin"];
+		$file_mime = (array_key_exists($file_extention, $mime_types))? $mime_types[$file_extention] : $_FILES["file"]["type"];
 
 		$inserted = myInsert("files", array(
 			"owner_id" => $_USER["id"],
@@ -192,13 +192,14 @@ function _uploadNewFile(){
 }
 
 function _viewFile(){
-	global $_CONFIG;
+	global $_CONFIG, $mime_types;
 	$file_exist = mysqlQuery("SELECT * FROM `files`
 		WHERE `url_id` = '%s'
 		LIMIT 1", array($_GET["file"]));
 
 	if(empty($file_exist)){
 		echo "File does not exist";
+		
 	}else{
 		$file = $file_exist[0];
 		myUpdate("files", array(
@@ -224,7 +225,6 @@ function _viewFile(){
 		}
 	}
 
-	
 }
 
 
