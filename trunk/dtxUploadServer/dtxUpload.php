@@ -16,8 +16,7 @@ function dtx_main(){
 	global $_CONFIG, $_USER, $_PERMISSIONS;
 	
 	// Check to see what kind of client is trying to connect.
-	$headers = apache_request_headers();
-	if(strpos($headers["User-Agent"], "dtxUploadClient") !== false){
+	if(strpos($_SERVER["HTTP_USER_AGENT"], "dtxUploadClient") !== false){
 		// dtxUpload Client Program.
 		$_USER["client"] = 1;
 	}else{
