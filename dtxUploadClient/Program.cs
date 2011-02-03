@@ -11,9 +11,8 @@ namespace dtxUpload {
 		[STAThread]
 		static void Main() {
 
+			// Load all configurations and if the config file does not exist, generate a new one.
 			Client.config = new Config(delegate(Config current_config) {
-				current_config.set("serverconnector.concurrent_connections_max", 2);
-
 				DC_Server[] server_list = new DC_Server[1];
 				server_list[0] = new DC_Server {
 					name = "NFGaming Upload Server",
@@ -22,8 +21,13 @@ namespace dtxUpload {
 				};
 
 				current_config.set("frmlogin.servers_list", server_list);
-				current_config.set("uploads.total_screenshots", 0);
 			});
+
+			// Set configurations if they are not already set.
+			Client.config.setIfNotSet("serverconnector.concurrent_connections_max", 2);
+			Client.config.setIfNotSet("uploads.total_screenshots", 0);
+			Client.config.setIfNotSet("frmquickupload.show_clipboard_confirmation", true);
+			Client.config.save();
 
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);

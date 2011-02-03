@@ -224,8 +224,7 @@ namespace dtxUpload {
 		/// Method that is called when the server reports that the session has expired.
 		/// </summary>
 		public void sessionExpired() {
-			Client.form_QuickUpload.Hide();
-			if(this.WindowState != FormWindowState.Normal) this.ShowDialog();
+			loggedOut();
 			_lblWarnServer.Text = "Session has expired.";
 			_lblWarnServer.ForeColor = Color.Red;
 			_cmbServer.Focus();
@@ -284,7 +283,6 @@ namespace dtxUpload {
 			_manageFilesToolStripMenuItem.Visible = true;
 			_uploadFilesToolStripMenuItem.Visible = true;
 
-
 			// Hide the login window untill we need to login again.
 			if(this.WindowState == FormWindowState.Normal) this.Hide();
 
@@ -295,6 +293,20 @@ namespace dtxUpload {
 			} else {
 				new frmQuickUpload().Show();
 			}
+		}
+
+		public void loggedOut() {
+			if(Client.form_QuickUpload != null)
+				Client.form_QuickUpload.Hide();
+
+			//Client.form_Login.Activate();
+			_logoutToolStripMenuItem.Visible = false;
+			_loginToolStripMenuItem.Visible = true;
+			_toolStripSearator1.Visible = false;
+			_manageFilesToolStripMenuItem.Visible = false;
+			_uploadFilesToolStripMenuItem.Visible = false;
+
+			this.Show();
 		}
 
 		public void serverOnline() {
@@ -318,18 +330,6 @@ namespace dtxUpload {
 
 		}
 
-
-		public void loggedOut() {
-			if(Client.form_QuickUpload != null) Client.form_QuickUpload.Hide();
-
-			Client.form_Login.Show();
-			//Client.form_Login.Activate();
-			_logoutToolStripMenuItem.Visible = false;
-			_loginToolStripMenuItem.Visible = true;
-			_toolStripSearator1.Visible = false;
-			_manageFilesToolStripMenuItem.Visible = false;
-			_uploadFilesToolStripMenuItem.Visible = false;
-		}
 
 		private void loadLogo(string url) {
 			if(!loadLogoWorker.IsBusy) {
@@ -414,8 +414,12 @@ namespace dtxUpload {
 		}
 
 		private void _settingsToolStripMenuItem_Click(object sender, EventArgs e) {
-			this.Show();
-			_btnSettings_Click(sender, e);
+			if(Client.server_info.is_connected) {
+				// TODO: Open settings for everything else.  Store settings on server?
+			} else {
+				//this.Show();
+				//_btnSettings_Click(sender, e);
+			}
 		}
 
 		private void _btnConfigDone_Click(object sender, EventArgs e) {
@@ -428,6 +432,17 @@ namespace dtxUpload {
 
 		private void _uploadFilesToolStripMenuItem_Click(object sender, EventArgs e) {
 			Client.form_QuickUpload.Show();
+		}
+
+		private void _confirmClipboardUploadToolStripMenuItem_Click(object sender, EventArgs e) {
+			_confirmClipboardUploadToolStripMenuItem.Checked = !_confirmClipboardUploadToolStripMenuItem.Checked;
+			Client.config.set("frmquickupload.show_clipboard_confirmation", _confirmClipboardUploadToolStripMenuItem.Checked);
+			Client.config.save();
+		}
+
+		// Load all the settings from the config file.
+		private void _settingsToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
+			_confirmClipboardUploadToolStripMenuItem.Checked = Client.config.get<bool>("frmquickupload.show_clipboard_confirmation");
 		}
 
 

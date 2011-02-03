@@ -95,6 +95,13 @@ namespace dtxUpload.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap icon_24_image {
+            get {
+                object obj = ResourceManager.GetObject("icon_24_image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap icon_24_message_warn {
             get {
                 object obj = ResourceManager.GetObject("icon_24_message_warn", resourceCulture);
@@ -105,6 +112,20 @@ namespace dtxUpload.Properties {
         internal static System.Drawing.Bitmap LoginLogoRev2 {
             get {
                 object obj = ResourceManager.GetObject("LoginLogoRev2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap page_24_ns {
+            get {
+                object obj = ResourceManager.GetObject("page_24_ns", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap page_pencil_24_ns {
+            get {
+                object obj = ResourceManager.GetObject("page_pencil_24_ns", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
