@@ -142,6 +142,7 @@ namespace dtxUpload {
 					_itxtPassword.Value = Core.Utilities.md5Sum(_itxtPassword.Value);
 				}
 
+				_btnLogin.Enabled = false;
 				connector.user_info.client_username = _itxtUsername.Value;
 				connector.user_info.client_password = _itxtPassword.Value;
 				connector.connect();
@@ -156,9 +157,11 @@ namespace dtxUpload {
 			if(e.Button == MouseButtons.Left) {
 				if(Client.server_info.is_connected) {
 					Client.form_QuickUpload.Show();
+					Client.form_QuickUpload.Activate();
 
 				} else {
 					this.Show();
+					this.Activate();
 				}
 			}
 		}
@@ -203,19 +206,24 @@ namespace dtxUpload {
 
 		public void invalidPassword() {
 			if(this.WindowState != FormWindowState.Normal) this.ShowDialog();
+
+			_btnLogin.Enabled = true;
 			_itxtPassword.SetInfo("Password is invalid.", Color.Red);
 			_itxtPassword.Focus();
 		}
 
 		public void invalidUsername() {
 			if(this.WindowState != FormWindowState.Normal) this.ShowDialog();
-				
+
+			_btnLogin.Enabled = true;
 			_itxtUsername.SetInfo("Username is not registerd on server.", Color.Red);
 			_itxtUsername.Focus();
 		}
 
 		public void invalidServer() {
 			if(this.WindowState != FormWindowState.Normal) this.ShowDialog();
+
+			_btnLogin.Enabled = true;
 			_lblWarnServer.Text = "Server is not responding.";
 			_lblWarnServer.ForeColor = Color.Red;
 		}
@@ -225,6 +233,8 @@ namespace dtxUpload {
 		/// </summary>
 		public void sessionExpired() {
 			loggedOut();
+
+			_btnLogin.Enabled = true;
 			_lblWarnServer.Text = "Session has expired.";
 			_lblWarnServer.ForeColor = Color.Red;
 			_cmbServer.Focus();
@@ -239,6 +249,8 @@ namespace dtxUpload {
 
 			// Remove the warning text.
 			_lblWarnServer.Text = "";
+
+			_btnLogin.Enabled = true;
 
 			// Only save the password if the user wants to.
 			if(_chkSavePassword.Checked) {

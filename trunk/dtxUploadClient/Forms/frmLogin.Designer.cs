@@ -101,7 +101,7 @@
 			// _btnCancel
 			// 
 			this._btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this._btnCancel.Location = new System.Drawing.Point(166, 2);
+			this._btnCancel.Location = new System.Drawing.Point(166, 3);
 			this._btnCancel.Name = "_btnCancel";
 			this._btnCancel.Size = new System.Drawing.Size(56, 23);
 			this._btnCancel.TabIndex = 1;
@@ -171,12 +171,12 @@
             this._settingsToolStripMenuItem,
             this._exitToolStripMenuItem});
 			this._ContextMenu.Name = "contextMenuStrip";
-			this._ContextMenu.Size = new System.Drawing.Size(153, 164);
+			this._ContextMenu.Size = new System.Drawing.Size(144, 142);
 			// 
 			// _manageFilesToolStripMenuItem
 			// 
 			this._manageFilesToolStripMenuItem.Name = "_manageFilesToolStripMenuItem";
-			this._manageFilesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._manageFilesToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
 			this._manageFilesToolStripMenuItem.Text = "Manage Files";
 			this._manageFilesToolStripMenuItem.Visible = false;
 			this._manageFilesToolStripMenuItem.Click += new System.EventHandler(this._manageFilesToolStripMenuItem_Click);
@@ -184,7 +184,7 @@
 			// _uploadFilesToolStripMenuItem
 			// 
 			this._uploadFilesToolStripMenuItem.Name = "_uploadFilesToolStripMenuItem";
-			this._uploadFilesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._uploadFilesToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
 			this._uploadFilesToolStripMenuItem.Text = "Upload Files";
 			this._uploadFilesToolStripMenuItem.Visible = false;
 			this._uploadFilesToolStripMenuItem.Click += new System.EventHandler(this._uploadFilesToolStripMenuItem_Click);
@@ -192,20 +192,20 @@
 			// _toolStripSearator1
 			// 
 			this._toolStripSearator1.Name = "_toolStripSearator1";
-			this._toolStripSearator1.Size = new System.Drawing.Size(149, 6);
+			this._toolStripSearator1.Size = new System.Drawing.Size(140, 6);
 			this._toolStripSearator1.Visible = false;
 			// 
 			// _loginToolStripMenuItem
 			// 
 			this._loginToolStripMenuItem.Name = "_loginToolStripMenuItem";
-			this._loginToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._loginToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
 			this._loginToolStripMenuItem.Text = "Login";
 			this._loginToolStripMenuItem.Click += new System.EventHandler(this._loginToolStripMenuItem_Click);
 			// 
 			// _logoutToolStripMenuItem
 			// 
 			this._logoutToolStripMenuItem.Name = "_logoutToolStripMenuItem";
-			this._logoutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._logoutToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
 			this._logoutToolStripMenuItem.Text = "Logout";
 			this._logoutToolStripMenuItem.Visible = false;
 			this._logoutToolStripMenuItem.Click += new System.EventHandler(this.logoutToolStripMenuItem_Click);
@@ -215,7 +215,7 @@
 			this._settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._confirmClipboardUploadToolStripMenuItem});
 			this._settingsToolStripMenuItem.Name = "_settingsToolStripMenuItem";
-			this._settingsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._settingsToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
 			this._settingsToolStripMenuItem.Text = "&Settings";
 			this._settingsToolStripMenuItem.DropDownOpening += new System.EventHandler(this._settingsToolStripMenuItem_DropDownOpening);
 			this._settingsToolStripMenuItem.Click += new System.EventHandler(this._settingsToolStripMenuItem_Click);
@@ -230,7 +230,7 @@
 			// _exitToolStripMenuItem
 			// 
 			this._exitToolStripMenuItem.Name = "_exitToolStripMenuItem";
-			this._exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this._exitToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
 			this._exitToolStripMenuItem.Text = "E&xit";
 			this._exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
