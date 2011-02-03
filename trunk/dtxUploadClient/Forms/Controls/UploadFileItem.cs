@@ -12,13 +12,12 @@ namespace dtxUpload {
 	public partial class UploadFileItem : UserControl {
 
 		public DC_FileInformation file_info;
-		private ServerConnector connector = new ServerConnector();
+		private ServerConnector connector;
 
 		public UploadFileItem(DC_FileInformation file_info) {
-			this.file_info = file_info;
-			connector.uploadProgressChanged += new UploadProgressChangedEventHandler(uploadProgress);
-			connector.uploadFileCompleted += new UploadFileCompletedEventHandler(uploadCompleted);
+			connector = new ServerConnector(this);
 
+			this.file_info = file_info;
 			InitializeComponent();
 
 			file_info.status = 6;
@@ -39,7 +38,7 @@ namespace dtxUpload {
 		}
 
 
-		private void uploadProgress(object sender, UploadProgressChangedEventArgs e) {
+		public void uploadProgress(UploadProgressChangedEventArgs e) {
 			_picPreview.Image = Properties.Resources.icon_24_em_up;
 			_lblStatus.Text = "(" + Core.Utilities.formattedSize(e.BytesSent) + "/" + Core.Utilities.formattedSize(e.TotalBytesToSend) + ")";
 			_barProgress.Maximum = (int)e.TotalBytesToSend;
@@ -47,55 +46,67 @@ namespace dtxUpload {
 		}
 
 
-		private void uploadCompleted(object sender, UploadFileCompletedEventArgs e) {
+		/// <summary>
+		/// This executes every time the upload completed successful or otherwise.
+		/// </summary>
+		public void uploadPostCompleted() {
 			if(file_info.delete_after_upload) {
 				// Delete the file if it was a temp file created by us.
 				System.IO.File.Delete(file_info.local_file_location);
 			}
-			if(e.Cancelled) {
-				_barProgress.Value = 1;
-				_barProgress.Maximum = 1;
-				_lblStatus.Text = "Canceled";
-				_picPreview.Image = Properties.Resources.icon_24_em_cross;
-				_btnCancel.Visible = false;
-				_btnCopyUrl.Visible = false;
-				file_info.status = 6;
-
-				return;
-			}
-			string[] parsed_data = connector.parseServerData(UTF8Encoding.UTF8.GetString(e.Result));
-
-			if(parsed_data[0] == "upload_successful") {
-				_lblStatus.Text = "";
-				_barProgress.Visible = false;
-				_btnCopyUrl.Visible = true;
-				_picPreview.Image = Properties.Resources.icon_24_em_check;
-				_btnCancel.Text = "Open";
-				file_info.status = 2;
-
-				JsonReader jr = new JsonReader(parsed_data[1]);
-				DC_FileInformation info = jr.Deserialize<DC_FileInformation>();
-
-				file_info.url_id = info.url_id;
-				file_info.is_visible = info.is_visible;
-				file_info.url = connector.server_info.upload_base_url + info.url_id;
-
-			} else {
-				_barProgress.Visible = false;
-				_btnCancel.Visible = false;
-				_btnCopyUrl.Visible = false;
-				_picPreview.Image = Properties.Resources.icon_24_em_cross;
-				file_info.status = 6;
-				
-
-				if(parsed_data[0] == "upload_failed_db_error") {
-					_lblStatus.Text = "Server DB Error";
-
-				} else if(parsed_data[0] == "upload_failed_db_error") {
-					_lblStatus.Text = "Server File Error";
-				}
-			}
 		}
+
+		public void uploadCanceled() {
+			_barProgress.Value = 1;
+			_barProgress.Maximum = 1;
+			_lblStatus.Text = "Canceled";
+			_picPreview.Image = Properties.Resources.icon_24_em_cross;
+			_btnCancel.Visible = false;
+			_btnCopyUrl.Visible = false;
+			file_info.status = 6;
+		}
+
+
+		public void uploadSuccessful(string server_data) {
+			_lblStatus.Text = "";
+			_barProgress.Visible = false;
+			_btnCopyUrl.Visible = true;
+			_picPreview.Image = Properties.Resources.icon_24_em_check;
+			_btnCancel.Text = "Open";
+			file_info.status = 2;
+
+			JsonReader jr = new JsonReader(server_data);
+			DC_FileInformation info = jr.Deserialize<DC_FileInformation>();
+
+			file_info.url_id = info.url_id;
+			file_info.is_visible = info.is_visible;
+			file_info.url = connector.server_info.upload_base_url + info.url_id;
+		}
+
+
+		private void uploadFailed() {
+			_barProgress.Visible = false;
+			_btnCancel.Visible = false;
+			_btnCopyUrl.Visible = false;
+			_picPreview.Image = Properties.Resources.icon_24_em_cross;
+			file_info.status = 6;
+		}
+
+		public void uploadFailedDB() {
+			uploadFailed();
+			_lblStatus.Text = "Server DB Error";
+		}
+
+		public void uploadFailedFile() {
+			uploadFailed();
+			_lblStatus.Text = "Server File Error";
+		}
+
+		public void uploadNotConnected() {
+			uploadFailed();
+			_lblStatus.Text = "Not Connected";
+		}
+
 
 		public void startUpload() {
 			file_info.status = 1;

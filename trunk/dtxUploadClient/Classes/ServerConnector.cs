@@ -15,12 +15,11 @@ namespace dtxUpload {
 		public short max_concurrent_connections;
 
 		private List<WebClient> web_clients = new List<WebClient>();
-		public UploadProgressChangedEventHandler uploadProgressChanged;
-		public UploadFileCompletedEventHandler uploadFileCompleted;
 
 		public DC_ServerInformation server_info;
 		public DC_UserInformation user_info;
 		private ClientActions actions;
+		public UploadFileItem upload_control;
 
 		/// <summary>
 		///  Uses global client information for connecting.
@@ -41,6 +40,18 @@ namespace dtxUpload {
 			actions = new ClientActions(this);
 			server_info = server;
 			user_info = user;
+		}
+
+		/// <summary>
+		///  Used only for UploadFileItem control.
+		/// </summary>
+		public ServerConnector(UploadFileItem up_control) {
+			actions = new ClientActions(this);
+			server_info = Client.server_info;
+			user_info = Client.user_info;
+			upload_control = up_control;
+
+			max_concurrent_connections = 1;
 		}
 
 		/// <summary>
@@ -109,11 +120,24 @@ namespace dtxUpload {
 		}
 
 		private void web_client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e) {
-			uploadFileCompleted(sender, e);
+			upload_control.Invoke((MethodInvoker)upload_control.uploadPostCompleted);
+
+			if(e.Error != null) {
+				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
+				server_info.is_connected = false;
+
+			} else {
+				if(e.Cancelled) {
+					actions.upload_canceled();
+
+				} else {
+					execServerResponce(UTF8Encoding.UTF8.GetString(e.Result));
+				}
+			}		
 		}
 
 		private void web_client_UploadProgressChanged(object sender, UploadProgressChangedEventArgs e) {
-			uploadProgressChanged(sender, e);
+			upload_control.uploadProgress(e);
 		}
 
 		private void web_client_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e) {

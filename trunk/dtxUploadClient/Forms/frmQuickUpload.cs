@@ -30,6 +30,15 @@ namespace dtxUpload {
 			}
 
 			InitializeComponent();
+			
+			// Immediately hide the confirmation row.
+			_tlpUploadTable.RowStyles[1].Height = 0;
+			_panConfirmUpload.Visible = false;
+
+			// Make the form load the previous saved height if there is any.
+			int saved_win_height = Client.config.get<int>("frmquickupload.window.height");
+			this.Height = (saved_win_height == 0) ? this.Height : saved_win_height;
+
 		}
 
 		private void frmQuickUpload_Load(object sender, EventArgs e) {
@@ -92,9 +101,30 @@ namespace dtxUpload {
 
 		}
 
-		private void _btnUploadClipboard_Click(object sender, EventArgs e) {
+		private Tween confirm_upload_tween = new Tween(EasingEquations.expoEaseOut);
+		private bool show_clipboard_confirmation;
 
-			if(Clipboard.ContainsFileDropList()) {	
+		private void _btnUploadClipboard_Click(object sender, EventArgs e) {
+			_chkHideClipConfirmation.Checked = false;
+
+			// Check to see if the user has disabled verification of upload.
+			show_clipboard_confirmation = Client.config.get<bool>("frmquickupload.show_clipboard_confirmation");
+
+			if(show_clipboard_confirmation == true) {
+				showConfirmMenu();
+			} else {
+				_btnConfirmClipboardUpload_Click(sender, e);
+			}
+		}
+
+		private void _btnConfirmClipboardUpload_Click(object sender, EventArgs e) {
+
+			// Check to see if the user has disabled verification of upload.
+			if(show_clipboard_confirmation == true) {
+				hideConfirmMenu();
+			}
+
+			if(Clipboard.ContainsFileDropList()) {
 				foreach(string file in Clipboard.GetFileDropList()) {
 					uploadFile(file);
 				}
@@ -144,9 +174,6 @@ namespace dtxUpload {
 		/// <returns>Full location of the temp image file.</returns>
 		private DC_ImageInformation smartImage(Image img, string file_prefix) {
 			string temp_file = Path.GetTempFileName();
-				
-
-
 			long image_size;
 			string type;
 			MemoryStream stream_jpeg = new MemoryStream();
@@ -202,8 +229,40 @@ namespace dtxUpload {
 			}
 		}
 
-		private void button1_Click(object sender, EventArgs e) {
-			this.Close();
+		private void _chkHideClipConfirmation_CheckedChanged(object sender, EventArgs e) {
+			Client.config.set("frmquickupload.show_clipboard_confirmation", !_chkHideClipConfirmation.Checked);
+			Client.config.save();
 		}
+
+		private void frmQuickUpload_ResizeEnd(object sender, EventArgs e) {
+			Client.config.set("frmquickupload.window.height",this.Height);
+			Client.config.save();
+		}
+
+		private void _btnCancelConfirmUpload_Click(object sender, EventArgs e) {
+			hideConfirmMenu();
+		}
+
+		private void hideConfirmMenu() {
+			int start = (int)_tlpUploadTable.RowStyles[1].Height;
+
+			confirm_upload_tween.start(start, 0, delegate(int current) {
+				_tlpUploadTable.RowStyles[1].Height = current;
+				if(current == 0) {
+					_panConfirmUpload.Visible = false;
+				}
+			});
+		}
+
+		private void showConfirmMenu() {
+			int start_height = (int)_tlpUploadTable.RowStyles[1].Height;
+			_panConfirmUpload.Visible = true;
+
+			confirm_upload_tween.start(start_height, 30, delegate(int current) {
+				_tlpUploadTable.RowStyles[1].Height = current;
+			});
+		}
+
+		
 	}
 }

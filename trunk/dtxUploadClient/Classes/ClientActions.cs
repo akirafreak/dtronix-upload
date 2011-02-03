@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows.Forms;
 using Core.Json;
 using System.Drawing;
+using System.Net;
 
 namespace dtxUpload {
 	class ClientActions {
@@ -52,6 +53,10 @@ namespace dtxUpload {
 		private void clearSession() {
 			connector.user_info.session_key = null;
 			connector.server_info.is_connected = false;
+
+			if(connector.upload_control != null) {
+				upload_failed_not_connected();
+			}
 		}
 
 		
@@ -106,5 +111,30 @@ namespace dtxUpload {
 
 			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.serverOnline);
 		}
+
+
+		public void upload_successful(string input) {
+			connector.upload_control.Invoke((MethodInvoker)delegate{
+				connector.upload_control.uploadSuccessful(input);
+			});
+		}
+
+		public void upload_failed_db_error() {
+			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadFailedDB);
+		}
+
+		public void upload_failed_could_not_handle_file() {
+			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadFailedFile);
+		}
+
+		public void upload_failed_not_connected() {
+			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadNotConnected);
+		}
+
+		public void upload_canceled() {
+			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadCanceled);
+		}
+
+
 	}
 }

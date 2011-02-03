@@ -118,6 +118,9 @@
     <Content Include="Installer\Readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\page-pencil-24-ns.png" />
+    <None Include="Resources\page-24-ns.png" />
+    <None Include="Resources\24-image.png" />
     <EmbeddedResource Include="Forms\Controls\UploadFileItem.resx">
       <DependentUpon>UploadFileItem.cs</DependentUpon>
       <SubType>Designer</SubType>
