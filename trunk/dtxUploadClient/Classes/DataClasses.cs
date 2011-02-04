@@ -81,4 +81,14 @@ namespace dtxUpload {
 		public string type;
 	}
 
+	public class DC_Exception {
+		public string inner_exception_message;
+		public string inner_exception_stack_trace;
+		public string crashed_program = "dtxUpload.exe";
+		public string help_link;
+		public string stack_trace;
+		public string source;
+		public string message;
+	}
+
 }
