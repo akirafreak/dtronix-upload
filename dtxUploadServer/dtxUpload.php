@@ -24,7 +24,9 @@ function dtx_main(){
 		$_USER["client"] = 2;
 	}
 
-	
+	// Ensure the client does not cashe requests.
+	header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+	header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
 	// TODO: Ensure the user is allowed to connect to the server.
 	
