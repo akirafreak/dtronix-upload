@@ -49,6 +49,7 @@ namespace dtxUpload {
 				};
 
 				jw.Write(exception);
+				MessageBox.Show(sb.ToString());
 
 				string args = Utilities.base64Encode(sb.ToString());
 				args += " ";
