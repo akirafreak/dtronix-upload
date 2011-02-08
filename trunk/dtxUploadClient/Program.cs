@@ -25,6 +25,7 @@ namespace dtxUpload {
 
 					current_config.set("frmlogin.servers_list", server_list);
 				});
+				throw new Exception("This is a test crash");
 
 				// Set configurations if they are not already set.
 				Client.config.setIfNotSet("serverconnector.concurrent_connections_max", 2);
@@ -39,7 +40,6 @@ namespace dtxUpload {
 			} catch(Exception e) {
 				StringBuilder sb = new StringBuilder();
 				JsonWriter jw = new JsonWriter(sb);
-
 				DC_Exception exception = new DC_Exception() {
 					help_link = e.HelpLink,
 					inner_exception_message = (e.InnerException != null) ? e.InnerException.Message : null,
@@ -51,9 +51,11 @@ namespace dtxUpload {
 
 				jw.Write(exception);
 
-				MessageBox.Show(sb.ToString());
+				string args = Utilities.base64Encode(sb.ToString());
+				args += " ";
+				args += "http://dtronix.com/dtxCrashReporter/";
 
-				//System.Diagnostics.Process.Start("dtxCrashReporter.exe", sb.ToString());
+				System.Diagnostics.Process.Start("dtxCrashReporter.exe", args);
 			}
 		}
 	}
