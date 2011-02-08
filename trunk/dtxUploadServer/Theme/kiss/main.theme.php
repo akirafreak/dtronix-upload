@@ -158,6 +158,15 @@ function theme_main_displayFiles(){
 <?php
 }
 
+function theme_main_adminInterface(){
+	global $_USER, $T_VAR;
+?>
+<div id="admin_container">
+
+</div>
+<?php
+}
+
 
 
 function theme_main_default(){
@@ -168,6 +177,7 @@ function theme_main_default(){
 	theme_main_login();
 	theme_main_register();
 	theme_main_displayFiles();
+	theme_main_adminInterface();
 
 	theme_main_footer();
 }

@@ -114,7 +114,6 @@ var main = {
 			onFailure: function(){
 				self.fileActionActions({"function": "request_failure"});
 			}
-
 		});
 
 		this.$el.register_div.setStyles({
@@ -340,6 +339,7 @@ var main = {
 
 	loadFiles: function(page){
 		if(page == null) page = 0;
+		this.$el.uploaded_files_inject.empty();
 
 		this.loadFilesRequest.get({
 			"action": "load_files_quick",
