@@ -109,6 +109,13 @@ namespace dtxUpload.Properties {
             }
         }
         
+        internal static System.Drawing.Icon icon16x16 {
+            get {
+                object obj = ResourceManager.GetObject("icon16x16", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap LoginLogoRev2 {
             get {
                 object obj = ResourceManager.GetObject("LoginLogoRev2", resourceCulture);

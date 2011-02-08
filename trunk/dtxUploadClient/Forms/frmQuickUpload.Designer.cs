@@ -31,9 +31,9 @@
 			this._panFileItemContainer = new System.Windows.Forms.Panel();
 			this._tlpUploadTable = new System.Windows.Forms.TableLayoutPanel();
 			this._panConfirmUpload = new System.Windows.Forms.Panel();
+			this._btnConfirmClipboardUpload = new System.Windows.Forms.Button();
 			this._btnCancelConfirmUpload = new System.Windows.Forms.Button();
 			this._chkHideClipConfirmation = new System.Windows.Forms.CheckBox();
-			this._btnConfirmClipboardUpload = new System.Windows.Forms.Button();
 			this._picClipboardType = new System.Windows.Forms.PictureBox();
 			this._lblClipboardUpload = new System.Windows.Forms.Label();
 			this.panel1.SuspendLayout();
@@ -130,6 +130,16 @@
 			this._panConfirmUpload.Size = new System.Drawing.Size(270, 30);
 			this._panConfirmUpload.TabIndex = 4;
 			// 
+			// _btnConfirmClipboardUpload
+			// 
+			this._btnConfirmClipboardUpload.Location = new System.Drawing.Point(152, 4);
+			this._btnConfirmClipboardUpload.Name = "_btnConfirmClipboardUpload";
+			this._btnConfirmClipboardUpload.Size = new System.Drawing.Size(54, 23);
+			this._btnConfirmClipboardUpload.TabIndex = 4;
+			this._btnConfirmClipboardUpload.Text = "Confirm";
+			this._btnConfirmClipboardUpload.UseVisualStyleBackColor = true;
+			this._btnConfirmClipboardUpload.Click += new System.EventHandler(this._btnConfirmClipboardUpload_Click);
+			// 
 			// _btnCancelConfirmUpload
 			// 
 			this._btnCancelConfirmUpload.Location = new System.Drawing.Point(212, 4);
@@ -150,16 +160,6 @@
 			this._chkHideClipConfirmation.Text = "Hide";
 			this._chkHideClipConfirmation.UseVisualStyleBackColor = true;
 			this._chkHideClipConfirmation.CheckedChanged += new System.EventHandler(this._chkHideClipConfirmation_CheckedChanged);
-			// 
-			// _btnConfirmClipboardUpload
-			// 
-			this._btnConfirmClipboardUpload.Location = new System.Drawing.Point(152, 4);
-			this._btnConfirmClipboardUpload.Name = "_btnConfirmClipboardUpload";
-			this._btnConfirmClipboardUpload.Size = new System.Drawing.Size(54, 23);
-			this._btnConfirmClipboardUpload.TabIndex = 4;
-			this._btnConfirmClipboardUpload.Text = "Confirm";
-			this._btnConfirmClipboardUpload.UseVisualStyleBackColor = true;
-			this._btnConfirmClipboardUpload.Click += new System.EventHandler(this._btnConfirmClipboardUpload_Click);
 			// 
 			// _picClipboardType
 			// 
