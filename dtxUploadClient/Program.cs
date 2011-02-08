@@ -25,7 +25,6 @@ namespace dtxUpload {
 
 					current_config.set("frmlogin.servers_list", server_list);
 				});
-				throw new Exception("This is a test crash");
 
 				// Set configurations if they are not already set.
 				Client.config.setIfNotSet("serverconnector.concurrent_connections_max", 2);
