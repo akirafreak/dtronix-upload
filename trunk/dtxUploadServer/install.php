@@ -2,6 +2,8 @@
 
 head();
 
+
+checkForInstallationFiles();
 initialFileWriteChecks();
 basicConfigurations();
 mysqlConfigurations();
@@ -11,6 +13,8 @@ foot();
 
 
 function head(){
+	if(file_exists("config.php")) die("Config file already exists.  Exiting installer.");
+	
 	if(empty($_POST["installation_level"])){
 		$_POST["installation_level"] = "1";
 	}
@@ -39,9 +43,69 @@ function foot(){ ?>
 </div>
 </div>
 </body>
-</html>
-<?php 
-die();
+</html><?php 
+	die();
+}
+
+function checkForInstallationFiles(){
+	$error = false;
+	if(file_exists("dtxUpload.php")) return false; ?>
+<span style="font-size: 18px;">Checking for installation files.</span>
+<table>
+	<tbody>
+		<tr>
+			<td>This Directory</td>
+			<td><?php
+				if(is_writable(getcwd())){
+					?><span style="color: darkgreen;">Read-Write</span><?php
+				}else{
+					?><span style="color: darkred;">Read Only (Must be read-write!)</span><?php
+					die();
+				}
+			?></td>
+		</tr>
+		<tr>
+			<td>Current Installation File:</td>
+			<td><?php
+
+				if(file_exists("install.data.php")){
+					include("install.version.php");
+					?><span style="color: darkred;"><?php echo $_INSTALL_VERSION[0]; ?></span><?php
+				}else{
+					$exist_error = true;
+					?><span style="color: darkred;">Installation file does not exist.</span><br /><?php
+					downloadLatetstInstatller();
+				}
+			?></td>
+		</tr>
+	</tbody>
+</table>
+
+	<?php
+	foot();
+}
+
+function downloadLatetstInstatller(){
+    $curl = curl_init();
+
+    curl_setopt($curl, CURLOPT_URL, "http://upload.dtronix.com/dtxUpload.php?action=update_latest_data");
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HEADER, false);
+
+	?><span style="color: darkgreen;">Downloading...</span><br /><?php
+
+    $str = curl_exec($curl);
+
+	?><span style="color: darkred;">Installation file does not exist.  Downloading.</span><br /><?php
+
+    curl_close($curl);
+
+	if($str === true){
+		?><span style="color: darkred;">Failed downloading installation data.  Please manually download the install.data.php and place it in the same directory as the install.php.</span><br /><?php
+	}else{
+		file_put_contents("install.data.php", $str);
+		?><span style="color: darkgreen;">Installation data downloaded successfully.</span><br /><?php
+	}
 }
 
 function initialFileWriteChecks(){ 
