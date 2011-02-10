@@ -298,12 +298,21 @@ if( !defined(\"requireParrent\") ) die(\"Restricted Access\");\n\n";
 		}elseif(is_bool($value)){
 			$value_string = ($value)? "true": "false";
 		}else{
-			$value_string = '"'. $value .'"';
+			$value_string = "'". $value ."'";
 		}
 		$new_config .= '$_CONFIG["'. $key .'"] = '. $value_string .';'. "\n";
 	}
 	$new_config .= "\n?>";
 	file_put_contents("config.php", $new_config);
+}
+
+function array_keys_exists($array,$keys) {
+    foreach($keys as $k) {
+        if(!isset($array[$k])) {
+        return false;
+        }
+    }
+    return true;
 }
 
 
