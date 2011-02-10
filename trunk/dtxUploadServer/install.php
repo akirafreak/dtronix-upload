@@ -111,8 +111,7 @@ function checkPHPVersion(){ ?>
 
 function checkForInstallationFiles(){
 	global $INSTALL_VAR;
-	$download_server = ($INSTALL_VAR["download_beta"])? "http://upload-beta.dtronix.com/" : "http://upload.dtronix.com/";
-	if(file_exists("install.data.php") && !isset($_GET["force_download"])) return false; ?>
+	$download_server = ($INSTALL_VAR["download_beta"])? "http://upload-beta.dtronix.com/" : "http://upload.dtronix.com/"; ?>
 <span style="font-size: 18px;">Checking for installation files.</span>
 <table>
 	<tbody valign="top">
@@ -148,7 +147,8 @@ function checkForInstallationFiles(){
 				require("install.version.php");
 				?><span style="color: green;">Version <?php echo $_INSTALL_VERSION[0]; ?></span><?php
 			?></td>
-		</tr>
+		</tr><?php
+		if((isset($_GET["force_download"]) && file_exists("dtxUpload.php")) || !file_exists("dtxUpload.php")){ ?>
 		<tr>
 			<td>Extracting:</td>
 			<td><?php
@@ -183,12 +183,13 @@ function checkForInstallationFiles(){
 					}
 				}
 			?></td>
-		</tr>
+		</tr><?php
+			foot();
+		}
+		?>
 	</tbody>
-</table>
-
-	<?php
-	foot();
+</table><?php
+	
 }
 
 function saveUrl($url, $file_name){
@@ -514,6 +515,7 @@ function mysqlInstallation(){
 		(0, 'Admin', 0, 1, 1, 1, 1, 1, 0, 0, 1),
 		(1, 'User', 0, 1, 1, 0, 0, 0, 100000, 20000, 1),
 		(2, 'Banned', 1, 0, 0, 0, 0, 0, -1, -1, 1);");
+	?><input type="hidden" name="mysql_existing_db" value="true" /><?php
 	}else{
 		?><span style="color: darkorange;">MySQL database creation/insertion skipped due to existing databases.</span><br/><?php
 	}
