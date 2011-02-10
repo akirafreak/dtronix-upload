@@ -68,7 +68,8 @@ function dtx_main(){
 
 		// Updater
 		"update_latest_version" => array("updater", "_getLatestInstallerVersion", false),
-		"update_latest_data" => array("updater", "_getLatestInstallerData", false),
+		"update_data_file" => array("updater", "_getDataFile", false),
+		"update_version_file" => array("updater", "_getVersionFile", false),
 
 
 

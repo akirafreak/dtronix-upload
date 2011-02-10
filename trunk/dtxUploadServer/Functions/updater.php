@@ -12,9 +12,14 @@ function _getLatestInstallerVersion(){
 	die($_INSTALL_VERSION[0]);
 }
 
-function _getLatestInstallerData(){
+function _getDataFile(){
 	global $_CONFIG;
 	die(file_get_contents($_CONFIG["dir"] . "install.data.php"));
+}
+
+function _getVersionFile(){
+	global $_CONFIG;
+	die(file_get_contents($_CONFIG["dir"] . "install.version.php"));
 }
 
 

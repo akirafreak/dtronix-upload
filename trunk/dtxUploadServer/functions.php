@@ -285,8 +285,25 @@ function getPermission($permission_check){
 	}
 
 	return null;
+}
 
+function saveConfigFile($config_data){
+	$new_config = "<?php
+// Check to see if this file is included into the main file for security reasons.
+if( !defined(\"requireParrent\") ) die(\"Restricted Access\");\n\n";
 
+	foreach($config_data as $key => $value){
+		if(is_numeric($value)){
+			$value_string = $value;
+		}elseif(is_bool($value)){
+			$value_string = ($value)? "true": "false";
+		}else{
+			$value_string = '"'. $value .'"';
+		}
+		$new_config .= '$_CONFIG["'. $key .'"] = '. $value_string .';'. "\n";
+	}
+	$new_config .= "\n?>";
+	file_put_contents("config.php", $new_config);
 }
 
 
