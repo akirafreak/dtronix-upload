@@ -16,7 +16,7 @@ continueIfTrue(mysqlConfigurations());
 continueIfTrue(mysqlInstallation());
 continueIfTrue(configFileCreation());
 
-foot();
+foot("Delete Installaion Files");
 
 function checkPHPVersion(){
 	$continue_installation = true; ?>
@@ -463,14 +463,18 @@ function configFileCreation(){
 
 	$_CONFIG["session_max_life"] = 60 * 2000;
 
-	saveConfigFile($_CONFIG);
-	writeInfo("green", "Successfully created configuration file.");
+	if(saveConfigFile($_CONFIG)){
+		writeInfo("green", "Successfully created configuration file.");
+	}else{
+		writeInfo("red", "Failed to create configuration file.");
+		return false;
+	}
 
 	?><br />
 	<input type="hidden" name="delete_installation_files" value="true" />
 	<span style="font-size: 18px; color: green;">Setup Complete!</span><br/><?php
 
-	foot("Delete Setup Files");
+	return true;
 }
 
 function head(){
@@ -508,8 +512,6 @@ function head(){
 
 }
 
-
-
 function foot($submit_text = "Continue"){ ?>
 	<?php echo $html; ?>
 	<input type="submit" value="<?php echo $submit_text; ?>" />
@@ -520,9 +522,6 @@ function foot($submit_text = "Continue"){ ?>
 </html><?php
 	die();
 }
-
-
-
 
 function mysqlTableCreate($name, $sql){
 	$query = mysql_query($sql);

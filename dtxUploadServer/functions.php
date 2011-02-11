@@ -303,7 +303,7 @@ if( !defined(\"requireParrent\") ) die(\"Restricted Access\");\n\n";
 		$new_config .= '$_CONFIG["'. $key .'"] = '. $value_string .';'. "\n";
 	}
 	$new_config .= "\n?>";
-	file_put_contents("config.php", $new_config);
+	return (file_put_contents("config.php", $new_config) === false)? false : true;
 }
 
 function array_keys_exists($array, $keys) {
