@@ -1,5 +1,5 @@
 #summary Nullsoft Scriptable Install System Setup
-#labels Phase-Requirements
+#labels Phase-Requirements,Developer-Information
 
 = Introduction =
 
