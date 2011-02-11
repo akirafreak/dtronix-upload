@@ -4,6 +4,8 @@ define("requireParrent", true);
 
 $INSTALL_VAR["download_beta"] = false;
 
+if(file_exists("functions.php")) require("functions.php");
+
 head();
 
 continueIfTrue(checkPHPVersion());
@@ -77,25 +79,48 @@ function checkForInstallationFiles(){
 			<td>Verifying installation files:</td>
 			<td><?php
 
-				if(file_exists("install.data.php") && file_exists("install.version.php") && !isset($_GET["force_download"])){
+				if(file_exists("install.data.php") && file_exists("install.info.php") && !isset($_GET["force_download"])){
 					writeInfo("green", "Required files Exist. <a href=\"install.php?force_download=true\">(Force download latest version)</a>");
 				}else{
 					if(!isset($_GET["force_download"])){
 						writeInfo("red", "Required installation files do not exist.");
 					}
-					saveUrl($download_server ."dtxUpload.php?action=update_data_file", "install.data.php");
-					saveUrl($download_server ."dtxUpload.php?action=update_version_file", "install.version.php");
+					saveUrl($download_server ."dtxUpload.php?action=install_file_data", "install.data");
+					saveUrl($download_server ."dtxUpload.php?action=install_file_info", "install.info.php");
 				}
 			?></td>
 		</tr>
 		<tr>
 			<td>Installation Files Version:</td>
 			<td><?php
-				require("install.version.php");
-				writeInfo("green", "Version $_INSTALL_VERSION[0]");
+
+				require("install.info.php");
+				writeInfo("green", "Version ". $_INSTALL_INFO["version"]);
+			?></td>
+		</tr>
+		<tr>
+			<td>Verifying Files:</td>
+			<td><?php
+				if(md5_file("install.data") == $_INSTALL_INFO["MD5_hash"]){
+					writeInfo("green", "MD5 hashes match. Valid files.");
+				}else{
+					$continue_installation = false;
+					writeInfo("red", "Installation files corrupted. <a href=\"install.php?force_download=true\">(Force download latest version)</a>");
+				}
+			?></td>
+		</tr>
+		<tr>
+			<td>Verifying Files:</td>
+			<td><?php
+				if(md5_file("install.data") == $_INSTALL_INFO["MD5_hash"]){
+					writeInfo("green", "MD5 hashes match. Valid files.");
+				}else{
+					$continue_installation = false;
+					writeInfo("red", "Installation files corrupted. <a href=\"install.php?force_download=true\">(Force download latest version)</a>");
+				}
 			?></td>
 		</tr><?php
-		if((isset($_GET["force_download"]) && file_exists("dtxUpload.php")) || !file_exists("dtxUpload.php")){ ?>
+		if((isset($_GET["force_download"]) || !file_exists("dtxUpload.php")) && $continue_installation){ ?>
 		<tr>
 			<td>Extracting:</td>
 			<td><?php
@@ -141,9 +166,6 @@ function initialFileChecks(){
 	$write_error = false;
 	$exist_error = false; ?>
 <br /><br />
-<span style="font-size: 18px;">Installer Update</span><br/>
-<a href="install.php?force_download=true">Force download the latest installation data files.</a><br/><br/>
-
 <span style="font-size: 18px;">Checking File Writing Permissions</span>
 <table>
 	<tbody valign="top">
@@ -200,7 +222,6 @@ function initialFileChecks(){
 			<td><?php
 				if(file_exists("functions.php")){
 					writeInfo("green", "functions.php exists.");
-					include("functions.php");
 					
 				}else{
 					$exist_error = true;
@@ -260,7 +281,7 @@ function basicConfigurations(){
 	</table>
 <?php
 	// Do not continue untill all the required information is filled in.
-	if(!array_keys_exist(array("basic_baseUrl", "basic_baseDir"), $_POST)){
+	if(!array_keys_exists($_POST, array("basic_baseUrl", "basic_baseDir"))){
 		return false;
 	}
 	return $continue_installation;
@@ -306,7 +327,7 @@ function mysqlConfigurations(){
 				<td>MySQL Database:</td>
 				<td><?php writeInputText("mysql_database", ""); ?></td>
 				<td><?php
-				if(!empty($_POST["mysql_database"]) && $connection){
+				if($database_connection){
 					$db_link = @mysql_select_db($_POST["mysql_database"]);
 					if(!$db_link) {
 						$continue_installation = false;
@@ -326,7 +347,7 @@ function mysqlConfigurations(){
 	</table>
 <?php
 	// Do not continue untill all the required information is filled in.
-	if(!array_keys_exist(array("mysql_server", "mysql_username", "mysql_password", "mysql_database"), $_POST)){
+	if(!array_keys_exists($_POST, array("mysql_server", "mysql_username", "mysql_password", "mysql_database"))){
 		writeInfo("red; font-size: 15px", "All MySQL information above is required before continuing.");
 		return false;
 	}
@@ -338,7 +359,7 @@ function mysqlInstallation(){
 <br /><br />
 <span style="font-size: 18px;">MySQL Database Creation</span><br/><?php
 	if(!isset($_POST["mysql_existing_db"])){
-	mysqlTableCreate("files", "CREATE TABLE IF NOT EXISTS `files` (
+	continueIfTrue(mysqlTableCreate("files", "CREATE TABLE IF NOT EXISTS `files` (
 		`id` int(11) NOT NULL AUTO_INCREMENT,
 		`owner_id` int(11) NOT NULL,
 		`url_id` varchar(32) NOT NULL,
@@ -360,9 +381,9 @@ function mysqlInstallation(){
 		KEY `url_id` (`url_id`),
 		KEY `owner_id` (`owner_id`),
 		FULLTEXT KEY `tags` (`tags`)
-	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;");
+	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;"));
 
-	mysqlTableCreate("users", "CREATE TABLE IF NOT EXISTS `users` (
+	continueIfTrue(mysqlTableCreate("users", "CREATE TABLE IF NOT EXISTS `users` (
 		`id` int(11) NOT NULL AUTO_INCREMENT,
 		`username` varchar(32) NOT NULL,
 		`password` varchar(32) NOT NULL,
@@ -379,9 +400,9 @@ function mysqlInstallation(){
 		UNIQUE KEY `id` (`id`),
 		KEY `username` (`username`),
 		KEY `session_id` (`session_key`)
-	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;");
+	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;"));
 
-	mysqlTableCreate("users_permissions", "CREATE TABLE IF NOT EXISTS `users_permissions` (
+	continueIfTrue(mysqlTableCreate("users_permissions", "CREATE TABLE IF NOT EXISTS `users_permissions` (
 		`id` int(11) NOT NULL,
 		`name` varchar(64) NOT NULL,
 		`is_disabled` tinyint(1) NOT NULL,
@@ -394,15 +415,15 @@ function mysqlInstallation(){
 		`max_upload_size` int(11) NOT NULL,
 		`default_permission_set` tinyint(1) NOT NULL COMMENT 'True if the current record is part of the default permission system.',
 		PRIMARY KEY (`id`)
-	) ENGINE=MyISAM DEFAULT CHARSET=latin1;");
+	) ENGINE=MyISAM DEFAULT CHARSET=latin1;"));
 
-	mysqlRowInsert("users_permissions", "INSERT INTO `users_permissions` (`id`, `name`, `is_disabled`, `can_connect`, `can_upload`, `manage_users`, `manage_uploads`, `full_access`, `max_upload_space`, `max_upload_size`, `default_permission_set`) VALUES
+	continueIfTrue(mysqlRowInsert("users_permissions", "INSERT INTO `users_permissions` (`id`, `name`, `is_disabled`, `can_connect`, `can_upload`, `manage_users`, `manage_uploads`, `full_access`, `max_upload_space`, `max_upload_size`, `default_permission_set`) VALUES
 		(0, 'Admin', 0, 1, 1, 1, 1, 1, 0, 0, 1),
 		(1, 'User', 0, 1, 1, 0, 0, 0, 100000, 20000, 1),
-		(2, 'Banned', 1, 0, 0, 0, 0, 0, -1, -1, 1);");
+		(2, 'Banned', 1, 0, 0, 0, 0, 0, -1, -1, 1);"));
 	?><input type="hidden" name="mysql_existing_db" value="true" /><?php
 	}else{
-		?><span style="color: darkorange;">MySQL database creation/insertion skipped due to existing databases.</span><br/><?php
+		writeInfo("darkorange", "MySQL database creation/insertion skipped due to existing databases.");
 	}
 
 }
@@ -443,8 +464,9 @@ function configFileCreation(){
 	$_CONFIG["session_max_life"] = 60 * 2000;
 
 	saveConfigFile($_CONFIG);
+	writeInfo("green", "Successfully created configuration file.");
 
-	?><span style="color: green;">Successfully created configuration file.</span><br /><br />
+	?><br />
 	<input type="hidden" name="delete_installation_files" value="true" />
 	<span style="font-size: 18px; color: green;">Setup Complete!</span><br/><?php
 
@@ -477,7 +499,7 @@ function head(){
 <span style="font-size: 20px; text-decoration: underline;">Deleting Installation Files...</span><br/><br/><?php
 		deleteFile("install.php");
 		deleteFile("install.data.php");
-		deleteFile("install.version.php");
+		deleteFile("install.info.php");
 		foot("Go to Dtronix Upload");
 	}else{ ?>
 <form method="post" action="install.php">
@@ -505,35 +527,38 @@ function foot($submit_text = "Continue"){ ?>
 function mysqlTableCreate($name, $sql){
 	$query = mysql_query($sql);
 	if(!$query){
-		?><span style="color: red;">Table "<?php echo $name; ?>" creation error: <?php echo mysql_error(); ?></span><br/><?php
-		foot();
+		writeInfo("red", "Table \"$name\" creation error: ". mysql_error());
+		return false;
 	}else{
-		?><span style="color: green;">Table "<?php echo $name; ?>" created successfully.</span><br /><?php
+		writeInfo("green", "Table \"$name\" created successfully.");
+		return true;
 	}
 }
 
 function mysqlRowInsert($name, $sql){
 	$query = mysql_query($sql);
 	if(!$query){
-		?><span style="color: red;">Could not insert records into "<?php echo $name; ?>". <?php echo mysql_error(); ?></span><br/><?php
-		foot();
+		writeInfo("red", "Could not insert records into \"$name\". ". mysql_error());
+		return false;
 	}else{
-		?><span style="color: green;">Successfully inserted records into "<?php echo $name; ?>".</span><br /><?php
+		writeInfo("green", "Successfully inserted records into \"$name\".");
+		return true;
 	}
 }
 
 function deleteFile($file){
 	if(!file_exists($file)) return false;
 	if(unlink($file)){
-		?><span style="color: green;">Deleted <?php echo $file; ?></span><br /><?php
+		writeInfo("green", "Deleted $file");
 	}else{
-		?><span style="color: red;">Could not delete <?php echo $file; ?></span><br /><?php
+		writeInfo("red", "Could not delete $file");
 	}
 }
 
 function continueIfTrue($val){
 	if($val != true) foot();
 }
+
 function writeInfo($color, $info){
 	echo"<span style=\"color: $color;\">$info</span><br />";
 }
@@ -549,7 +574,7 @@ function writeInputText($name, $default_value){
 }
 
 function writeInputCheckbox($name){
-	?><input type="checkbox" name="$name" <?php
+	?><input type="checkbox" name="<?php echo $name; ?>" <?php
 	if(isset($_POST[$name])){
 		echo " checked=\"checked\"";
 	}
@@ -570,12 +595,13 @@ function saveUrl($url, $file_name){
     curl_close($curl);
 
 	if($str === true){
-		?><span style="color: red;">Failed downloading <?php echo $file_name; ?>.  Please manually download <?php echo $file_name; ?> and place it in the same directory as the install.php.</span><br /><?php
-		die();
+		writeInfo("red", "Failed downloading $file_name.  Please manually download $file_name and place it in the same directory as the install.php.");
+		return false;
 
 	}else{
 		file_put_contents($file_name, $str);
 		?><span style="color: green;"><?php echo $file_name; ?> downloaded successfully.</span><br /><br /><?php
+		return true;
 	}
 }
 

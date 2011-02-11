@@ -306,7 +306,7 @@ if( !defined(\"requireParrent\") ) die(\"Restricted Access\");\n\n";
 	file_put_contents("config.php", $new_config);
 }
 
-function array_keys_exists($array,$keys) {
+function array_keys_exists($array, $keys) {
     foreach($keys as $k) {
         if(!isset($array[$k])) {
         return false;

@@ -1,5 +1,5 @@
 <?php
-//0.2.110209
+//0.2
 
 // Define this before all the includes to ensure that all the files are actually included through this main file.
 define("requireParrent", true);
@@ -66,14 +66,10 @@ function dtx_main(){
 		"upload_file" => array("files", "_uploadNewFile", true),
 		"view_file" => array("files", "_viewFile", false),
 
-		// Updater
-		"update_latest_version" => array("updater", "_getLatestInstallerVersion", false),
-		"update_data_file" => array("updater", "_getDataFile", false),
-		"update_version_file" => array("updater", "_getVersionFile", false),
-
-
-
-
+		// Installer Functions.
+		"update_latest_version" => array("installer", "_getLatestInstallerVersion", false),
+		"install_file_data" => array("installer", "_getDataFile", false),
+		"install_file_info" => array("installer", "_getInfoFile", false),
 
 		//Theme functions.
 		"html" => array("theme", "outputHtml", false)
