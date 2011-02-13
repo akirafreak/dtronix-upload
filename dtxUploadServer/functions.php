@@ -306,17 +306,16 @@ if( !defined(\"requireParrent\") ) die(\"Restricted Access\");\n\n";
 	return (file_put_contents("config.php", $new_config) === false)? false : true;
 }
 
-function array_keys_exists($array, $keys) {
+function array_keys_exists($array, $keys, $allowed_empty = true) {
     foreach($keys as $k) {
         if(!isset($array[$k])) {
-        return false;
-        }
+			return false;
+        }elseif(!$allowed_empty && isset($array[$k]) && empty($array[$k])){
+			return false;
+		}
     }
     return true;
 }
-
-
-
 
 // Common mimes for files.
 $GLOBALS["mime_types"] = array(

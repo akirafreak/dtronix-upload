@@ -4,7 +4,7 @@ define("requireParrent", true);
 
 $INSTALL_VAR["download_beta"] = false;
 
-if(file_exists("functions.php")) require("functions.php");
+if(file_exists("functions.php")) require_once("functions.php");
 
 head();
 
@@ -85,11 +85,16 @@ function checkForInstallationFiles(){
 					if(!isset($_GET["force_download"])){
 						writeInfo("red", "Required installation files do not exist.");
 					}
-					saveUrl($download_server ."dtxUpload.php?action=install_file_data", "install.data");
-					saveUrl($download_server ."dtxUpload.php?action=install_file_info", "install.info.php");
+					if(!saveUrl($download_server ."dtxUpload.php?action=install_file_data", "install.data.php")){
+						$continue_installation = false;
+					}
+					if(!saveUrl($download_server ."dtxUpload.php?action=install_file_info", "install.info.php")){
+						$continue_installation = false;
+					}
 				}
 			?></td>
-		</tr>
+		</tr><?php
+		if($continue_installation){ ?>
 		<tr>
 			<td>Installation Files Version:</td>
 			<td><?php
@@ -101,18 +106,7 @@ function checkForInstallationFiles(){
 		<tr>
 			<td>Verifying Files:</td>
 			<td><?php
-				if(md5_file("install.data") == $_INSTALL_INFO["MD5_hash"]){
-					writeInfo("green", "MD5 hashes match. Valid files.");
-				}else{
-					$continue_installation = false;
-					writeInfo("red", "Installation files corrupted. <a href=\"install.php?force_download=true\">(Force download latest version)</a>");
-				}
-			?></td>
-		</tr>
-		<tr>
-			<td>Verifying Files:</td>
-			<td><?php
-				if(md5_file("install.data") == $_INSTALL_INFO["MD5_hash"]){
+				if(md5_file("install.data.php") == $_INSTALL_INFO["MD5_hash"]){
 					writeInfo("green", "MD5 hashes match. Valid files.");
 				}else{
 					$continue_installation = false;
@@ -120,6 +114,7 @@ function checkForInstallationFiles(){
 				}
 			?></td>
 		</tr><?php
+		}
 		if((isset($_GET["force_download"]) || !file_exists("dtxUpload.php")) && $continue_installation){ ?>
 		<tr>
 			<td>Extracting:</td>
@@ -127,7 +122,7 @@ function checkForInstallationFiles(){
 				require("install.data.php");
 				writeInfo("green", "Creating folders...");
 
-				$base_dir = dirname($_SERVER["SCRIPT_FILENAME"]);
+				$base_dir = dirname($_SERVER["SCRIPT_FILENAME"]) . "/";
 				foreach($_INSTALLER_DIRS as $dir){
 					if(is_dir($base_dir . $dir)){
 						writeInfo("green", "Folder \"". $base_dir . $dir ."\" already exists.");
@@ -280,8 +275,11 @@ function basicConfigurations(){
 		</tbody>
 	</table>
 <?php
+	// Require this again when the files are just uncompressed.
+	if(file_exists("functions.php")) require_once("functions.php");
+	
 	// Do not continue untill all the required information is filled in.
-	if(!array_keys_exists($_POST, array("basic_baseUrl", "basic_baseDir"))){
+	if(!array_keys_exists($_POST, array("basic_baseUrl", "basic_baseDir"), false)){
 		return false;
 	}
 	return $continue_installation;
@@ -347,7 +345,7 @@ function mysqlConfigurations(){
 	</table>
 <?php
 	// Do not continue untill all the required information is filled in.
-	if(!array_keys_exists($_POST, array("mysql_server", "mysql_username", "mysql_password", "mysql_database"))){
+	if(!array_keys_exists($_POST, array("mysql_server", "mysql_username", "mysql_password", "mysql_database"), false)){
 		writeInfo("red; font-size: 15px", "All MySQL information above is required before continuing.");
 		return false;
 	}
@@ -421,11 +419,12 @@ function mysqlInstallation(){
 		(0, 'Admin', 0, 1, 1, 1, 1, 1, 0, 0, 1),
 		(1, 'User', 0, 1, 1, 0, 0, 0, 100000, 20000, 1),
 		(2, 'Banned', 1, 0, 0, 0, 0, 0, -1, -1, 1);"));
+	
 	?><input type="hidden" name="mysql_existing_db" value="true" /><?php
 	}else{
 		writeInfo("darkorange", "MySQL database creation/insertion skipped due to existing databases.");
 	}
-
+	return true;
 }
 
 
@@ -579,7 +578,15 @@ function writeInputCheckbox($name){
 	}
 	?> /><?php
 }
-
+function gzdecode($data){
+	$g=tempnam('/tmp','ff');
+	@file_put_contents($g,$data);
+	ob_start();
+	readgzfile($g);
+	$d=ob_get_clean();
+	unlink($g);
+	return $d;
+}
 
 function saveUrl($url, $file_name){
     $curl = curl_init();
@@ -587,19 +594,22 @@ function saveUrl($url, $file_name){
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_HEADER, false);
+	//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip,deflate'));
+	curl_setopt($curl, CURLOPT_ENCODING, 1);
 
-	?><span style="color: green;">Downloading (<?php echo $file_name; ?>)...</span><br /><?php
 
-    $str = curl_exec($curl);
+	writeInfo($color, "Downloading (". $file_name .")...");
+
+    $download_string = curl_exec($curl);
     curl_close($curl);
 
-	if($str === true){
+	if($download_string === true){
 		writeInfo("red", "Failed downloading $file_name.  Please manually download $file_name and place it in the same directory as the install.php.");
 		return false;
 
 	}else{
-		file_put_contents($file_name, $str);
-		?><span style="color: green;"><?php echo $file_name; ?> downloaded successfully.</span><br /><br /><?php
+		file_put_contents($file_name, $download_string);
+		writeInfo($color, $file_name ." downloaded successfully.");
 		return true;
 	}
 }
