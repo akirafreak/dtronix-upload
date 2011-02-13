@@ -14,6 +14,7 @@ function _getLatestInstallerVersion(){
 
 function _getDataFile(){
 	global $_CONFIG;
+	header("Content-Encoding: gzip");
 	die(file_get_contents($_CONFIG["dir"] . "install.data"));
 }
 
