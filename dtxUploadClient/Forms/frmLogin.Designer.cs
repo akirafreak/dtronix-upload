@@ -32,7 +32,6 @@
 			this._btnCancel = new System.Windows.Forms.Button();
 			this._btnLogin = new System.Windows.Forms.Button();
 			this._panButtons = new System.Windows.Forms.Panel();
-			this._btnSettings = new System.Windows.Forms.Button();
 			this._btnConfigDone = new System.Windows.Forms.Button();
 			this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
 			this._ContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -47,18 +46,25 @@
 			this._chkSavePassword = new System.Windows.Forms.CheckBox();
 			this._lblWarnServer = new System.Windows.Forms.Label();
 			this._btnRemoveServer = new System.Windows.Forms.Button();
-			this._picLogo = new System.Windows.Forms.PictureBox();
-			this.comboBox1 = new System.Windows.Forms.ComboBox();
+			this._cmbScreenshotFormat = new System.Windows.Forms.ComboBox();
 			this.label4 = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
-			this.comboBox2 = new System.Windows.Forms.ComboBox();
+			this._cmbScreenshotQuality = new System.Windows.Forms.ComboBox();
 			this._panLoginInputs = new System.Windows.Forms.Panel();
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this._tipDefault = new System.Windows.Forms.ToolTip(this.components);
+			this._copyLastUploadToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._btnSettings = new System.Windows.Forms.Button();
+			this._picLogo = new System.Windows.Forms.PictureBox();
+			this._uploadCropScreenshotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._uploadScreenshotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._itxtUsername = new dtxUpload.TextBoxAndInfo();
 			this._itxtPassword = new dtxUpload.TextBoxAndInfo();
 			this._panButtons.SuspendLayout();
 			this._ContextMenu.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this._picLogo)).BeginInit();
 			this._panLoginInputs.SuspendLayout();
+			this.groupBox1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this._picLogo)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// _cmbServer
@@ -131,16 +137,6 @@
 			this._panButtons.Size = new System.Drawing.Size(234, 32);
 			this._panButtons.TabIndex = 9;
 			// 
-			// _btnSettings
-			// 
-			this._btnSettings.Image = global::dtxUpload.Properties.Resources.icon_16_tool_b;
-			this._btnSettings.Location = new System.Drawing.Point(12, 2);
-			this._btnSettings.Name = "_btnSettings";
-			this._btnSettings.Size = new System.Drawing.Size(24, 23);
-			this._btnSettings.TabIndex = 2;
-			this._btnSettings.UseVisualStyleBackColor = true;
-			this._btnSettings.Click += new System.EventHandler(this._btnSettings_Click);
-			// 
 			// _btnConfigDone
 			// 
 			this._btnConfigDone.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -149,6 +145,7 @@
 			this._btnConfigDone.Size = new System.Drawing.Size(56, 23);
 			this._btnConfigDone.TabIndex = 3;
 			this._btnConfigDone.Text = "&Done";
+			this._tipDefault.SetToolTip(this._btnConfigDone, "Complete configuration changes.");
 			this._btnConfigDone.UseVisualStyleBackColor = true;
 			this._btnConfigDone.Click += new System.EventHandler(this._btnConfigDone_Click);
 			// 
@@ -165,18 +162,20 @@
 			this._ContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._manageFilesToolStripMenuItem,
             this._uploadFilesToolStripMenuItem,
+            this._uploadCropScreenshotToolStripMenuItem,
+            this._uploadScreenshotToolStripMenuItem,
             this._toolStripSearator1,
             this._loginToolStripMenuItem,
             this._logoutToolStripMenuItem,
             this._settingsToolStripMenuItem,
             this._exitToolStripMenuItem});
 			this._ContextMenu.Name = "contextMenuStrip";
-			this._ContextMenu.Size = new System.Drawing.Size(144, 142);
+			this._ContextMenu.Size = new System.Drawing.Size(203, 208);
 			// 
 			// _manageFilesToolStripMenuItem
 			// 
 			this._manageFilesToolStripMenuItem.Name = "_manageFilesToolStripMenuItem";
-			this._manageFilesToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+			this._manageFilesToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
 			this._manageFilesToolStripMenuItem.Text = "Manage Files";
 			this._manageFilesToolStripMenuItem.Visible = false;
 			this._manageFilesToolStripMenuItem.Click += new System.EventHandler(this._manageFilesToolStripMenuItem_Click);
@@ -184,7 +183,7 @@
 			// _uploadFilesToolStripMenuItem
 			// 
 			this._uploadFilesToolStripMenuItem.Name = "_uploadFilesToolStripMenuItem";
-			this._uploadFilesToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+			this._uploadFilesToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
 			this._uploadFilesToolStripMenuItem.Text = "Upload Files";
 			this._uploadFilesToolStripMenuItem.Visible = false;
 			this._uploadFilesToolStripMenuItem.Click += new System.EventHandler(this._uploadFilesToolStripMenuItem_Click);
@@ -192,20 +191,20 @@
 			// _toolStripSearator1
 			// 
 			this._toolStripSearator1.Name = "_toolStripSearator1";
-			this._toolStripSearator1.Size = new System.Drawing.Size(140, 6);
+			this._toolStripSearator1.Size = new System.Drawing.Size(199, 6);
 			this._toolStripSearator1.Visible = false;
 			// 
 			// _loginToolStripMenuItem
 			// 
 			this._loginToolStripMenuItem.Name = "_loginToolStripMenuItem";
-			this._loginToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+			this._loginToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
 			this._loginToolStripMenuItem.Text = "Login";
 			this._loginToolStripMenuItem.Click += new System.EventHandler(this._loginToolStripMenuItem_Click);
 			// 
 			// _logoutToolStripMenuItem
 			// 
 			this._logoutToolStripMenuItem.Name = "_logoutToolStripMenuItem";
-			this._logoutToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+			this._logoutToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
 			this._logoutToolStripMenuItem.Text = "Logout";
 			this._logoutToolStripMenuItem.Visible = false;
 			this._logoutToolStripMenuItem.Click += new System.EventHandler(this.logoutToolStripMenuItem_Click);
@@ -213,9 +212,10 @@
 			// _settingsToolStripMenuItem
 			// 
 			this._settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._confirmClipboardUploadToolStripMenuItem});
+            this._confirmClipboardUploadToolStripMenuItem,
+            this._copyLastUploadToClipboardToolStripMenuItem});
 			this._settingsToolStripMenuItem.Name = "_settingsToolStripMenuItem";
-			this._settingsToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+			this._settingsToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
 			this._settingsToolStripMenuItem.Text = "&Settings";
 			this._settingsToolStripMenuItem.DropDownOpening += new System.EventHandler(this._settingsToolStripMenuItem_DropDownOpening);
 			this._settingsToolStripMenuItem.Click += new System.EventHandler(this._settingsToolStripMenuItem_Click);
@@ -223,14 +223,14 @@
 			// _confirmClipboardUploadToolStripMenuItem
 			// 
 			this._confirmClipboardUploadToolStripMenuItem.Name = "_confirmClipboardUploadToolStripMenuItem";
-			this._confirmClipboardUploadToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
-			this._confirmClipboardUploadToolStripMenuItem.Text = "Confirm Clipboard Upload";
+			this._confirmClipboardUploadToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+			this._confirmClipboardUploadToolStripMenuItem.Text = "Confirm clipboard upload";
 			this._confirmClipboardUploadToolStripMenuItem.Click += new System.EventHandler(this._confirmClipboardUploadToolStripMenuItem_Click);
 			// 
 			// _exitToolStripMenuItem
 			// 
 			this._exitToolStripMenuItem.Name = "_exitToolStripMenuItem";
-			this._exitToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+			this._exitToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
 			this._exitToolStripMenuItem.Text = "E&xit";
 			this._exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
@@ -253,12 +253,115 @@
 			// 
 			// _btnRemoveServer
 			// 
-			this._btnRemoveServer.Location = new System.Drawing.Point(254, 97);
+			this._btnRemoveServer.Location = new System.Drawing.Point(237, 95);
 			this._btnRemoveServer.Name = "_btnRemoveServer";
 			this._btnRemoveServer.Size = new System.Drawing.Size(55, 23);
 			this._btnRemoveServer.TabIndex = 11;
 			this._btnRemoveServer.Text = "Remove";
+			this._tipDefault.SetToolTip(this._btnRemoveServer, "Remove currently selected server.");
 			this._btnRemoveServer.UseVisualStyleBackColor = true;
+			// 
+			// _cmbScreenshotFormat
+			// 
+			this._cmbScreenshotFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this._cmbScreenshotFormat.FormattingEnabled = true;
+			this._cmbScreenshotFormat.Items.AddRange(new object[] {
+            "Auto (Always smaller image)",
+            "Jpeg (Smaller lossy format)",
+            "PNG (Larger lossless format)"});
+			this._cmbScreenshotFormat.Location = new System.Drawing.Point(9, 32);
+			this._cmbScreenshotFormat.Name = "_cmbScreenshotFormat";
+			this._cmbScreenshotFormat.Size = new System.Drawing.Size(157, 21);
+			this._cmbScreenshotFormat.TabIndex = 12;
+			this._tipDefault.SetToolTip(this._cmbScreenshotFormat, "File format for screenshots.");
+			this._cmbScreenshotFormat.SelectedIndexChanged += new System.EventHandler(this._cmbScreenshotFormat_SelectedIndexChanged);
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(6, 16);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(99, 13);
+			this.label4.TabIndex = 13;
+			this.label4.Text = "Screenshot Format:";
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(169, 16);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(65, 13);
+			this.label5.TabIndex = 14;
+			this.label5.Text = "JPG Quality:";
+			// 
+			// _cmbScreenshotQuality
+			// 
+			this._cmbScreenshotQuality.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this._cmbScreenshotQuality.FormattingEnabled = true;
+			this._cmbScreenshotQuality.Items.AddRange(new object[] {
+            "100",
+            "90",
+            "80",
+            "70",
+            "60",
+            "50",
+            "40",
+            "30",
+            "20",
+            "10"});
+			this._cmbScreenshotQuality.Location = new System.Drawing.Point(172, 32);
+			this._cmbScreenshotQuality.Name = "_cmbScreenshotQuality";
+			this._cmbScreenshotQuality.Size = new System.Drawing.Size(63, 21);
+			this._cmbScreenshotQuality.TabIndex = 15;
+			this._tipDefault.SetToolTip(this._cmbScreenshotQuality, "Quality of the compression used for JPEG images.  Higher is better quality and bi" +
+					"gger file sizes.");
+			this._cmbScreenshotQuality.SelectedIndexChanged += new System.EventHandler(this._cmbScreenshotQuality_SelectedIndexChanged);
+			// 
+			// _panLoginInputs
+			// 
+			this._panLoginInputs.Controls.Add(this._itxtUsername);
+			this._panLoginInputs.Controls.Add(this._itxtPassword);
+			this._panLoginInputs.Controls.Add(this.label1);
+			this._panLoginInputs.Controls.Add(this.label3);
+			this._panLoginInputs.Controls.Add(this.label2);
+			this._panLoginInputs.Controls.Add(this._chkSavePassword);
+			this._panLoginInputs.Controls.Add(this._cmbServer);
+			this._panLoginInputs.Controls.Add(this._lblWarnServer);
+			this._panLoginInputs.Location = new System.Drawing.Point(0, 72);
+			this._panLoginInputs.Margin = new System.Windows.Forms.Padding(0);
+			this._panLoginInputs.Name = "_panLoginInputs";
+			this._panLoginInputs.Size = new System.Drawing.Size(234, 197);
+			this._panLoginInputs.TabIndex = 16;
+			// 
+			// groupBox1
+			// 
+			this.groupBox1.Controls.Add(this.label4);
+			this.groupBox1.Controls.Add(this.label5);
+			this.groupBox1.Controls.Add(this._cmbScreenshotFormat);
+			this.groupBox1.Controls.Add(this._cmbScreenshotQuality);
+			this.groupBox1.Location = new System.Drawing.Point(237, 126);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Size = new System.Drawing.Size(240, 66);
+			this.groupBox1.TabIndex = 17;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "Options";
+			// 
+			// _copyLastUploadToClipboardToolStripMenuItem
+			// 
+			this._copyLastUploadToClipboardToolStripMenuItem.Name = "_copyLastUploadToClipboardToolStripMenuItem";
+			this._copyLastUploadToClipboardToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+			this._copyLastUploadToClipboardToolStripMenuItem.Text = "Copy upload URL to clipboard";
+			this._copyLastUploadToClipboardToolStripMenuItem.Click += new System.EventHandler(this._copyLastUploadToClipboardToolStripMenuItem_Click);
+			// 
+			// _btnSettings
+			// 
+			this._btnSettings.Image = global::dtxUpload.Properties.Resources.icon_16_tool_b;
+			this._btnSettings.Location = new System.Drawing.Point(9, 3);
+			this._btnSettings.Name = "_btnSettings";
+			this._btnSettings.Size = new System.Drawing.Size(24, 23);
+			this._btnSettings.TabIndex = 2;
+			this._btnSettings.UseVisualStyleBackColor = true;
+			this._btnSettings.Click += new System.EventHandler(this._btnSettings_Click);
 			// 
 			// _picLogo
 			// 
@@ -276,70 +379,23 @@
 			this._picLogo.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseMove);
 			this._picLogo.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseUp);
 			// 
-			// comboBox1
+			// _uploadCropScreenshotToolStripMenuItem
 			// 
-			this.comboBox1.FormattingEnabled = true;
-			this.comboBox1.Items.AddRange(new object[] {
-            "Auto (Always smaller image)",
-            "Jpeg (Smaller lossy format)",
-            "PNG (Large lossless format) "});
-			this.comboBox1.Location = new System.Drawing.Point(254, 153);
-			this.comboBox1.Name = "comboBox1";
-			this.comboBox1.Size = new System.Drawing.Size(157, 21);
-			this.comboBox1.TabIndex = 12;
+			this._uploadCropScreenshotToolStripMenuItem.Image = global::dtxUpload.Properties.Resources.icon_paper_excerpt_blue_16_ns;
+			this._uploadCropScreenshotToolStripMenuItem.Name = "_uploadCropScreenshotToolStripMenuItem";
+			this._uploadCropScreenshotToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+			this._uploadCropScreenshotToolStripMenuItem.Text = "Upload Crop Screenshot";
+			this._uploadCropScreenshotToolStripMenuItem.Visible = false;
+			this._uploadCropScreenshotToolStripMenuItem.Click += new System.EventHandler(this._uploadCropScreenshotToolStripMenuItem_Click);
 			// 
-			// label4
+			// _uploadScreenshotToolStripMenuItem
 			// 
-			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(251, 137);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(99, 13);
-			this.label4.TabIndex = 13;
-			this.label4.Text = "Screenshot Format:";
-			// 
-			// label5
-			// 
-			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(414, 137);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(42, 13);
-			this.label5.TabIndex = 14;
-			this.label5.Text = "Quality:";
-			// 
-			// comboBox2
-			// 
-			this.comboBox2.FormattingEnabled = true;
-			this.comboBox2.Items.AddRange(new object[] {
-            "100",
-            "90",
-            "80",
-            "70",
-            "60",
-            "50",
-            "40",
-            "30",
-            "20",
-            "10"});
-			this.comboBox2.Location = new System.Drawing.Point(417, 153);
-			this.comboBox2.Name = "comboBox2";
-			this.comboBox2.Size = new System.Drawing.Size(55, 21);
-			this.comboBox2.TabIndex = 15;
-			// 
-			// _panLoginInputs
-			// 
-			this._panLoginInputs.Controls.Add(this._itxtUsername);
-			this._panLoginInputs.Controls.Add(this._itxtPassword);
-			this._panLoginInputs.Controls.Add(this.label1);
-			this._panLoginInputs.Controls.Add(this.label3);
-			this._panLoginInputs.Controls.Add(this.label2);
-			this._panLoginInputs.Controls.Add(this._chkSavePassword);
-			this._panLoginInputs.Controls.Add(this._cmbServer);
-			this._panLoginInputs.Controls.Add(this._lblWarnServer);
-			this._panLoginInputs.Location = new System.Drawing.Point(0, 72);
-			this._panLoginInputs.Margin = new System.Windows.Forms.Padding(0);
-			this._panLoginInputs.Name = "_panLoginInputs";
-			this._panLoginInputs.Size = new System.Drawing.Size(234, 197);
-			this._panLoginInputs.TabIndex = 16;
+			this._uploadScreenshotToolStripMenuItem.Image = global::dtxUpload.Properties.Resources.icon_note_16_ns;
+			this._uploadScreenshotToolStripMenuItem.Name = "_uploadScreenshotToolStripMenuItem";
+			this._uploadScreenshotToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+			this._uploadScreenshotToolStripMenuItem.Text = "Upload Screenshot";
+			this._uploadScreenshotToolStripMenuItem.Visible = false;
+			this._uploadScreenshotToolStripMenuItem.Click += new System.EventHandler(this._uploadScreenshotToolStripMenuItem_Click);
 			// 
 			// _itxtUsername
 			// 
@@ -376,14 +432,11 @@
 			this.CancelButton = this._btnCancel;
 			this.ClientSize = new System.Drawing.Size(234, 302);
 			this.ControlBox = false;
+			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this._panLoginInputs);
-			this.Controls.Add(this.comboBox2);
-			this.Controls.Add(this.label5);
-			this.Controls.Add(this.label4);
-			this.Controls.Add(this.comboBox1);
 			this.Controls.Add(this._panButtons);
-			this.Controls.Add(this._btnRemoveServer);
 			this.Controls.Add(this._picLogo);
+			this.Controls.Add(this._btnRemoveServer);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
 			this.MaximumSize = new System.Drawing.Size(500, 318);
@@ -401,11 +454,12 @@
 			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.frmLogin_MouseUp);
 			this._panButtons.ResumeLayout(false);
 			this._ContextMenu.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this._picLogo)).EndInit();
 			this._panLoginInputs.ResumeLayout(false);
 			this._panLoginInputs.PerformLayout();
+			this.groupBox1.ResumeLayout(false);
+			this.groupBox1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this._picLogo)).EndInit();
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
 		}
 
@@ -431,15 +485,20 @@
 		private System.Windows.Forms.ToolStripMenuItem _settingsToolStripMenuItem;
 		private System.Windows.Forms.Label _lblWarnServer;
 		private System.Windows.Forms.Button _btnRemoveServer;
-		private System.Windows.Forms.ComboBox comboBox1;
+		private System.Windows.Forms.ComboBox _cmbScreenshotFormat;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label5;
-		private System.Windows.Forms.ComboBox comboBox2;
+		private System.Windows.Forms.ComboBox _cmbScreenshotQuality;
 		private System.Windows.Forms.ToolStripMenuItem _logoutToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem _loginToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem _uploadFilesToolStripMenuItem;
 		private System.Windows.Forms.Button _btnConfigDone;
 		private System.Windows.Forms.Panel _panLoginInputs;
 		private System.Windows.Forms.ToolStripMenuItem _confirmClipboardUploadToolStripMenuItem;
+		private System.Windows.Forms.ToolTip _tipDefault;
+		private System.Windows.Forms.GroupBox groupBox1;
+		private System.Windows.Forms.ToolStripMenuItem _uploadScreenshotToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem _uploadCropScreenshotToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem _copyLastUploadToClipboardToolStripMenuItem;
 	}
 }

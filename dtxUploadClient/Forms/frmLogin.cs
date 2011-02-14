@@ -46,6 +46,10 @@ namespace dtxUpload {
 			loadLogoWorker.DoWork += new DoWorkEventHandler(loadLogoWorker_DoWork);
 			loadLogoWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(loadLogoWorker_RunWorkerCompleted);
 
+			// Load configurations.
+			_cmbScreenshotFormat.SelectedIndex = Client.config.get<int>("frmlogin.screenshot_upload_format", 0);
+			_cmbScreenshotQuality.Text = Client.config.get<string>("frmlogin.screenshot_jpeg_quality", "90");
+
 			frmLogin_Activated(new object(), new EventArgs());
 		}
 
@@ -294,6 +298,8 @@ namespace dtxUpload {
 			_toolStripSearator1.Visible = true;
 			_manageFilesToolStripMenuItem.Visible = true;
 			_uploadFilesToolStripMenuItem.Visible = true;
+			_uploadCropScreenshotToolStripMenuItem.Visible = true;
+			_uploadScreenshotToolStripMenuItem.Visible = true;
 
 			// Hide the login window untill we need to login again.
 			if(this.WindowState == FormWindowState.Normal) this.Hide();
@@ -317,6 +323,9 @@ namespace dtxUpload {
 			_toolStripSearator1.Visible = false;
 			_manageFilesToolStripMenuItem.Visible = false;
 			_uploadFilesToolStripMenuItem.Visible = false;
+			_uploadCropScreenshotToolStripMenuItem.Visible = false;
+			_uploadScreenshotToolStripMenuItem.Visible = false;
+
 
 			this.Show();
 		}
@@ -444,6 +453,16 @@ namespace dtxUpload {
 
 		private void _uploadFilesToolStripMenuItem_Click(object sender, EventArgs e) {
 			Client.form_QuickUpload.Show();
+			Client.form_QuickUpload.TopMost = true;
+			Client.form_QuickUpload.TopMost = false;
+		}
+
+		#region Settings on contextmenu
+
+		// Load all the settings from the config file.
+		private void _settingsToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
+			_confirmClipboardUploadToolStripMenuItem.Checked = Client.config.get<bool>("frmquickupload.show_clipboard_confirmation");
+			_copyLastUploadToClipboardToolStripMenuItem.Checked = Client.config.get<bool>("frmquickupload.copy_upload_clipboard");
 		}
 
 		private void _confirmClipboardUploadToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -452,16 +471,46 @@ namespace dtxUpload {
 			Client.config.save();
 		}
 
-		// Load all the settings from the config file.
-		private void _settingsToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
-			_confirmClipboardUploadToolStripMenuItem.Checked = Client.config.get<bool>("frmquickupload.show_clipboard_confirmation");
+		private void _copyLastUploadToClipboardToolStripMenuItem_Click(object sender, EventArgs e) {
+			_copyLastUploadToClipboardToolStripMenuItem.Checked = !_copyLastUploadToClipboardToolStripMenuItem.Checked;
+			Client.config.set("frmquickupload.copy_upload_clipboard", _copyLastUploadToClipboardToolStripMenuItem.Checked);
+			Client.config.save();
 		}
 
+		#endregion
 
+		private void _cmbScreenshotFormat_SelectedIndexChanged(object sender, EventArgs e) {
+			switch(_cmbScreenshotFormat.SelectedIndex) {
+				case 0: // Auto detect
+					_cmbScreenshotQuality.Enabled = true;
+					break;
 
+				case 1: // JPEG
+					_cmbScreenshotQuality.Enabled = true;
+					break;
 
+				case 2: // JPEG
+					_cmbScreenshotQuality.Enabled = false;
+					break;
+			}
 
+			Client.config.set("frmlogin.screenshot_upload_format", _cmbScreenshotFormat.SelectedIndex);
+			Client.config.save();
+		}
 
+		private void _cmbScreenshotQuality_SelectedIndexChanged(object sender, EventArgs e) {
+			Client.config.set("frmlogin.screenshot_jpeg_quality", _cmbScreenshotQuality.Text);
+			Client.config.save();
+		}
 
+		private void _uploadScreenshotToolStripMenuItem_Click(object sender, EventArgs e) {
+			if(Client.server_info.is_connected) {
+				Client.form_QuickUpload.uploadScreenshot(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+			}
+		}
+
+		private void _uploadCropScreenshotToolStripMenuItem_Click(object sender, EventArgs e) {
+			new frmCropScreen().Show();
+		}
 	}
 }

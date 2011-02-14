@@ -130,16 +130,7 @@ namespace dtxUpload {
 				}
 
 			} else if(Clipboard.ContainsImage()) {
-				DC_ImageInformation file = smartImage(Clipboard.GetImage(), "Clipboard_");
-
-				DC_FileInformation file_info = new DC_FileInformation() {
-					file_name = Path.GetFileName(file.full_location),
-					delete_after_upload = true,
-					file_size = file.size,
-					local_file_location = file.full_location
-				};
-
-				uploadFile(file_info);
+				uploadImage(Clipboard.GetImage(), "Clipboard_");
 
 			} else if(Clipboard.ContainsText()) {
 				string temp_file = Path.GetTempFileName();
@@ -167,12 +158,81 @@ namespace dtxUpload {
 			}
 		}
 
+		public void uploadScreenshot(int start_x, int start_y, int width, int height) {
+			Bitmap base_bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+			Graphics graphic = Graphics.FromImage(base_bitmap);
+			Size sz = new Size(width, height);
+
+			graphic.CopyFromScreen(start_x, start_y, 0, 0, sz, CopyPixelOperation.SourceCopy);
+			uploadImage(base_bitmap, "Screenshot_");
+		}
+
+		private void uploadImage(Image image, string upload_prefix) {
+			int screenshot_type = Client.config.get<int>("frmlogin.screenshot_upload_format");
+			DC_ImageInformation file;
+
+			switch(screenshot_type) {
+				case 0: // Auto detect best method.
+					file = tmpSaveImageAuto(image, upload_prefix);
+					break;
+
+				case 1: // JPEG
+					file = tmpSaveImageJpeg(image, upload_prefix);
+					break;
+
+				case 2: // PNG
+					file = tmpSaveImagePng(image, upload_prefix);
+					break;
+
+				default: // Just incase somebody inputted a number like -1 for jokes.
+					file = tmpSaveImageAuto(image, upload_prefix);
+					break;
+			}
+
+			DC_FileInformation file_info = new DC_FileInformation() {
+				file_name = Path.GetFileName(file.full_location),
+				delete_after_upload = true,
+				file_size = file.size,
+				local_file_location = file.full_location
+			};
+
+			uploadFile(file_info);
+		}
+
+		private DC_ImageInformation tmpSaveImageJpeg(Image img, string file_prefix) {
+
+			int screenshots = Client.config.getAndIncrement("uploads.total_screenshots");
+			string jpg_file = Path.GetTempPath() + "\\" + file_prefix + "Image_" + screenshots.ToString() + ".jpg";
+
+			img.Save(jpg_file, codec_jpeg, encoder_params_jpg);
+
+			return new DC_ImageInformation() {
+				full_location = jpg_file,
+				size = new FileInfo(jpg_file).Length,
+				type = "jpg"
+			};
+		}
+
+		private DC_ImageInformation tmpSaveImagePng(Image img, string file_prefix) {
+
+			int screenshots = Client.config.getAndIncrement("uploads.total_screenshots");
+			string jpg_file = Path.GetTempPath() + "\\" + file_prefix + "Image_" + screenshots.ToString() + ".jpg";
+
+			img.Save(jpg_file, ImageFormat.Png);
+
+			return new DC_ImageInformation() {
+				full_location = jpg_file,
+				size = new FileInfo(jpg_file).Length,
+				type = "png"
+			};
+		}
+
 		/// <summary>
 		/// Automatically determine which image format is smaller and return that file.
 		/// </summary>
 		/// <param name="img"></param>
 		/// <returns>Full location of the temp image file.</returns>
-		private DC_ImageInformation smartImage(Image img, string file_prefix) {
+		private DC_ImageInformation tmpSaveImageAuto(Image img, string file_prefix) {
 			string temp_file = Path.GetTempFileName();
 			long image_size;
 			string type;
@@ -213,6 +273,8 @@ namespace dtxUpload {
 				type = type
 			};
 		}
+
+
 
 		private void _btnClearList_Click(object sender, EventArgs e) {
 			foreach(UploadFileItem upload in uploading_itmes) {

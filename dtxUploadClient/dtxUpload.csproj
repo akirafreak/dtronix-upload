@@ -72,6 +72,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\frmCropScreen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmCropScreen.Designer.cs">
+      <DependentUpon>frmCropScreen.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\BuildInformation.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BuildInformation.tt</DependentUpon>
+    </Compile>
     <Compile Include="Classes\Client.cs" />
     <Compile Include="Classes\ClientActions.cs" />
     <Compile Include="Classes\DataClasses.cs" />
@@ -121,6 +132,18 @@
     <Content Include="Installer\Readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\icon_24_message_warn.png" />
+    <None Include="Resources\icon_24_em_up.png" />
+    <None Include="Resources\icon_24_em_cross.png" />
+    <None Include="Resources\icon_24_em_check.png" />
+    <None Include="Resources\icon_24_control_stop.png" />
+    <None Include="Resources\icon_16_tool_b.png" />
+    <None Include="Resources\paper-excerpt-blue-16-ns.png" />
+    <None Include="Resources\note-16-ns.png" />
+    <None Include="Properties\BuildInformation.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BuildInformation.cs</LastGenOutput>
+    </None>
     <None Include="Resources\page-pencil-24-ns.png" />
     <None Include="Resources\page-24-ns.png" />
     <None Include="Resources\24-image.png" />
@@ -130,6 +153,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmConnector.resx">
       <DependentUpon>frmConnector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\frmCropScreen.resx">
+      <DependentUpon>frmCropScreen.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmLogin.resx">
       <DependentUpon>frmLogin.cs</DependentUpon>
@@ -186,14 +212,6 @@
     </Content>
     <Content Include="icon16.ico" />
     <None Include="Resources\LoginLogoRev2.png" />
-    <None Include="miniIcons\icon_24_message_warn.png" />
-    <None Include="miniIcons\icon_24_control_stop.png" />
-    <None Include="miniIcons\icon_24_em_up.png" />
-    <None Include="miniIcons\icon_24_em_cross.png" />
-    <None Include="miniIcons\icon_24_em_check.png" />
-    <None Include="miniIcons\icon_16_tool_b.png" />
-    <None Include="Resources\LoginLogoRev1.png" />
-    <None Include="Resources\LoginLogo.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -212,7 +230,9 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Release "$(TargetDir)Installer\build.bat"</PostBuildEvent>
