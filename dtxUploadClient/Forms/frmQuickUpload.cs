@@ -216,7 +216,7 @@ namespace dtxUpload {
 		private DC_ImageInformation tmpSaveImagePng(Image img, string file_prefix) {
 
 			int screenshots = Client.config.getAndIncrement("uploads.total_screenshots");
-			string jpg_file = Path.GetTempPath() + "\\" + file_prefix + "Image_" + screenshots.ToString() + ".jpg";
+			string jpg_file = Path.GetTempPath() + "\\" + file_prefix + "Image_" + screenshots.ToString() + ".png";
 
 			img.Save(jpg_file, ImageFormat.Png);
 
