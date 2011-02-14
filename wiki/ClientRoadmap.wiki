@@ -1,0 +1,18 @@
+#summary Current Roadmap for Dtronix Upload
+#labels Featured,Phase-Requirements
+
+= Dtronix Client 0.4 Features =
+
+
+||Feature||Track||
+||Large file upload.  Upload large files in chunks to allow resuming of uploads in case of failure.||[http://code.google.com/p/dtronix-upload/issues/detail?id=22 Issue 22]||
+||Installer prompts user to install .NET 2.0 if it is not installed.||[http://code.google.com/p/dtronix-upload/issues/detail?id=6 Issue 6]||
+||Windows explorer context menu integration to allow uploads.||[http://code.google.com/p/dtronix-upload/issues/detail?id=23 Issue 23]||
+||7-Zip integration to allow for zipping of files prior to upload.||[http://code.google.com/p/dtronix-upload/issues/detail?id=21 Issue 21]||
+
+<br/>
+
+
+=== Dtronix Client 0.5 Features (Tentative)===
+||Feature||Track||
+||Hard drive emulation and explorer drag and drop.||N/A||
