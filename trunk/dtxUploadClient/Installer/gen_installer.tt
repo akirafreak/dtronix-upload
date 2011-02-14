@@ -1,12 +1,16 @@
-﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ output extension=".nsi" #>
+<#
+// Must force this to be ASCII.  This is the only format that this installer scripting system supports.
+this.Host.SetOutputEncoding(System.Text.Encoding.ASCII, false);
+#>
 <#
 DateTime project_start = new DateTime(2011, 1, 26, 14, 39, 52);
 int total_project_days = (int)DateTime.Now.Subtract(project_start).TotalDays;
 #>
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Dtronix Upload"
-!define PRODUCT_VERSION "0.2.<#= total_project_days #>"
+!define PRODUCT_VERSION "0.3.<#= total_project_days #>"
 !define PRODUCT_PUBLISHER "Dtronix"
 !define PRODUCT_WEB_SITE "http://dtronix.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\dtxUpload.exe"
@@ -59,62 +63,63 @@ ShowInstDetails show
 ShowUnInstDetails show
 
 Section "MainSection" SEC01
-  SetOutPath "$INSTDIR"
-  SetOverwrite ifnewer
-  File "..\dtxUpload.exe"
-  CreateDirectory "$SMPROGRAMS\Dtronix Upload"
-  CreateShortCut "$SMPROGRAMS\Dtronix Upload\dtxUpload.lnk" "$INSTDIR\dtxUpload.exe"
-  File "..\dtxCore.dll"
-  File "..\dtxCrashReporter.exe"
+SetOutPath "$INSTDIR"
+SetOverwrite ifnewer
+File "..\dtxUpload.exe"
+CreateDirectory "$SMPROGRAMS\Dtronix Upload"
+CreateShortCut "$SMPROGRAMS\Dtronix Upload\dtxUpload.lnk" "$INSTDIR\dtxUpload.exe"
+File "..\dtxCore.dll"
+File "..\dtxCrashReporter.exe"
 SectionEnd
 
 Section -AdditionalIcons
-  CreateShortCut "$SMPROGRAMS\Dtronix Upload\Uninstall.lnk" "$INSTDIR\uninst.exe"
+CreateShortCut "$SMPROGRAMS\Dtronix Upload\Uninstall.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
 
 Section -Post
-  WriteUninstaller "$INSTDIR\uninst.exe"
-  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\dtxUpload.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\dtxUpload.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+WriteUninstaller "$INSTDIR\uninst.exe"
+WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\dtxUpload.exe"
+WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
+WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
+WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\dtxUpload.exe"
+WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
+WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
+WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
 SectionEnd
 
 
 Function .onInit
-  !insertmacro MULTIUSER_INIT
+!insertmacro MULTIUSER_INIT
 FunctionEnd
 
 
 Function un.onUninstSuccess
-  HideWindow
-  MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer."
+HideWindow
+MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) was successfully removed from your computer."
 FunctionEnd
 
 Function un.onInit
-  !insertmacro MULTIUSER_UNINIT
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
-  Abort
+!insertmacro MULTIUSER_UNINIT
+MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
+Abort
 FunctionEnd
 
 
 Section Uninstall
-  Delete "$INSTDIR\uninst.exe"
-  Delete "$INSTDIR\dtxUpload.exe"
-  Delete "$INSTDIR\dtxCore.dll"
-  Delete "$INSTDIR\dtxCrashReporter.exe"
-  Delete "$INSTDIR\settings.dcf"
+Delete "$INSTDIR\uninst.exe"
+Delete "$INSTDIR\dtxUpload.exe"
+Delete "$INSTDIR\dtxCore.dll"
+Delete "$INSTDIR\dtxCrashReporter.exe"
+Delete "$INSTDIR\settings.dcf"
 
-  Delete "$SMPROGRAMS\Dtronix Upload\Uninstall.lnk"
-  Delete "$SMPROGRAMS\Dtronix Upload\dtxUpload.lnk"
+Delete "$SMPROGRAMS\Dtronix Upload\Uninstall.lnk"
+Delete "$SMPROGRAMS\Dtronix Upload\dtxUpload.lnk"
 
-  RMDir "$SMPROGRAMS\Dtronix Upload"
-  RMDir "$INSTDIR"
+RMDir "$SMPROGRAMS\Dtronix Upload"
+RMDir "$INSTDIR"
 
-  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
-  DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
-  SetAutoClose true
+DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
+DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
+SetAutoClose true
 SectionEnd
+

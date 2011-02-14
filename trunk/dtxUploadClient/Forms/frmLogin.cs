@@ -428,6 +428,8 @@ namespace dtxUpload {
 			if(Client.server_info.is_connected) {
 				connector.disconnect();
 			}
+			
+
 		}
 
 		private void _loginToolStripMenuItem_Click(object sender, EventArgs e) {

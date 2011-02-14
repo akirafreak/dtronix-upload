@@ -136,6 +136,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>gen_installer.tt</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Installer\gen_installer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
