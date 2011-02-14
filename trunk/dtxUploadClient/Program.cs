@@ -13,7 +13,9 @@ namespace dtxUpload {
 		/// </summary>
 		[STAThread]
 		static void Main() {
+#if !DEBUG
 			try {
+#endif
 				// Load all configurations and if the config file does not exist, generate a new one.
 				Client.config = new Config(delegate(Config current_config) {
 					DC_Server[] server_list = new DC_Server[1];
@@ -35,7 +37,7 @@ namespace dtxUpload {
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 				Application.Run(new frmLogin());
-
+#if !DEBUG
 			} catch(Exception e) {
 				StringBuilder sb = new StringBuilder();
 				JsonWriter jw = new JsonWriter(sb);
@@ -49,7 +51,6 @@ namespace dtxUpload {
 				};
 
 				jw.Write(exception);
-				MessageBox.Show(sb.ToString());
 
 				string args = Utilities.base64Encode(sb.ToString());
 				args += " ";
@@ -57,6 +58,7 @@ namespace dtxUpload {
 
 				System.Diagnostics.Process.Start("dtxCrashReporter.exe", args);
 			}
+#endif
 		}
 	}
 }

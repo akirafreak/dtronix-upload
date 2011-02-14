@@ -81,6 +81,11 @@ namespace dtxUpload {
 			file_info.url_id = info.url_id;
 			file_info.is_visible = info.is_visible;
 			file_info.url = connector.server_info.upload_base_url + info.url_id;
+
+			// Automatically copy the url to clipboard if the user so desires.
+			if(Client.config.get<bool>("frmquickupload.copy_upload_clipboard")) {
+				Clipboard.SetText(file_info.url, TextDataFormat.UnicodeText);
+			}
 		}
 
 

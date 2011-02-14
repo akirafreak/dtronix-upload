@@ -1,0 +1,14 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+<#
+DateTime project_start = new DateTime(2011, 1, 26, 14, 39, 52);
+int total_project_days = (int)DateTime.Now.Subtract(project_start).TotalDays;
+#>
+using System.Reflection;
+
+// Major.Minor.Build(Total days since start of project)
+// Project begin date: <#= project_start.ToLongDateString() #> <#=project_start.ToLongTimeString() #>
+[assembly: AssemblyVersion("0.2.<#= total_project_days #>")]
+[assembly: AssemblyFileVersion("0.2.<#= total_project_days #>")]
+[assembly: AssemblyCompany("Dtronix")]
+[assembly: AssemblyCopyright("©<#= DateTime.Now.Year #> Dtronix")]

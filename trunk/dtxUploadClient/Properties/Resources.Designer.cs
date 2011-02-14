@@ -109,10 +109,17 @@ namespace dtxUpload.Properties {
             }
         }
         
-        internal static System.Drawing.Icon icon16x16 {
+        internal static System.Drawing.Bitmap icon_note_16_ns {
             get {
-                object obj = ResourceManager.GetObject("icon16x16", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
+                object obj = ResourceManager.GetObject("icon_note_16_ns", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap icon_paper_excerpt_blue_16_ns {
+            get {
+                object obj = ResourceManager.GetObject("icon_paper_excerpt_blue_16_ns", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
