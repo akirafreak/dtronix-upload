@@ -63,10 +63,10 @@ namespace dtxUpload {
 
 
 		private class server_error_class{
-			public string error_type;
-			public string error_info;
-			public string error_file;
-			public string error_line;
+			public string error_type = null;
+			public string error_info = null;
+			public string error_file = null;
+			public string error_line = null;
 		}
 
 		public void server_error(string input) {
