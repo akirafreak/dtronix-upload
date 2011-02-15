@@ -10,11 +10,11 @@ using System.Windows.Forms;
 namespace dtxUpload.Classes {
 
 	class UploadFileItem {
-		public int id;
-		public string web_location;
-		public string location;
-		public int status;
-		public int percent_complete;
+		public int id = 0;
+		public string web_location = null;
+		public string location = null;
+		public int status = 0;
+		public int percent_complete = 0;
 	}
 
 	class UploadingQueue {
@@ -23,8 +23,6 @@ namespace dtxUpload.Classes {
 		private ServerConnector connector = new ServerConnector();
 		public int concurrent_upload_limit = 1;
 		private bool uploading = false;
-
-
 
 		/// <summary>
 		/// Add a file to the queue to be uploaded.
