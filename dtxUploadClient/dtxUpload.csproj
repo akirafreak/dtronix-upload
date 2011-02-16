@@ -87,7 +87,6 @@
     <Compile Include="Classes\ClientActions.cs" />
     <Compile Include="Classes\DataClasses.cs" />
     <Compile Include="Classes\ServerConnector.cs" />
-    <Compile Include="Classes\UploadingQueue.cs" />
     <Compile Include="Forms\Controls\UploadFileItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
