@@ -13,8 +13,9 @@ namespace dtxUpload {
 	public partial class frmQuickUpload : Form {
 
 		private List<UploadFileItem> uploading_itmes = new List<UploadFileItem>();
-		EncoderParameters encoder_params_jpg = new EncoderParameters(1);
-		ImageCodecInfo codec_jpeg;
+		private EncoderParameters encoder_params_jpg = new EncoderParameters(1);
+		private ImageCodecInfo codec_jpeg;
+		private Tween drop_files_tween;
 		
 		public frmQuickUpload() {
 			Client.form_QuickUpload = this;
@@ -30,6 +31,8 @@ namespace dtxUpload {
 			}
 
 			InitializeComponent();
+
+			_panDropUpload.Height = 0;
 			
 			// Immediately hide the confirmation row.
 			_tlpUploadTable.RowStyles[1].Height = 0;
@@ -42,6 +45,8 @@ namespace dtxUpload {
 		}
 
 		private void frmQuickUpload_Load(object sender, EventArgs e) {
+			drop_files_tween = new Tween(_panDropUpload, "Height", EasingEquations.expoEaseOut);
+
 			Rectangle r = Screen.PrimaryScreen.WorkingArea;
 			this.StartPosition = FormStartPosition.Manual;
 			this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Width - this.Width - 13, Screen.PrimaryScreen.WorkingArea.Height - this.Height - 13);
@@ -84,21 +89,6 @@ namespace dtxUpload {
 		private void frmQuickUpload_FormClosing(object sender, FormClosingEventArgs e) {
 			e.Cancel = true;
 			this.Hide();
-		}
-
-		private void _panFileItemContainer_DragEnter(object sender, DragEventArgs e) {
-			if(e.Data.GetDataPresent(DataFormats.FileDrop, false) == true) {
-				e.Effect = DragDropEffects.All;
-			}
-		}
-
-		private void _panFileItemContainer_DragDrop(object sender, DragEventArgs e) {
-			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-			foreach(string file in files) {
-				uploadFile(file);
-			}
-
 		}
 
 		private Tween confirm_upload_tween = new Tween(EasingEquations.expoEaseOut);
@@ -324,6 +314,56 @@ namespace dtxUpload {
 				_tlpUploadTable.RowStyles[1].Height = current;
 			});
 		}
+
+
+		private void _btnDropUploadFile_DragEnter(object sender, DragEventArgs e) {
+			if(e.Data.GetDataPresent(DataFormats.FileDrop, false) == true) {
+				e.Effect = DragDropEffects.All;
+			}
+		}
+
+		private bool is_dragging = false;
+		private bool is_drop_window_open = false;
+
+		private void _btnDropUploadFile_DragDrop(object sender, DragEventArgs e) {
+			drop_files_tween.start(0);
+			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+			foreach(string file in files) {
+				uploadFile(file);
+			}
+		}
+
+		private void _panFileItemContainer_DragLeave(object sender, EventArgs e) {
+			
+			drop_files_tween.start(0);
+		}
+
+		private void _panDropUpload_DragEnter(object sender, DragEventArgs e) {
+			_panFileItemContainer_DragEnter(sender, e);
+		}
+
+		private void _panFileItemContainer_DragEnter(object sender, DragEventArgs e) {
+			drop_files_tween.start(74);
+		}
+
+		private void _panDropUpload_DragDrop(object sender, DragEventArgs e) {
+			_panFileItemContainer_DragLeave(null, null);
+		}
+
+		private void _btnDropZip_DragEnter(object sender, DragEventArgs e) {
+			_panFileItemContainer_DragEnter(null, null);
+		}
+
+		private void _btnDropPrivate_DragEnter(object sender, DragEventArgs e) {
+			_panFileItemContainer_DragEnter(null, null);
+		}
+
+		private void _btnDropEncrypt_DragEnter(object sender, DragEventArgs e) {
+			_panFileItemContainer_DragEnter(null, null);
+		}
+
+
 
 		
 	}
