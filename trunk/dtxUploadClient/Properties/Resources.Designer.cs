@@ -60,6 +60,27 @@ namespace dtxUpload.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap arrow_incident_blue_24 {
+            get {
+                object obj = ResourceManager.GetObject("arrow_incident_blue_24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap asset_blue_24 {
+            get {
+                object obj = ResourceManager.GetObject("asset_blue_24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap clipboard_eye_24 {
+            get {
+                object obj = ResourceManager.GetObject("clipboard_eye_24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap icon_16_tool_b {
             get {
                 object obj = ResourceManager.GetObject("icon_16_tool_b", resourceCulture);
