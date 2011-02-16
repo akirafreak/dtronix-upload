@@ -122,17 +122,15 @@ namespace dtxUpload {
 		private void web_client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e) {
 			upload_control.Invoke((MethodInvoker)upload_control.uploadPostCompleted);
 
-			if(e.Error != null) {
+			if(e.Cancelled) {
+				actions.upload_canceled();
+
+			}else if(e.Error != null) {
 				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
 				server_info.is_connected = false;
 
 			} else {
-				if(e.Cancelled) {
-					actions.upload_canceled();
-
-				} else {
-					execServerResponce(UTF8Encoding.UTF8.GetString(e.Result));
-				}
+				execServerResponce(UTF8Encoding.UTF8.GetString(e.Result));
 			}		
 		}
 
