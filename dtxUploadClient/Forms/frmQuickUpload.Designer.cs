@@ -253,6 +253,7 @@
 			this._btnDropZip.TabIndex = 0;
 			this._btnDropZip.Text = "Zip file(s) then upload";
 			this._btnDropZip.UseVisualStyleBackColor = true;
+			this._btnDropZip.DragDrop += new System.Windows.Forms.DragEventHandler(this._btnDropZip_DragDrop);
 			this._btnDropZip.DragEnter += new System.Windows.Forms.DragEventHandler(this._btnDropZip_DragEnter);
 			// 
 			// frmQuickUpload
