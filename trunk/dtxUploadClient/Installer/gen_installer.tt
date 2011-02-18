@@ -71,6 +71,7 @@ CreateDirectory "$SMPROGRAMS\Dtronix Upload"
 CreateShortCut "$SMPROGRAMS\Dtronix Upload\dtxUpload.lnk" "$INSTDIR\dtxUpload.exe"
 File "..\dtxCore.dll"
 File "..\dtxCrashReporter.exe"
+File "..\7zr.exe"
 SectionEnd
 
 Section -AdditionalIcons
@@ -111,7 +112,10 @@ Delete "$INSTDIR\uninst.exe"
 Delete "$INSTDIR\dtxUpload.exe"
 Delete "$INSTDIR\dtxCore.dll"
 Delete "$INSTDIR\dtxCrashReporter.exe"
+Delete "$INSTDIR\7zr.exe"
+
 Delete "$INSTDIR\settings.dcf"
+
 
 Delete "$SMPROGRAMS\Dtronix Upload\Uninstall.lnk"
 Delete "$SMPROGRAMS\Dtronix Upload\dtxUpload.lnk"

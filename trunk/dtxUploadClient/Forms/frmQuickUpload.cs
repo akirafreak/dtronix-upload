@@ -69,13 +69,13 @@ namespace dtxUpload {
 			return control;
 		}
 
-		private void uploadFile(string file_location) {
-			FileInfo fi = new FileInfo(file_location);
+		private void uploadFile(string location) {
+			FileInfo fi = new FileInfo(location);
 			DC_FileInformation file_info = new DC_FileInformation() {
 				status = 5,
 				file_name = fi.Name,
 				file_size = fi.Length,
-				local_file_location = file_location,
+				local_file_location = location,
 			};
 			uploadFile(file_info);
 		}
@@ -83,6 +83,10 @@ namespace dtxUpload {
 		private void uploadFile(DC_FileInformation file_info) {
 			UploadFileItem control = addUploadItem(file_info);
 			control.startUpload();
+		}
+
+		private void uploadZipFile(string location) {
+
 		}
 
 
@@ -334,8 +338,17 @@ namespace dtxUpload {
 			}
 		}
 
+
+		private void _btnDropZip_DragDrop(object sender, DragEventArgs e) {
+			drop_files_tween.start(0);
+			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+			foreach(string file in files) {
+				uploadZipFile(file);
+			}
+		}
+
 		private void _panFileItemContainer_DragLeave(object sender, EventArgs e) {
-			
 			drop_files_tween.start(0);
 		}
 
@@ -362,6 +375,7 @@ namespace dtxUpload {
 		private void _btnDropEncrypt_DragEnter(object sender, DragEventArgs e) {
 			_panFileItemContainer_DragEnter(null, null);
 		}
+
 
 
 
