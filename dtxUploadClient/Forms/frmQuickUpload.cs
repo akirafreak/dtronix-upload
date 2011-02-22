@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing.Imaging;
-using Core;
+using dtxCore;
 
 namespace dtxUpload {
 	public partial class frmQuickUpload : Form {
@@ -41,6 +41,24 @@ namespace dtxUpload {
 			// Make the form load the previous saved height if there is any.
 			int saved_win_height = Client.config.get<int>("frmquickupload.window.height");
 			this.Height = (saved_win_height == 0) ? this.Height : saved_win_height;
+
+			// Make sure the form is the correct size.  Windows XP's form widths are less than 7's.
+			OperatingSystemInfo osi = Utilities.getOSInfo();
+			if(osi.os.Contains("XP")) {
+				Size min_size = new Size() {
+					Height = this.MinimumSize.Height - 8,
+					Width = this.MinimumSize.Width - 8
+				};
+
+				Size max_size = new Size() {
+					Height = this.MaximumSize.Height - 8,
+					Width = this.MaximumSize.Width - 8
+				};
+
+				this.MinimumSize = min_size;
+				this.MaximumSize = max_size;
+				this.Size = min_size;
+			}
 
 		}
 

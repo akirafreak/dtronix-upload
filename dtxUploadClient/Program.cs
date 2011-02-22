@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using System.Text;
-using Core;
-using Core.Json;
+using dtxCore;
+using dtxCore.Json;
 
 namespace dtxUpload {
 	static class Program {

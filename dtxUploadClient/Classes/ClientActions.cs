@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
-using Core.Json;
+using dtxCore.Json;
 using System.Drawing;
 using System.Net;
 
