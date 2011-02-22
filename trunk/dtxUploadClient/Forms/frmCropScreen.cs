@@ -5,7 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Core;
+using dtxCore;
 
 namespace dtxUpload {
 	public partial class frmCropScreen : Form {

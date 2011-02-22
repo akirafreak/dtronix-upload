@@ -32,17 +32,9 @@
 			this._btnCancel = new System.Windows.Forms.Button();
 			this._btnLogin = new System.Windows.Forms.Button();
 			this._panButtons = new System.Windows.Forms.Panel();
+			this._btnSettings = new System.Windows.Forms.Button();
 			this._btnConfigDone = new System.Windows.Forms.Button();
 			this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-			this._ContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this._manageFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this._uploadFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this._toolStripSearator1 = new System.Windows.Forms.ToolStripSeparator();
-			this._loginToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this._logoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this._settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this._confirmClipboardUploadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this._exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._chkSavePassword = new System.Windows.Forms.CheckBox();
 			this._lblWarnServer = new System.Windows.Forms.Label();
 			this._btnRemoveServer = new System.Windows.Forms.Button();
@@ -53,18 +45,27 @@
 			this._panLoginInputs = new System.Windows.Forms.Panel();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this._tipDefault = new System.Windows.Forms.ToolTip(this.components);
-			this._copyLastUploadToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this._btnSettings = new System.Windows.Forms.Button();
 			this._picLogo = new System.Windows.Forms.PictureBox();
-			this._uploadCropScreenshotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this._uploadScreenshotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._vistaMenu = new dtxCore.Controls.VistaMenu(this.components);
+			this._cmiUploadCropScreenshot = new System.Windows.Forms.MenuItem();
+			this._cmiUploadScreenshot = new System.Windows.Forms.MenuItem();
+			this._contextMenu = new System.Windows.Forms.ContextMenu();
+			this._cmiManageFiles = new System.Windows.Forms.MenuItem();
+			this._cmiUploadFiles = new System.Windows.Forms.MenuItem();
+			this._cmiLoggedSeparator = new System.Windows.Forms.MenuItem();
+			this._cmiLogin = new System.Windows.Forms.MenuItem();
+			this._cmiLogout = new System.Windows.Forms.MenuItem();
+			this._cmiSettings = new System.Windows.Forms.MenuItem();
+			this._cmiSettingsConfirmUpload = new System.Windows.Forms.MenuItem();
+			this._cmiSettingsUploadCopy = new System.Windows.Forms.MenuItem();
+			this._cmiExit = new System.Windows.Forms.MenuItem();
 			this._itxtUsername = new dtxUpload.TextBoxAndInfo();
 			this._itxtPassword = new dtxUpload.TextBoxAndInfo();
 			this._panButtons.SuspendLayout();
-			this._ContextMenu.SuspendLayout();
 			this._panLoginInputs.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this._picLogo)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this._vistaMenu)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// _cmbServer
@@ -137,6 +138,16 @@
 			this._panButtons.Size = new System.Drawing.Size(234, 32);
 			this._panButtons.TabIndex = 9;
 			// 
+			// _btnSettings
+			// 
+			this._btnSettings.Image = global::dtxUpload.Properties.Resources.icon_16_tool_b;
+			this._btnSettings.Location = new System.Drawing.Point(9, 3);
+			this._btnSettings.Name = "_btnSettings";
+			this._btnSettings.Size = new System.Drawing.Size(24, 23);
+			this._btnSettings.TabIndex = 2;
+			this._btnSettings.UseVisualStyleBackColor = true;
+			this._btnSettings.Click += new System.EventHandler(this._btnSettings_Click);
+			// 
 			// _btnConfigDone
 			// 
 			this._btnConfigDone.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -151,88 +162,10 @@
 			// 
 			// notifyIcon
 			// 
-			this.notifyIcon.ContextMenuStrip = this._ContextMenu;
 			this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
 			this.notifyIcon.Text = "Dtronix Upload";
 			this.notifyIcon.Visible = true;
 			this.notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseClick);
-			// 
-			// _ContextMenu
-			// 
-			this._ContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._manageFilesToolStripMenuItem,
-            this._uploadFilesToolStripMenuItem,
-            this._uploadCropScreenshotToolStripMenuItem,
-            this._uploadScreenshotToolStripMenuItem,
-            this._toolStripSearator1,
-            this._loginToolStripMenuItem,
-            this._logoutToolStripMenuItem,
-            this._settingsToolStripMenuItem,
-            this._exitToolStripMenuItem});
-			this._ContextMenu.Name = "contextMenuStrip";
-			this._ContextMenu.Size = new System.Drawing.Size(203, 208);
-			// 
-			// _manageFilesToolStripMenuItem
-			// 
-			this._manageFilesToolStripMenuItem.Name = "_manageFilesToolStripMenuItem";
-			this._manageFilesToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-			this._manageFilesToolStripMenuItem.Text = "Manage Files";
-			this._manageFilesToolStripMenuItem.Visible = false;
-			this._manageFilesToolStripMenuItem.Click += new System.EventHandler(this._manageFilesToolStripMenuItem_Click);
-			// 
-			// _uploadFilesToolStripMenuItem
-			// 
-			this._uploadFilesToolStripMenuItem.Name = "_uploadFilesToolStripMenuItem";
-			this._uploadFilesToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-			this._uploadFilesToolStripMenuItem.Text = "Upload Files";
-			this._uploadFilesToolStripMenuItem.Visible = false;
-			this._uploadFilesToolStripMenuItem.Click += new System.EventHandler(this._uploadFilesToolStripMenuItem_Click);
-			// 
-			// _toolStripSearator1
-			// 
-			this._toolStripSearator1.Name = "_toolStripSearator1";
-			this._toolStripSearator1.Size = new System.Drawing.Size(199, 6);
-			this._toolStripSearator1.Visible = false;
-			// 
-			// _loginToolStripMenuItem
-			// 
-			this._loginToolStripMenuItem.Name = "_loginToolStripMenuItem";
-			this._loginToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-			this._loginToolStripMenuItem.Text = "Login";
-			this._loginToolStripMenuItem.Click += new System.EventHandler(this._loginToolStripMenuItem_Click);
-			// 
-			// _logoutToolStripMenuItem
-			// 
-			this._logoutToolStripMenuItem.Name = "_logoutToolStripMenuItem";
-			this._logoutToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-			this._logoutToolStripMenuItem.Text = "Logout";
-			this._logoutToolStripMenuItem.Visible = false;
-			this._logoutToolStripMenuItem.Click += new System.EventHandler(this.logoutToolStripMenuItem_Click);
-			// 
-			// _settingsToolStripMenuItem
-			// 
-			this._settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._confirmClipboardUploadToolStripMenuItem,
-            this._copyLastUploadToClipboardToolStripMenuItem});
-			this._settingsToolStripMenuItem.Name = "_settingsToolStripMenuItem";
-			this._settingsToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-			this._settingsToolStripMenuItem.Text = "&Settings";
-			this._settingsToolStripMenuItem.DropDownOpening += new System.EventHandler(this._settingsToolStripMenuItem_DropDownOpening);
-			this._settingsToolStripMenuItem.Click += new System.EventHandler(this._settingsToolStripMenuItem_Click);
-			// 
-			// _confirmClipboardUploadToolStripMenuItem
-			// 
-			this._confirmClipboardUploadToolStripMenuItem.Name = "_confirmClipboardUploadToolStripMenuItem";
-			this._confirmClipboardUploadToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
-			this._confirmClipboardUploadToolStripMenuItem.Text = "Confirm clipboard upload";
-			this._confirmClipboardUploadToolStripMenuItem.Click += new System.EventHandler(this._confirmClipboardUploadToolStripMenuItem_Click);
-			// 
-			// _exitToolStripMenuItem
-			// 
-			this._exitToolStripMenuItem.Name = "_exitToolStripMenuItem";
-			this._exitToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-			this._exitToolStripMenuItem.Text = "E&xit";
-			this._exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
 			// _chkSavePassword
 			// 
@@ -346,23 +279,6 @@
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Options";
 			// 
-			// _copyLastUploadToClipboardToolStripMenuItem
-			// 
-			this._copyLastUploadToClipboardToolStripMenuItem.Name = "_copyLastUploadToClipboardToolStripMenuItem";
-			this._copyLastUploadToClipboardToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
-			this._copyLastUploadToClipboardToolStripMenuItem.Text = "Copy upload URL to clipboard";
-			this._copyLastUploadToClipboardToolStripMenuItem.Click += new System.EventHandler(this._copyLastUploadToClipboardToolStripMenuItem_Click);
-			// 
-			// _btnSettings
-			// 
-			this._btnSettings.Image = global::dtxUpload.Properties.Resources.icon_16_tool_b;
-			this._btnSettings.Location = new System.Drawing.Point(9, 3);
-			this._btnSettings.Name = "_btnSettings";
-			this._btnSettings.Size = new System.Drawing.Size(24, 23);
-			this._btnSettings.TabIndex = 2;
-			this._btnSettings.UseVisualStyleBackColor = true;
-			this._btnSettings.Click += new System.EventHandler(this._btnSettings_Click);
-			// 
 			// _picLogo
 			// 
 			this._picLogo.Dock = System.Windows.Forms.DockStyle.Top;
@@ -379,23 +295,98 @@
 			this._picLogo.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseMove);
 			this._picLogo.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseUp);
 			// 
-			// _uploadCropScreenshotToolStripMenuItem
+			// _vistaMenu
 			// 
-			this._uploadCropScreenshotToolStripMenuItem.Image = global::dtxUpload.Properties.Resources.icon_paper_excerpt_blue_16_ns;
-			this._uploadCropScreenshotToolStripMenuItem.Name = "_uploadCropScreenshotToolStripMenuItem";
-			this._uploadCropScreenshotToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-			this._uploadCropScreenshotToolStripMenuItem.Text = "Upload Crop Screenshot";
-			this._uploadCropScreenshotToolStripMenuItem.Visible = false;
-			this._uploadCropScreenshotToolStripMenuItem.Click += new System.EventHandler(this._uploadCropScreenshotToolStripMenuItem_Click);
+			this._vistaMenu.ContainerControl = this;
 			// 
-			// _uploadScreenshotToolStripMenuItem
+			// _cmiUploadCropScreenshot
 			// 
-			this._uploadScreenshotToolStripMenuItem.Image = global::dtxUpload.Properties.Resources.icon_note_16_ns;
-			this._uploadScreenshotToolStripMenuItem.Name = "_uploadScreenshotToolStripMenuItem";
-			this._uploadScreenshotToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-			this._uploadScreenshotToolStripMenuItem.Text = "Upload Screenshot";
-			this._uploadScreenshotToolStripMenuItem.Visible = false;
-			this._uploadScreenshotToolStripMenuItem.Click += new System.EventHandler(this._uploadScreenshotToolStripMenuItem_Click);
+			this._vistaMenu.SetImage(this._cmiUploadCropScreenshot, global::dtxUpload.Properties.Resources.icon_paper_excerpt_blue_16_ns);
+			this._cmiUploadCropScreenshot.Index = 2;
+			this._cmiUploadCropScreenshot.Text = "Upload Crop Screenshot";
+			this._cmiUploadCropScreenshot.Visible = false;
+			this._cmiUploadCropScreenshot.Click += new System.EventHandler(this._cmiUploadCropScreenshot_Click);
+			// 
+			// _cmiUploadScreenshot
+			// 
+			this._vistaMenu.SetImage(this._cmiUploadScreenshot, global::dtxUpload.Properties.Resources.icon_note_16_ns);
+			this._cmiUploadScreenshot.Index = 3;
+			this._cmiUploadScreenshot.Text = "Upload Screenshot";
+			this._cmiUploadScreenshot.Visible = false;
+			this._cmiUploadScreenshot.Click += new System.EventHandler(this._cmiUploadScreenshot_Click);
+			// 
+			// _contextMenu
+			// 
+			this._contextMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this._cmiManageFiles,
+            this._cmiUploadFiles,
+            this._cmiUploadCropScreenshot,
+            this._cmiUploadScreenshot,
+            this._cmiLoggedSeparator,
+            this._cmiLogin,
+            this._cmiLogout,
+            this._cmiSettings,
+            this._cmiExit});
+			this._contextMenu.Popup += new System.EventHandler(this._contextMenu_Popup);
+			// 
+			// _cmiManageFiles
+			// 
+			this._cmiManageFiles.Index = 0;
+			this._cmiManageFiles.Text = "Manage Files";
+			this._cmiManageFiles.Visible = false;
+			this._cmiManageFiles.Click += new System.EventHandler(this._cmiManageFiles_Click);
+			// 
+			// _cmiUploadFiles
+			// 
+			this._cmiUploadFiles.Index = 1;
+			this._cmiUploadFiles.Text = "Upload Files";
+			this._cmiUploadFiles.Visible = false;
+			this._cmiUploadFiles.Click += new System.EventHandler(this._cmiUploadFiles_Click);
+			// 
+			// _cmiLoggedSeparator
+			// 
+			this._cmiLoggedSeparator.Index = 4;
+			this._cmiLoggedSeparator.Text = "-";
+			this._cmiLoggedSeparator.Visible = false;
+			// 
+			// _cmiLogin
+			// 
+			this._cmiLogin.Index = 5;
+			this._cmiLogin.Text = "Login";
+			this._cmiLogin.Click += new System.EventHandler(this._cmiLogin_Click);
+			// 
+			// _cmiLogout
+			// 
+			this._cmiLogout.Index = 6;
+			this._cmiLogout.Text = "Logout";
+			this._cmiLogout.Visible = false;
+			this._cmiLogout.Click += new System.EventHandler(this._cmiLogout_Click);
+			// 
+			// _cmiSettings
+			// 
+			this._cmiSettings.Index = 7;
+			this._cmiSettings.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this._cmiSettingsConfirmUpload,
+            this._cmiSettingsUploadCopy});
+			this._cmiSettings.Text = "Settings";
+			// 
+			// _cmiSettingsConfirmUpload
+			// 
+			this._cmiSettingsConfirmUpload.Index = 0;
+			this._cmiSettingsConfirmUpload.Text = "Confirm clipboard upload";
+			this._cmiSettingsConfirmUpload.Click += new System.EventHandler(this._cmiSettingsConfirmUpload_Click);
+			// 
+			// _cmiSettingsUploadCopy
+			// 
+			this._cmiSettingsUploadCopy.Index = 1;
+			this._cmiSettingsUploadCopy.Text = "Copy upload URL to clipboard";
+			this._cmiSettingsUploadCopy.Click += new System.EventHandler(this._cmiSettingsUploadCopy_Click);
+			// 
+			// _cmiExit
+			// 
+			this._cmiExit.Index = 8;
+			this._cmiExit.Text = "Exit";
+			this._cmiExit.Click += new System.EventHandler(this._cmiExit_Click);
 			// 
 			// _itxtUsername
 			// 
@@ -453,12 +444,12 @@
 			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.frmLogin_MouseMove);
 			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.frmLogin_MouseUp);
 			this._panButtons.ResumeLayout(false);
-			this._ContextMenu.ResumeLayout(false);
 			this._panLoginInputs.ResumeLayout(false);
 			this._panLoginInputs.PerformLayout();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this._picLogo)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this._vistaMenu)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -478,27 +469,28 @@
 		private System.Windows.Forms.NotifyIcon notifyIcon;
 		private System.Windows.Forms.CheckBox _chkSavePassword;
 		private System.Windows.Forms.Button _btnSettings;
-		private System.Windows.Forms.ContextMenuStrip _ContextMenu;
-		private System.Windows.Forms.ToolStripMenuItem _exitToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem _manageFilesToolStripMenuItem;
-		private System.Windows.Forms.ToolStripSeparator _toolStripSearator1;
-		private System.Windows.Forms.ToolStripMenuItem _settingsToolStripMenuItem;
 		private System.Windows.Forms.Label _lblWarnServer;
 		private System.Windows.Forms.Button _btnRemoveServer;
 		private System.Windows.Forms.ComboBox _cmbScreenshotFormat;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.ComboBox _cmbScreenshotQuality;
-		private System.Windows.Forms.ToolStripMenuItem _logoutToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem _loginToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem _uploadFilesToolStripMenuItem;
 		private System.Windows.Forms.Button _btnConfigDone;
 		private System.Windows.Forms.Panel _panLoginInputs;
-		private System.Windows.Forms.ToolStripMenuItem _confirmClipboardUploadToolStripMenuItem;
 		private System.Windows.Forms.ToolTip _tipDefault;
 		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.ToolStripMenuItem _uploadScreenshotToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem _uploadCropScreenshotToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem _copyLastUploadToClipboardToolStripMenuItem;
+		private dtxCore.Controls.VistaMenu _vistaMenu;
+		private System.Windows.Forms.ContextMenu _contextMenu;
+		private System.Windows.Forms.MenuItem _cmiManageFiles;
+		private System.Windows.Forms.MenuItem _cmiUploadFiles;
+		private System.Windows.Forms.MenuItem _cmiUploadCropScreenshot;
+		private System.Windows.Forms.MenuItem _cmiUploadScreenshot;
+		private System.Windows.Forms.MenuItem _cmiLoggedSeparator;
+		private System.Windows.Forms.MenuItem _cmiLogin;
+		private System.Windows.Forms.MenuItem _cmiLogout;
+		private System.Windows.Forms.MenuItem _cmiSettings;
+		private System.Windows.Forms.MenuItem _cmiSettingsConfirmUpload;
+		private System.Windows.Forms.MenuItem _cmiExit;
+		private System.Windows.Forms.MenuItem _cmiSettingsUploadCopy;
 	}
 }

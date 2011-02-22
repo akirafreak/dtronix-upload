@@ -5,8 +5,8 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Core;
-using Core.Json;
+using dtxCore;
+using dtxCore.Json;
 using System.Net;
 
 namespace dtxUpload {
@@ -17,7 +17,7 @@ namespace dtxUpload {
 
 		private Tween tween_image_height;
 		private Tween tween_form_width;
-		private Tween tween_form_position = new Tween(Core.EasingEquations.expoEaseOut);
+		private Tween tween_form_position = new Tween(dtxCore.EasingEquations.expoEaseOut);
 
 		private BackgroundWorker loadLogoWorker = new BackgroundWorker();
 
@@ -38,8 +38,8 @@ namespace dtxUpload {
 			Client.form_Login = this;
 			InitializeComponent();
 
-			tween_form_width = new Tween(this, "Width", Core.EasingEquations.expoEaseOut);
-			tween_image_height = new Tween(_picLogo, "Height", Core.EasingEquations.expoEaseOut);
+			tween_form_width = new Tween(this, "Width", dtxCore.EasingEquations.expoEaseOut);
+			tween_image_height = new Tween(_picLogo, "Height", dtxCore.EasingEquations.expoEaseOut);
 			_picLogo.LoadCompleted += new AsyncCompletedEventHandler(_picLogo_LoadCompleted);
 
 			// Threading
@@ -49,6 +49,28 @@ namespace dtxUpload {
 			// Load configurations.
 			_cmbScreenshotFormat.SelectedIndex = Client.config.get<int>("frmlogin.screenshot_upload_format", 0);
 			_cmbScreenshotQuality.Text = Client.config.get<string>("frmlogin.screenshot_jpeg_quality", "90");
+
+			// Add the native context menu.
+			notifyIcon.ContextMenu = _contextMenu;
+
+			// Make sure the form is the correct size.  Windows XP's form widths are less than 7's.
+			OperatingSystemInfo osi = Utilities.getOSInfo();
+			if(osi.os.Contains("XP")) {
+				Size min_size = new Size() {
+					Height = this.MinimumSize.Height - 8,
+					Width = this.MinimumSize.Width - 8
+				};
+
+				Size max_size = new Size() {
+					Height = this.MaximumSize.Height - 8,
+					Width = this.MaximumSize.Width - 8
+				};
+
+				this.MinimumSize = min_size;
+				this.MaximumSize = max_size;
+				this.Size = min_size;
+			}
+
 
 			frmLogin_Activated(new object(), new EventArgs());
 		}
@@ -143,7 +165,7 @@ namespace dtxUpload {
 			} else {
 				// CHANGE?  If a user's password is exactly 32 characters, then it will never be hashed when sent to the server. Lets just hope nobody has a password an exact width of 32 characters.
 				if(_itxtPassword.Value.Length != 32) {
-					_itxtPassword.Value = Core.Utilities.md5Sum(_itxtPassword.Value);
+					_itxtPassword.Value = dtxCore.Utilities.md5Sum(_itxtPassword.Value);
 				}
 
 				_btnLogin.Enabled = false;
@@ -151,10 +173,6 @@ namespace dtxUpload {
 				connector.user_info.client_password = _itxtPassword.Value;
 				connector.connect();
 			}
-		}
-
-		private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
-			this.Close();
 		}
 
 		private void notifyIcon_MouseClick(object sender, MouseEventArgs e) {
@@ -170,9 +188,6 @@ namespace dtxUpload {
 			}
 		}
 
-		private void _cmbServer_SelectedValueChanged(object sender, EventArgs e) {
-
-		}
 
 		private void _cmbServer_Leave(object sender, EventArgs e) {
 			if(Client.server_info.server_url != null && !Client.server_info.server_url.Contains(_cmbServer.Text)) {
@@ -293,13 +308,13 @@ namespace dtxUpload {
 			Client.config.save();
 
 			// Show the logout function on the menu bar.
-			_logoutToolStripMenuItem.Visible = true;
-			_loginToolStripMenuItem.Visible = false;
-			_toolStripSearator1.Visible = true;
-			_manageFilesToolStripMenuItem.Visible = true;
-			_uploadFilesToolStripMenuItem.Visible = true;
-			_uploadCropScreenshotToolStripMenuItem.Visible = true;
-			_uploadScreenshotToolStripMenuItem.Visible = true;
+			_cmiLogout.Visible = true;
+			_cmiLogin.Visible = false;
+			_cmiLoggedSeparator.Visible = true;
+			_cmiManageFiles.Visible = true;
+			_cmiUploadFiles.Visible = true;
+			_cmiUploadCropScreenshot.Visible = true;
+			_cmiUploadScreenshot.Visible = true;
 
 			// Hide the login window untill we need to login again.
 			if(this.WindowState == FormWindowState.Normal) this.Hide();
@@ -317,15 +332,13 @@ namespace dtxUpload {
 			if(Client.form_QuickUpload != null)
 				Client.form_QuickUpload.Hide();
 
-			//Client.form_Login.Activate();
-			_logoutToolStripMenuItem.Visible = false;
-			_loginToolStripMenuItem.Visible = true;
-			_toolStripSearator1.Visible = false;
-			_manageFilesToolStripMenuItem.Visible = false;
-			_uploadFilesToolStripMenuItem.Visible = false;
-			_uploadCropScreenshotToolStripMenuItem.Visible = false;
-			_uploadScreenshotToolStripMenuItem.Visible = false;
-
+			_cmiLogout.Visible = !true;
+			_cmiLogin.Visible = !false;
+			_cmiLoggedSeparator.Visible = !true;
+			_cmiManageFiles.Visible = !true;
+			_cmiUploadFiles.Visible = !true;
+			_cmiUploadCropScreenshot.Visible = !true;
+			_cmiUploadScreenshot.Visible = !true;
 
 			this.Show();
 		}
@@ -385,38 +398,26 @@ namespace dtxUpload {
 			} catch { }
 		}
 
-
-
-
-
-
 		void _picLogo_LoadCompleted(object sender, AsyncCompletedEventArgs e) {
 			tween_image_height.start(70);
 		}
 
 
-		private int original_form_width = -1;
 
 		private void _btnSettings_Click(object sender, EventArgs e) {
-			int width_new = 500;
-			int width_current = Width;
+			if(tween_form_width.is_working) return;
 			int original_point = Location.X;
 
-			if(original_form_width == -1) {
-				// Form is small.  Expand it!
+			if(this.MaximumSize.Width == this.Width) {
 
-				original_form_width = width_current;
-
-				tween_form_width.start(width_new);
-				tween_form_position.start(original_point, original_point - 250, delegate(int current) {
+				tween_form_width.start(this.MinimumSize.Width);
+				tween_form_position.start(original_point, original_point + this.MinimumSize.Width, delegate(int current) {
 					Location = new Point(current, Location.Y);
 				});
-			} else {
-				// Form is already expanded.  Shrink it!
-				original_form_width = -1;
 
-				tween_form_width.start(250);
-				tween_form_position.start(original_point, original_point + 250, delegate(int current) {
+			} else {
+				tween_form_width.start(this.MaximumSize.Width);
+				tween_form_position.start(original_point, original_point - this.MinimumSize.Width, delegate(int current) {
 					Location = new Point(current, Location.Y);
 				});
 				
@@ -424,62 +425,9 @@ namespace dtxUpload {
 			
 		}
 
-		private void logoutToolStripMenuItem_Click(object sender, EventArgs e) {
-			if(Client.server_info.is_connected) {
-				connector.disconnect();
-			}
-			
-
-		}
-
-		private void _loginToolStripMenuItem_Click(object sender, EventArgs e) {
-			this.Show();
-		}
-
-		private void _settingsToolStripMenuItem_Click(object sender, EventArgs e) {
-			if(Client.server_info.is_connected) {
-				// TODO: Open settings for everything else.  Store settings on server?
-			} else {
-				//this.Show();
-				//_btnSettings_Click(sender, e);
-			}
-		}
-
 		private void _btnConfigDone_Click(object sender, EventArgs e) {
 			_btnSettings_Click(sender, e);
 		}
-
-		private void _manageFilesToolStripMenuItem_Click(object sender, EventArgs e) {
-			System.Diagnostics.Process.Start(Client.server_info.server_url);
-		}
-
-		private void _uploadFilesToolStripMenuItem_Click(object sender, EventArgs e) {
-			Client.form_QuickUpload.Show();
-			Client.form_QuickUpload.TopMost = true;
-			Client.form_QuickUpload.TopMost = false;
-		}
-
-		#region Settings on contextmenu
-
-		// Load all the settings from the config file.
-		private void _settingsToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
-			_confirmClipboardUploadToolStripMenuItem.Checked = Client.config.get<bool>("frmquickupload.show_clipboard_confirmation");
-			_copyLastUploadToClipboardToolStripMenuItem.Checked = Client.config.get<bool>("frmquickupload.copy_upload_clipboard");
-		}
-
-		private void _confirmClipboardUploadToolStripMenuItem_Click(object sender, EventArgs e) {
-			_confirmClipboardUploadToolStripMenuItem.Checked = !_confirmClipboardUploadToolStripMenuItem.Checked;
-			Client.config.set("frmquickupload.show_clipboard_confirmation", _confirmClipboardUploadToolStripMenuItem.Checked);
-			Client.config.save();
-		}
-
-		private void _copyLastUploadToClipboardToolStripMenuItem_Click(object sender, EventArgs e) {
-			_copyLastUploadToClipboardToolStripMenuItem.Checked = !_copyLastUploadToClipboardToolStripMenuItem.Checked;
-			Client.config.set("frmquickupload.copy_upload_clipboard", _copyLastUploadToClipboardToolStripMenuItem.Checked);
-			Client.config.save();
-		}
-
-		#endregion
 
 		private void _cmbScreenshotFormat_SelectedIndexChanged(object sender, EventArgs e) {
 			switch(_cmbScreenshotFormat.SelectedIndex) {
@@ -505,14 +453,82 @@ namespace dtxUpload {
 			Client.config.save();
 		}
 
-		private void _uploadScreenshotToolStripMenuItem_Click(object sender, EventArgs e) {
+
+
+
+
+
+
+
+
+		#region ContextMenu items and events.
+
+		private void _cmiManageFiles_Click(object sender, EventArgs e) {
+			System.Diagnostics.Process.Start(Client.server_info.server_url);
+		}
+
+
+		private void _cmiUploadFiles_Click(object sender, EventArgs e) {
+			Client.form_QuickUpload.Show();
+			Client.form_QuickUpload.TopMost = true;
+			Client.form_QuickUpload.TopMost = false;
+		}
+
+		private void _cmiUploadCropScreenshot_Click(object sender, EventArgs e) {
+			if(Client.server_info.is_connected) {
+				new frmCropScreen().Show();
+			}
+		}
+
+		private void _cmiUploadScreenshot_Click(object sender, EventArgs e) {
 			if(Client.server_info.is_connected) {
 				Client.form_QuickUpload.uploadScreenshot(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
 			}
 		}
 
-		private void _uploadCropScreenshotToolStripMenuItem_Click(object sender, EventArgs e) {
-			new frmCropScreen().Show();
+
+		private void _cmiLogin_Click(object sender, EventArgs e) {
+			this.Show();
 		}
+
+		private void _cmiLogout_Click(object sender, EventArgs e) {
+			if(Client.server_info.is_connected) {
+				connector.disconnect();
+			} else {
+				Client.form_QuickUpload.Hide();
+				Client.form_Login.Show();
+			}
+		}
+
+		private void _cmiExit_Click(object sender, EventArgs e) {
+			this.Close();
+		}
+
+		#endregion
+
+		#region Settings on contextmenu
+
+
+		// Load all the settings from the config file.
+		private void _contextMenu_Popup(object sender, EventArgs e) {
+			_cmiSettingsConfirmUpload.Checked = Client.config.get<bool>("frmquickupload.show_clipboard_confirmation");
+			_cmiSettingsUploadCopy.Checked = Client.config.get<bool>("frmquickupload.copy_upload_clipboard");
+		}
+
+		private void _cmiSettingsConfirmUpload_Click(object sender, EventArgs e) {
+			_cmiSettingsConfirmUpload.Checked = !_cmiSettingsConfirmUpload.Checked;
+			Client.config.set("frmquickupload.show_clipboard_confirmation", _cmiSettingsConfirmUpload.Checked);
+			Client.config.save();
+		}
+
+		private void _cmiSettingsUploadCopy_Click(object sender, EventArgs e) {
+			_cmiSettingsUploadCopy.Checked = !_cmiSettingsUploadCopy.Checked;
+			Client.config.set("frmquickupload.copy_upload_clipboard", _cmiSettingsUploadCopy.Checked);
+			Client.config.save();
+		}
+
+		#endregion
+
+
 	}
 }

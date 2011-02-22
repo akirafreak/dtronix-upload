@@ -6,7 +6,7 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 using System.Net;
-using Core.Json;
+using dtxCore.Json;
 
 namespace dtxUpload {
 	public partial class UploadFileItem : UserControl {
@@ -40,7 +40,7 @@ namespace dtxUpload {
 
 		public void uploadProgress(UploadProgressChangedEventArgs e) {
 			_picPreview.Image = Properties.Resources.icon_24_em_up;
-			_lblStatus.Text = "(" + Core.Utilities.formattedSize(e.BytesSent) + "/" + Core.Utilities.formattedSize(e.TotalBytesToSend) + ")";
+			_lblStatus.Text = "(" + dtxCore.Utilities.formattedSize(e.BytesSent) + "/" + dtxCore.Utilities.formattedSize(e.TotalBytesToSend) + ")";
 			_barProgress.Maximum = (int)e.TotalBytesToSend;
 			_barProgress.Value = (int)e.BytesSent;
 		}
