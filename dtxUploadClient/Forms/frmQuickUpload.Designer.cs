@@ -102,6 +102,7 @@
 			this._panFileItemContainer.Name = "_panFileItemContainer";
 			this._panFileItemContainer.Size = new System.Drawing.Size(270, 349);
 			this._panFileItemContainer.TabIndex = 3;
+			this._panFileItemContainer.DragDrop += new System.Windows.Forms.DragEventHandler(this._panFileItemContainer_DragDrop);
 			this._panFileItemContainer.DragEnter += new System.Windows.Forms.DragEventHandler(this._panFileItemContainer_DragEnter);
 			this._panFileItemContainer.DragLeave += new System.EventHandler(this._panFileItemContainer_DragLeave);
 			// 

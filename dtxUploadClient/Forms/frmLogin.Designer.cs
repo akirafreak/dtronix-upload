@@ -43,6 +43,8 @@
 			this.label5 = new System.Windows.Forms.Label();
 			this._cmbScreenshotQuality = new System.Windows.Forms.ComboBox();
 			this._panLoginInputs = new System.Windows.Forms.Panel();
+			this._itxtUsername = new dtxUpload.TextBoxAndInfo();
+			this._itxtPassword = new dtxUpload.TextBoxAndInfo();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this._tipDefault = new System.Windows.Forms.ToolTip(this.components);
 			this._picLogo = new System.Windows.Forms.PictureBox();
@@ -59,8 +61,7 @@
 			this._cmiSettingsConfirmUpload = new System.Windows.Forms.MenuItem();
 			this._cmiSettingsUploadCopy = new System.Windows.Forms.MenuItem();
 			this._cmiExit = new System.Windows.Forms.MenuItem();
-			this._itxtUsername = new dtxUpload.TextBoxAndInfo();
-			this._itxtPassword = new dtxUpload.TextBoxAndInfo();
+			this._cmiAbout = new System.Windows.Forms.MenuItem();
 			this._panButtons.SuspendLayout();
 			this._panLoginInputs.SuspendLayout();
 			this.groupBox1.SuspendLayout();
@@ -266,6 +267,32 @@
 			this._panLoginInputs.Size = new System.Drawing.Size(234, 197);
 			this._panLoginInputs.TabIndex = 16;
 			// 
+			// _itxtUsername
+			// 
+			this._itxtUsername.ForeColor = System.Drawing.SystemColors.ControlText;
+			this._itxtUsername.InfoForeColor = System.Drawing.Color.Black;
+			this._itxtUsername.Location = new System.Drawing.Point(12, 79);
+			this._itxtUsername.Margin = new System.Windows.Forms.Padding(3, 3, 3, 1);
+			this._itxtUsername.Name = "_itxtUsername";
+			this._itxtUsername.PassChar = '\0';
+			this._itxtUsername.Size = new System.Drawing.Size(210, 35);
+			this._itxtUsername.TabIndex = 3;
+			this._itxtUsername.TextInfo = "";
+			this._itxtUsername.Value = "";
+			// 
+			// _itxtPassword
+			// 
+			this._itxtPassword.ForeColor = System.Drawing.SystemColors.ControlText;
+			this._itxtPassword.InfoForeColor = System.Drawing.Color.Black;
+			this._itxtPassword.Location = new System.Drawing.Point(12, 131);
+			this._itxtPassword.Margin = new System.Windows.Forms.Padding(3, 3, 3, 1);
+			this._itxtPassword.Name = "_itxtPassword";
+			this._itxtPassword.PassChar = '*';
+			this._itxtPassword.Size = new System.Drawing.Size(210, 35);
+			this._itxtPassword.TabIndex = 5;
+			this._itxtPassword.TextInfo = "";
+			this._itxtPassword.Value = "";
+			// 
 			// groupBox1
 			// 
 			this.groupBox1.Controls.Add(this.label4);
@@ -326,6 +353,7 @@
             this._cmiLogin,
             this._cmiLogout,
             this._cmiSettings,
+            this._cmiAbout,
             this._cmiExit});
 			this._contextMenu.Popup += new System.EventHandler(this._contextMenu_Popup);
 			// 
@@ -384,35 +412,15 @@
 			// 
 			// _cmiExit
 			// 
-			this._cmiExit.Index = 8;
+			this._cmiExit.Index = 9;
 			this._cmiExit.Text = "Exit";
 			this._cmiExit.Click += new System.EventHandler(this._cmiExit_Click);
 			// 
-			// _itxtUsername
+			// _cmiAbout
 			// 
-			this._itxtUsername.ForeColor = System.Drawing.SystemColors.ControlText;
-			this._itxtUsername.InfoForeColor = System.Drawing.Color.Black;
-			this._itxtUsername.Location = new System.Drawing.Point(12, 79);
-			this._itxtUsername.Margin = new System.Windows.Forms.Padding(3, 3, 3, 1);
-			this._itxtUsername.Name = "_itxtUsername";
-			this._itxtUsername.PassChar = '\0';
-			this._itxtUsername.Size = new System.Drawing.Size(210, 35);
-			this._itxtUsername.TabIndex = 3;
-			this._itxtUsername.TextInfo = "";
-			this._itxtUsername.Value = "";
-			// 
-			// _itxtPassword
-			// 
-			this._itxtPassword.ForeColor = System.Drawing.SystemColors.ControlText;
-			this._itxtPassword.InfoForeColor = System.Drawing.Color.Black;
-			this._itxtPassword.Location = new System.Drawing.Point(12, 131);
-			this._itxtPassword.Margin = new System.Windows.Forms.Padding(3, 3, 3, 1);
-			this._itxtPassword.Name = "_itxtPassword";
-			this._itxtPassword.PassChar = '*';
-			this._itxtPassword.Size = new System.Drawing.Size(210, 35);
-			this._itxtPassword.TabIndex = 5;
-			this._itxtPassword.TextInfo = "";
-			this._itxtPassword.Value = "";
+			this._cmiAbout.Index = 8;
+			this._cmiAbout.Text = "About";
+			this._cmiAbout.Click += new System.EventHandler(this._cmiAbout_Click);
 			// 
 			// frmLogin
 			// 
@@ -492,5 +500,6 @@
 		private System.Windows.Forms.MenuItem _cmiSettingsConfirmUpload;
 		private System.Windows.Forms.MenuItem _cmiExit;
 		private System.Windows.Forms.MenuItem _cmiSettingsUploadCopy;
+		private System.Windows.Forms.MenuItem _cmiAbout;
 	}
 }

@@ -59,6 +59,13 @@
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
+  <PropertyGroup>
+    <TransformOnBuild>true</TransformOnBuild>
+    <AfterTransform>OnAfterTransform</AfterTransform>
+  </PropertyGroup>
+  <Target Name="OnAfterTransform">
+    <Message Text="This executes after templates are transformed" Importance="high" />
+  </Target>
   <ItemGroup>
     <Reference Include="dtxCore, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -134,6 +141,7 @@
     <Content Include="Installer\Readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\AboutLogoRev0.png" />
     <None Include="Resources\arrow-incident-blue-24.png" />
     <None Include="Resources\clipboard-eye-24.png" />
     <None Include="Resources\asset-blue-24.png" />
@@ -249,6 +257,10 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Release "$(TargetDir)Installer\build.bat"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
