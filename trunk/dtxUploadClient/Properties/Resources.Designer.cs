@@ -60,6 +60,13 @@ namespace dtxUpload.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap AboutLogoRev0 {
+            get {
+                object obj = ResourceManager.GetObject("AboutLogoRev0", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap arrow_incident_blue_24 {
             get {
                 object obj = ResourceManager.GetObject("arrow_incident_blue_24", resourceCulture);
@@ -141,6 +148,21 @@ namespace dtxUpload.Properties {
             get {
                 object obj = ResourceManager.GetObject("icon_paper_excerpt_blue_16_ns", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The MIT License
+        ///
+        ///Copyright (c) 2011 Dtronix
+        ///
+        ///Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &apos;Software&apos;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+        ///
+        ///The above copyright notice  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string License_Dtronix_Upload {
+            get {
+                return ResourceManager.GetString("License_Dtronix_Upload", resourceCulture);
             }
         }
         

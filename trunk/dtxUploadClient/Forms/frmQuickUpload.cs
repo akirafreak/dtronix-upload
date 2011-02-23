@@ -375,7 +375,8 @@ namespace dtxUpload {
 		}
 
 		private void _panFileItemContainer_DragEnter(object sender, DragEventArgs e) {
-			drop_files_tween.start(74);
+			e.Effect = DragDropEffects.All;
+			//drop_files_tween.start(74);
 		}
 
 		private void _panDropUpload_DragDrop(object sender, DragEventArgs e) {
@@ -392,6 +393,15 @@ namespace dtxUpload {
 
 		private void _btnDropEncrypt_DragEnter(object sender, DragEventArgs e) {
 			_panFileItemContainer_DragEnter(null, null);
+		}
+
+		private void _panFileItemContainer_DragDrop(object sender, DragEventArgs e) {
+			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+			foreach(string file in files) {
+				uploadFile(file);
+				//uploadZipFile(file);
+			}
 		}
 
 

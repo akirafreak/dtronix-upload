@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using dtxCore;
 using dtxCore.Json;
 using System.Net;
+using System.Reflection;
 
 namespace dtxUpload {
 	public partial class frmLogin : Form {
@@ -528,6 +529,10 @@ namespace dtxUpload {
 		}
 
 		#endregion
+
+		private void _cmiAbout_Click(object sender, EventArgs e) {
+			new dtxCore.Forms.frmAbout(Assembly.GetExecutingAssembly(), Properties.Resources.License_Dtronix_Upload, Properties.Resources.AboutLogoRev0).ShowDialog();
+		}
 
 
 	}

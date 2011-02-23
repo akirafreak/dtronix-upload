@@ -6,8 +6,8 @@ using System.Resources;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("dtxUpload")]
-[assembly: AssemblyDescription("Dtronix Upload")]
+[assembly: AssemblyTitle("Dtronix Upload")]
+[assembly: AssemblyDescription("File Uploading Solution")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("dtxUpload")]
 [assembly: AssemblyTrademark("")]
