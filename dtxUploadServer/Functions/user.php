@@ -4,42 +4,6 @@ function _verifyUser(){
 	callClientMethod("validation_successful");
 }
 
-function userCreate($username, $password, $email, $permissions = 1){
-	global $_CONFIG;
-	
-	$existing_user = mysqlQuery("SELECT * FROM `users` WHERE
-		`username` = '%s'
-		LIMIT 1;", array($username), "assoc");
-
-	if(count($existing_user) > 0){
-		callClientMethod("registration_username_existing");
-	}
-
-	$existing_email = mysqlQuery("SELECT * FROM `users` WHERE
-		`email` = '%s'
-		LIMIT 1;", array($email), "assoc");
-
-	if(count($existing_email) > 0){
-		callClientMethod("registration_email_existing");
-	}
-
-	$successful = myInsert("users", array(
-		"id" => null,
-		"username" => $username,
-		"password" => $password,
-		"registration_date" => "CURDATE()",
-		"email" => $email,
-		"permissions" => $permissions
-	));
-
-	if($successful == 1){
-		callClientMethod("registration_success_activated");
-
-	}else{
-		callClientMethod("registration_failure_server");
-	}
-}
-
 function _registerAccount(){
 	if(count($_GET["args"]) == 3){
 		$username = $_GET["args"][0];
@@ -56,12 +20,18 @@ function _registerAccount(){
 		if(!preg_match("/^[a-zA-Z0-9_-]*$/", $username)){
 			callClientMethod("registration_username_invalid");
 		}
-
 		if(!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i", $email)){
 			callClientMethod("registration_email_invalid");
 		}
+
+		// Check to see if the user is the first user registered.  If so, make him an admin.
+		$is_registered_users = mysqlQuery("SELECT `id` FROM `users` LIMIT 1;", null, "has_rows");
 		
-		userCreate($username, $password, $email);
+		if($is_registered_users){
+			userCreate($username, $password, $email);
+		}else{
+			userCreate($username, $password, $email, 0);
+		}
 	}
 }
 
@@ -95,5 +65,42 @@ function _logout(){
 	}
 }
 
+
+
+function userCreate($username, $password, $email, $permissions = 1){
+	global $_CONFIG;
+
+	$existing_user = mysqlQuery("SELECT * FROM `users`
+		WHERE `username` = '%s'
+		LIMIT 1;", array($username), "assoc");
+
+	if(count($existing_user) > 0){
+		callClientMethod("registration_username_existing");
+	}
+
+	$existing_email = mysqlQuery("SELECT * FROM `users`
+		WHERE `email` = '%s'
+		LIMIT 1;", array($email), "assoc");
+
+	if(count($existing_email) > 0){
+		callClientMethod("registration_email_existing");
+	}
+
+	$successful = myInsert("users", array(
+		"id" => null,
+		"username" => $username,
+		"password" => $password,
+		"registration_date" => "CURDATE()",
+		"email" => $email,
+		"permissions" => $permissions
+	));
+
+	if($successful == 1){
+		callClientMethod("registration_success_activated");
+
+	}else{
+		callClientMethod("registration_failure_server");
+	}
+}
 
 ?>

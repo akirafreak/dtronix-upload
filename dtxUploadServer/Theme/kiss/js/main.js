@@ -430,7 +430,7 @@ var main = {
 			this.options.upload_base_url = info.upload_base_url;
 			this.$el.user_info_link.innerHTML = info.username;
 			this.$el.info_used_space.innerHTML = "("+ info.total_uploaded_filesizes + "KB / " + info.max_upload_space + "KB)";
-			this.$el.info_total_files.innerHTML = info.total_uploaded_filesizes + "KB";
+			this.$el.info_total_files.innerHTML = info.total_files_uploaded;
 			this.$el.info_max_upload_size.innerHTML = info.max_upload_size + "KB";
 
 			this.loadFiles(0);
