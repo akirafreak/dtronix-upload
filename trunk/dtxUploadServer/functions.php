@@ -23,9 +23,15 @@ function mysqlQuery($query, $values = null, $type = "assoc"){
 		$query = vsprintf($query, $values);
 	}
 
+	// Debugging purposes only.
 	if($type == "view"){
-		echo $query;
-		die();
+		echo "QUERY: ". $query . "\n\n<BR><BR>";
+		$query_result = mysql_query($query) or die(mysql_error());
+		while ($row = mysql_fetch_assoc($query_result)){
+			print_r($row);
+			echo "\n\n<BR><BR>";
+		}
+		die("\n\n<BR><BR>END QUERY");
 	}
 	
 	$query_result = mysql_query($query) or callClientMethod("server_error_mysql", mysql_error());
@@ -54,7 +60,16 @@ function mysqlQuery($query, $values = null, $type = "assoc"){
 		}else{
 			return false;
 		}
-		
+	}else if($type == "has_rows"){
+		$count = mysql_num_rows($query_result);
+		@mysql_free_result($query_result);
+		return ($count > 0)? true : false;
+
+	}else if($type == "count"){
+		$count = mysql_num_rows($query_result);
+		@mysql_free_result($query_result);
+		return $count;
+
 	}else{
 		return $query_result;
 	}
@@ -68,7 +83,7 @@ function mysqlQuery($query, $values = null, $type = "assoc"){
  * @return True on success; False on failure.
  * 
  */
-function myInsert($table, $name_values){
+function myInsert($table, $name_values, $verbose = false){
 	$query_builder = array("INSERT INTO `", $table, "`", " (");
 	$values_builder = array(") VALUES (");
 	
@@ -91,11 +106,11 @@ function myInsert($table, $name_values){
 	return call_user_func_array('mysqlQuery', array(
 		implode("", array_merge($query_builder, $values_builder)),
 		null,
-		"successful"
+		($verbose)? "view" : "successful"
 	));
 }
 
-function myUpdate($table, $name_values, $where){
+function myUpdate($table, $name_values, $where, $verbose = false){
 	$query_builder = array("UPDATE `", $table, "`", " SET ");
 	
 	foreach($name_values as $key => $value){
@@ -108,13 +123,13 @@ function myUpdate($table, $name_values, $where){
 
 	array_pop($query_builder);
 	
-	$query_builder[] = "WHERE ";
+	$query_builder[] = " WHERE ";
 	$query_builder[] = $where;
 	
 	return call_user_func_array('mysqlQuery', array(
 		implode("", $query_builder),
 		null,
-		"successful"
+		($verbose)? "view" : "successful"
 	));
 }
 
@@ -268,7 +283,8 @@ function getPermission($permission_check){
 		$perms = mysqlQuery("SELECT *
 			FROM `users_permissions`
 			WHERE `id` = %s
-			LIMIT 1;", array($_USER["permissions"]));
+			LIMIT 1;",
+			array($_USER["permissions"]));
 		$_PERMISSIONS = $perms[0];
 	}
 

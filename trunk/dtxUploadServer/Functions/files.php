@@ -32,13 +32,34 @@ function _fileDelete(){
 
 	$delete_id = $_GET["file_id"];
 
-	// MAJOR TODO!  Make sure the requested file is OWNED by the deleter.
-	$deleted = mysqlQuery("DELETE FROM `files` WHERE `url_id` = '%s' LIMIT 1 ", array(
+	// Check for file ownership
+	if(!isOwner($delete_id)){
+		callClientMethod("file_delete_failure_owner");
+	}
+
+	$file = mysqlQuery("SELECT `file_size` FROM `files`
+		WHERE `url_id` LIKE BINARY '%s'
+		LIMIT 1;",
+	array(
+		$delete_id
+	));
+
+	$deleted = mysqlQuery("DELETE FROM `files` 
+		WHERE `url_id` LIKE BINARY '%s'
+		LIMIT 1 ",
+	array(
 		$delete_id
 	), "successful");
+
 	if(file_exists($_CONFIG["upload_dir"] . $delete_id)){
 		if(unlink($_CONFIG["upload_dir"] . $delete_id)){
 			if($deleted){
+				$toal_file_sizes = $_USER["total_uploaded_filesizes"] - $file[0]["file_size"];
+				myUpdate("users", array(
+					"total_uploaded_filesizes" => ($toal_file_sizes < 0)? 0 : $toal_file_sizes,
+					"total_files_uploaded" => ($_USER["total_files_uploaded"] < 1)? 0 : $_USER["total_files_uploaded"] - 1
+				), "`id` = '". $_USER["id"] ."'");
+
 				callClientMethod("file_delete_confirmation");
 
 			}else{
@@ -52,7 +73,26 @@ function _fileDelete(){
 	}else{
 		callClientMethod("file_delete_failure");
 	}
+}
 
+function isOwner($file_id){
+	global $_USER;
+
+	$can_delete = mysqlQuery("SELECT `id`
+		FROM `files`
+		WHERE `owner_id` = '%s'
+		AND `url_id` LIKE BINARY '%s'
+		LIMIT 1 ;",
+	array(
+		$_USER["id"],
+		$file_id
+	), "has_rows");
+	
+	if($can_delete){
+		return true;
+	}else{
+		return false;
+	}
 }
 
 
@@ -153,9 +193,21 @@ function incrementID($input, $curr_index = null){
 
 function _uploadNewFile(){
 	global $_USER, $_CONFIG, $morpher, $mime_types;
+	
+	// Check to see if this file exceeds the maximum size alotted.
+	$total_used_space = $_USER["total_uploaded_filesizes"] + $_FILES["file"]["size"];
+	if($total_used_space > getPermission("max_upload_space")){
+		callClientMethod("upload_failed_exceeded_toal_used_space");
+	}
+
+	if($_FILES["file"]["size"] > getPermission("max_upload_size")){
+		callClientMethod("upload_failed_exceeded_file_size");
+	}
+
 	$url_id = createNewId();
 
 	if(move_uploaded_file($_FILES["file"]["tmp_name"], $_CONFIG["upload_dir"] . $url_id)) {
+
 		$file_parts = explode(".", $_FILES["file"]["name"]);
 		$file_extention = strtolower($file_parts[count($file_parts) - 1]);
 		$file_mime = (array_key_exists($file_extention, $mime_types))? $mime_types[$file_extention] : $_FILES["file"]["type"];
@@ -176,6 +228,11 @@ function _uploadNewFile(){
 		));
 
 		if($inserted){
+			myUpdate("users", array(
+				"total_uploaded_filesizes" => $total_used_space,
+				"total_files_uploaded" => $_USER["total_files_uploaded"] + 1
+			), "`id` = '". $_USER["id"] ."'");
+			
 			callClientMethod("upload_successful", array(
 				"url_id" => $url_id,
 				"is_visible" => true,
@@ -194,7 +251,7 @@ function _uploadNewFile(){
 function _viewFile(){
 	global $_CONFIG, $mime_types;
 	$file_exist = mysqlQuery("SELECT * FROM `files`
-		WHERE `url_id` = '%s'
+		WHERE `url_id` LIKE BINARY '%s'
 		LIMIT 1", array($_GET["file"]));
 
 	if(empty($file_exist)){
@@ -205,7 +262,7 @@ function _viewFile(){
 		myUpdate("files", array(
 			"last_accessed" => "NOW()",
 			"total_views" => $file["total_views"] + 1
-		), "`id` = '" . $file["id"]. "'");
+		), "`id` LIKE BINARY '" . $file["id"]. "'");
 
 		if (file_exists($_CONFIG["upload_dir"] . $file["url_id"])) {
 			header("Content-Type: ". $file["file_mime"]);

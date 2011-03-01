@@ -416,8 +416,9 @@ function mysqlInstallation(){
 	) ENGINE=MyISAM DEFAULT CHARSET=latin1;"));
 
 	continueIfTrue(mysqlRowInsert("users_permissions", "INSERT INTO `users_permissions` (`id`, `name`, `is_disabled`, `can_connect`, `can_upload`, `manage_users`, `manage_uploads`, `full_access`, `max_upload_space`, `max_upload_size`, `default_permission_set`) VALUES
-		(0, 'Admin', 0, 1, 1, 1, 1, 1, 0, 0, 1),
+		(0, 'Admin', 0, 1, 1, 1, 1, 1, 100000, 100000, 1),
 		(1, 'User', 0, 1, 1, 0, 0, 0, 100000, 20000, 1),
+		(1, 'Subscriber', 0, 1, 1, 0, 0, 0, 100000, 100000, 1),
 		(2, 'Banned', 1, 0, 0, 0, 0, 0, -1, -1, 1);"));
 	
 	?><input type="hidden" name="mysql_existing_db" value="true" /><?php
@@ -503,6 +504,7 @@ function head(){
 		deleteFile("install.php");
 		deleteFile("install.data.php");
 		deleteFile("install.info.php");
+		writeInfo("red", "NOTE: Make sure to register immediately.  The first user that registers is admin.");
 		foot("Go to Dtronix Upload");
 	}else{ ?>
 <form method="post" action="install.php">
