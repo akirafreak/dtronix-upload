@@ -265,6 +265,9 @@ namespace dtxUpload {
 				}
 
 			} else {
+				Client.form_Login.Invoke((MethodInvoker)delegate{
+					MessageBox.Show("Server requested invalid method.  This is usually due to an outdated client.\n\nError:\n"+ server_data );
+				});
 				// Server requested a method that we do not support.  TO DO.
 			}
 		}
