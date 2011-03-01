@@ -83,6 +83,12 @@ namespace dtxUpload {
 			});
 		}
 
+		public void server_error_mysql(string input) {
+			Client.form_Login.Invoke((MethodInvoker)delegate {
+				MessageBox.Show("The MySQL server returned an error.  Details: \n\n" + input);
+			});
+		}
+
 
 
 
