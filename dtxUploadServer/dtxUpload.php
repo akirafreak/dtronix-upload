@@ -4,6 +4,9 @@
 // Define this before all the includes to ensure that all the files are actually included through this main file.
 define("requireParrent", true);
 
+ob_start();
+register_shutdown_function('ob_end_flush');
+
 $_USER = array();
 $_PERMISSIONS = array();
 

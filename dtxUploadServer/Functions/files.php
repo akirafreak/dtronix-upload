@@ -197,7 +197,7 @@ function _uploadNewFile(){
 	// Check to see if this file exceeds the maximum size alotted.
 	$total_used_space = $_USER["total_uploaded_filesizes"] + $_FILES["file"]["size"];
 	if($total_used_space > getPermission("max_upload_space")){
-		callClientMethod("upload_failed_exceeded_toal_used_space");
+		callClientMethod("upload_failed_exceeded_toal_used_space", array( $total_used_space, getPermission("max_upload_space")));
 	}
 
 	if($_FILES["file"]["size"] > getPermission("max_upload_size")){
@@ -264,22 +264,114 @@ function _viewFile(){
 			"total_views" => $file["total_views"] + 1
 		), "`id` LIKE BINARY '" . $file["id"]. "'");
 
+		header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
+		header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
+
 		if (file_exists($_CONFIG["upload_dir"] . $file["url_id"])) {
 			header("Content-Type: ". $file["file_mime"]);
 
+			// Make sure that the file is not one that should be viewed in the browser.
 			if(strpos($file["file_mime"], "image") === false && strpos($file["file_mime"], "text/plain") === false){
-				header("Content-Description: File Transfer");
-				header("Content-Disposition: attachment; filename=\"". basename($file["file_name"]) ."\"");
 				header("Content-Transfer-Encoding: binary");
+
+				outputFile($_CONFIG["upload_dir"] . $_GET["file"],basename($file["file_name"]), $file["file_mime"], true);
+				die();
+			}
+			
+			$etag = md5($file["upload_date"] + $file["file_size"] + $file["file_name"]);
+
+			$expires = 60 * 60 * 24 * 360;
+			$exp_gmt = gmdate("D, d M Y H:i:s", time() + $expires )." GMT";
+			$mod_gmt = gmdate("D, d M Y H:i:s", strtotime($file["upload_date"])) ." GMT";
+			header("Expires: ". $exp_gmt);
+			header("Last-Modified: ". $mod_gmt);
+			header("Cache-Control: public, max-age=". $expires);
+			header("ETag: " . $etag );
+			
+			if(isset($_SERVER['HTTP_IF_NONE_MATCH']) && $etag == $_SERVER['HTTP_IF_NONE_MATCH']){
+				header("HTTP/1.1 304 Not Modified");
+				die();
 			}
 
-			header("Pragma: public");
-			header("Content-Length: " . filesize($_CONFIG["upload_dir"] . $file["url_id"]));
-			readfile($_CONFIG["upload_dir"] . $file["url_id"]);
+			outputFile($_CONFIG["upload_dir"] . $_GET["file"], basename($file["file_name"]), $file["file_mime"], false);
 			die();
 		}
 	}
 
+}
+
+// Thanks to Edward Jaramilla (http://www.php.net/manual/en/function.fread.php#84115) for code base.
+function outputFile($file, $uploaded_file_name, $mime, $force_download = false){
+
+	$size = filesize($file);
+
+	//workaround for IE filename bug with multiple periods / multiple dots in filename
+	//that adds square brackets to filename - eg. setup.abc.exe becomes setup[1].abc.exe
+	if(strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')){
+		$filename = preg_replace('/\./', '%2e', $uploaded_file_name, substr_count($uploaded_file_name, '.') - 1);
+	}else{
+		$filename = $uploaded_file_name;
+	}
+
+	if(!empty($_SERVER['HTTP_RANGE'])){
+		$used_range = $_SERVER['HTTP_RANGE'];
+	}else if(!empty($_SERVER['RANGE'])){
+		$used_range = $_SERVER['RANGE'];
+	}
+
+	//callClientMethod("call", $_SERVER);
+	//check if http_range is sent by browser (or download manager)
+	if(isset($used_range)){
+		list($size_unit, $range_orig) = explode('=', $used_range, 2);
+
+		if ($size_unit == 'bytes'){
+			//multiple ranges could be specified at the same time, but for simplicity only serve the first range
+			//http://tools.ietf.org/id/draft-ietf-http-range-retrieval-00.txt
+			$all_ranges = explode(",", $range_orig, 2);
+			$range = $all_ranges[0];
+		}
+	}
+
+	if(!isset($range)){
+		$seek_end = $seek_start = null;
+	}else{
+		list($seek_start, $seek_end) = explode('-', $range, 2);
+	}
+
+	//set start and end based on range (if set), else set defaults
+	//also check for invalid ranges.
+	$seek_end = (empty($seek_end))? ($size - 1) : min(abs(intval($seek_end)), ($size - 1));
+	$seek_start = (empty($seek_start) || $seek_end < abs(intval($seek_start))) ? 0 : max(abs(intval($seek_start)), 0);
+
+	//Only send partial content header if downloading a piece of the file (IE workaround)
+	if ($seek_start > 0 || $seek_end < ($size - 1)){
+		header('HTTP/1.1 206 Partial Content');
+	}
+
+	header('Accept-Ranges: bytes');
+	header('Content-Range: bytes '.$seek_start.'-'.$seek_end.'/'.$size);
+
+	header('Content-Type: ' . $mime);
+
+	if($force_download){
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+	}else{
+		header('Content-Disposition: inline; filename="' . $filename . '"');
+	}
+
+	header('Content-Length: '.($seek_end - $seek_start + 1));
+
+	set_time_limit(0);
+	$fp = fopen($file, 'rb');
+	fseek($fp, $seek_start);
+
+	while(!feof($fp)){
+		echo fread($fp, 1024*8);
+		//flush();
+		ob_flush();
+	}
+
+	fclose($fp);
 }
 
 
