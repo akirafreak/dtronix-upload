@@ -107,10 +107,10 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this._lblStatus);
 			this.Controls.Add(this._barProgress);
 			this.Controls.Add(this._lblFileName);
 			this.Controls.Add(this.panel1);
-			this.Controls.Add(this._lblStatus);
 			this.Controls.Add(this._picPreview);
 			this.MaximumSize = new System.Drawing.Size(500, 50);
 			this.MinimumSize = new System.Drawing.Size(250, 36);

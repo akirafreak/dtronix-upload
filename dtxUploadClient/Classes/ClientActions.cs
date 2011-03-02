@@ -137,6 +137,15 @@ namespace dtxUpload {
 			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadNotConnected);
 		}
 
+		public void upload_failed_exceeded_toal_used_space() {
+			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadExceededSpace);
+		}
+
+		public void upload_failed_exceeded_file_size() {
+			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadExceededSize);
+		}
+		
+
 		public void upload_canceled() {
 			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadCanceled);
 		}

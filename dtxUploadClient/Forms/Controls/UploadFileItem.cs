@@ -56,6 +56,19 @@ namespace dtxUpload {
 			}
 		}
 
+		public void uploadExceededSpace() {
+			uploadCanceled();
+			_lblStatus.Text = "File exceeds alotted space";
+		}
+
+		public void uploadExceededSize() {
+			uploadCanceled();
+			_lblStatus.Text = "File size too large";
+		}
+
+
+		
+
 		public void uploadCanceled() {
 			_barProgress.Value = 1;
 			_barProgress.Maximum = 1;
@@ -68,7 +81,7 @@ namespace dtxUpload {
 
 
 		public void uploadSuccessful(string server_data) {
-			_lblStatus.Text = "";
+			_lblStatus.Visible = false;
 			_barProgress.Visible = false;
 			_btnCopyUrl.Visible = true;
 			_picPreview.Image = Properties.Resources.icon_24_em_check;
