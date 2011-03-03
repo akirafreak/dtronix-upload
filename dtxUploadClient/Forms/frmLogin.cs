@@ -34,9 +34,13 @@ namespace dtxUpload {
 		}
 
 		public frmLogin() {
-#if DEBUG
-			new frmConnector().Show();
-#endif
+
+			// TEMP WORK... REMOVE
+			Client.form_Console = new dtxCore.Forms.frmConsole();
+			Client.form_Console.Show();
+
+			// END TEMP WORK
+
 			Client.form_Login = this;
 			InitializeComponent();
 

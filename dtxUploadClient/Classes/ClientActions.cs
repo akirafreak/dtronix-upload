@@ -93,7 +93,7 @@ namespace dtxUpload {
 				}
 			});
 
-			Client.drive_mount_thread.Start();
+			//Client.drive_mount_thread.Start();
 
 		}
 
