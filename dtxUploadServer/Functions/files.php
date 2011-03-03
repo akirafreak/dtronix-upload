@@ -2,6 +2,59 @@
 
 include_once("./functions.php");
 
+function _fileExist(){
+	global $_USER, $_CONFIG;
+	
+	list($upload_id) = $_GET["args"];
+
+	// TODO: Add any checks to see if the file is visible?
+	return file_exists($_CONFIG["upload_dir"] . $upload_id);
+}
+
+function _filesInDirectory(){
+	global $_USER, $_CONFIG;
+
+	list($directory) = $_GET["args"];
+
+	$files = mysqlQuery("SELECT `file_name`, `upload_date`, `file_size`, `last_accessed`, `url_id`
+		FROM `files`
+		WHERE `owner_id` = '%s'
+		AND `directory` = '%s'
+		LIMIT 0 , 30", array(
+			$_USER["id"],
+			$directory
+		));
+
+	if(!empty($files)){
+		callClientMethod("directory_contents", $files);
+	}else{
+		callClientMethod("directory_contents", array(array()));
+	}
+}
+
+function _fileInfo(){
+	global $_USER, $_CONFIG;
+
+	list($url_id) = $_GET["args"];
+
+	$file = mysqlQuery("SELECT `file_name`, `upload_date`, `file_size`, `last_accessed`, `url_id`
+		FROM `files`
+		WHERE `owner_id` = '%s'
+		AND `url_id` LIKE BINARY '%s'
+		LIMIT 1", array(
+			$_USER["id"],
+			$url_id
+		));
+
+	if(!empty($files)){
+		callClientMethod("file_info", $file);
+	}else{
+		callClientMethod("file_info", array());
+	}
+}
+
+
+
 function _filesUploadedQuick(){
 	global $_USER, $_CONFIG;
 
@@ -250,6 +303,11 @@ function _uploadNewFile(){
 
 function _viewFile(){
 	global $_CONFIG, $mime_types;
+	
+	if(!isset($_GET["file"]) && isset($_GET["args"])){
+		$_GET["file"] = $_GET["args"][0];
+	}
+
 	$file_exist = mysqlQuery("SELECT * FROM `files`
 		WHERE `url_id` LIKE BINARY '%s'
 		LIMIT 1", array($_GET["file"]));

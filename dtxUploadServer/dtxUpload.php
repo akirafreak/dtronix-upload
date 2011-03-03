@@ -63,11 +63,16 @@ function dtx_main(){
 		"load_user_info" => array("user", "_getUserInfo", true),
 		"logout" => array("user", "_logout", true),
 
-		// File Functions.
+		// File functions.
 		"load_files_quick" => array("files", "_filesUploadedQuick", true),
 		"file_delete" => array("files", "_fileDelete", true),
 		"upload_file" => array("files", "_uploadNewFile", true),
 		"view_file" => array("files", "_viewFile", false),
+		"file_exist" => array("files", "_fileExist", false),
+		
+		// Server mounting functions.
+		"files_in_directory" => array("files", "_filesInDirectory", true),
+		"file_info" => array("files", "_fileInfo", true),
 
 		// Installer Functions.
 		"update_latest_version" => array("installer", "_getLatestInstallerVersion", false),

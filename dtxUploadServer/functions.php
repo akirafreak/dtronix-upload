@@ -154,7 +154,6 @@ function callClientMethod($client_function, $array = null){
 	global $_USER;
 	
 	if($_USER["client"] == 1){ // The connected client is the dtxUpload Program. Output call request.
-		
 		$func_length = strlen($client_function);
 		if($func_length < 1) return false;
 
@@ -162,6 +161,7 @@ function callClientMethod($client_function, $array = null){
 		// Function String Length; Function String; Function Argument (JSON);
 		echo str_pad($func_length, 3);
 		echo $client_function;
+		
 		if(is_array($array)){
 			die(json_encode($array));
 		}else{
