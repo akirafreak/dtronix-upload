@@ -34,7 +34,7 @@
 			this._panButtons = new System.Windows.Forms.Panel();
 			this._btnSettings = new System.Windows.Forms.Button();
 			this._btnConfigDone = new System.Windows.Forms.Button();
-			this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+			this._notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
 			this._chkSavePassword = new System.Windows.Forms.CheckBox();
 			this._lblWarnServer = new System.Windows.Forms.Label();
 			this._btnRemoveServer = new System.Windows.Forms.Button();
@@ -60,8 +60,8 @@
 			this._cmiSettings = new System.Windows.Forms.MenuItem();
 			this._cmiSettingsConfirmUpload = new System.Windows.Forms.MenuItem();
 			this._cmiSettingsUploadCopy = new System.Windows.Forms.MenuItem();
-			this._cmiExit = new System.Windows.Forms.MenuItem();
 			this._cmiAbout = new System.Windows.Forms.MenuItem();
+			this._cmiExit = new System.Windows.Forms.MenuItem();
 			this._panButtons.SuspendLayout();
 			this._panLoginInputs.SuspendLayout();
 			this.groupBox1.SuspendLayout();
@@ -161,12 +161,12 @@
 			this._btnConfigDone.UseVisualStyleBackColor = true;
 			this._btnConfigDone.Click += new System.EventHandler(this._btnConfigDone_Click);
 			// 
-			// notifyIcon
+			// _notifyIcon
 			// 
-			this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
-			this.notifyIcon.Text = "Dtronix Upload";
-			this.notifyIcon.Visible = true;
-			this.notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseClick);
+			this._notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("_notifyIcon.Icon")));
+			this._notifyIcon.Text = "Dtronix Upload";
+			this._notifyIcon.Visible = true;
+			this._notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon_MouseClick);
 			// 
 			// _chkSavePassword
 			// 
@@ -410,17 +410,17 @@
 			this._cmiSettingsUploadCopy.Text = "Copy upload URL to clipboard";
 			this._cmiSettingsUploadCopy.Click += new System.EventHandler(this._cmiSettingsUploadCopy_Click);
 			// 
-			// _cmiExit
-			// 
-			this._cmiExit.Index = 9;
-			this._cmiExit.Text = "Exit";
-			this._cmiExit.Click += new System.EventHandler(this._cmiExit_Click);
-			// 
 			// _cmiAbout
 			// 
 			this._cmiAbout.Index = 8;
 			this._cmiAbout.Text = "About";
 			this._cmiAbout.Click += new System.EventHandler(this._cmiAbout_Click);
+			// 
+			// _cmiExit
+			// 
+			this._cmiExit.Index = 9;
+			this._cmiExit.Text = "Exit";
+			this._cmiExit.Click += new System.EventHandler(this._cmiExit_Click);
 			// 
 			// frmLogin
 			// 
@@ -446,6 +446,8 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
 			this.TopMost = true;
 			this.Activated += new System.EventHandler(this.frmLogin_Activated);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmLogin_FormClosing);
+			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmLogin_FormClosed);
 			this.Load += new System.EventHandler(this.frmLogin_Load);
 			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.frmLogin_MouseDown);
 			this.MouseLeave += new System.EventHandler(this.frmLogin_MouseLeave);
@@ -474,7 +476,7 @@
 		private System.Windows.Forms.Button _btnCancel;
 		private System.Windows.Forms.Button _btnLogin;
 		private System.Windows.Forms.Panel _panButtons;
-		private System.Windows.Forms.NotifyIcon notifyIcon;
+		private System.Windows.Forms.NotifyIcon _notifyIcon;
 		private System.Windows.Forms.CheckBox _chkSavePassword;
 		private System.Windows.Forms.Button _btnSettings;
 		private System.Windows.Forms.Label _lblWarnServer;

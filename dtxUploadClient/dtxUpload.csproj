@@ -79,6 +79,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="dtxCore\Dokan\DokanNet.cs" />
+    <Compile Include="dtxCore\Dokan\DokanOperations.cs" />
+    <Compile Include="dtxCore\Dokan\Proxy.cs" />
+    <Compile Include="dtxCore\Dokan\UploadServerMount.cs" />
     <Compile Include="Forms\frmCropScreen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -254,6 +258,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Release "$(TargetDir)Installer\build.bat"</PostBuildEvent>
