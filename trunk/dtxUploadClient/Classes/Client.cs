@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using dtxCore;
+using dtxCore.Dokan;
+using System.Threading;
 
 namespace dtxUpload {
 
@@ -20,5 +22,7 @@ namespace dtxUpload {
 
 		public static DC_ServerInformation server_info = new DC_ServerInformation();
 		public static DC_UserInformation user_info = new DC_UserInformation();
+
+		public static Thread drive_mount_thread;
 	}
 }

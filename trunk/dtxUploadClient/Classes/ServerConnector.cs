@@ -11,7 +11,7 @@ namespace dtxUpload {
 	/// <summary>
 	/// Class to setup two way communication between HTTP server and client.
 	/// </summary>
-	class ServerConnector {
+	public partial class ServerConnector {
 		public short max_concurrent_connections;
 
 		private List<WebClient> web_clients = new List<WebClient>();
@@ -20,6 +20,8 @@ namespace dtxUpload {
 		public DC_UserInformation user_info;
 		private ClientActions actions;
 		public UploadFileItem upload_control;
+		public Dictionary<string, DC_CacheRequest> cache_requests = new Dictionary<string, DC_CacheRequest>();
+		private int cache_length = 7;
 
 		/// <summary>
 		///  Uses global client information for connecting.
@@ -86,21 +88,21 @@ namespace dtxUpload {
 		private WebClient prepareClient(WebClient client) {
 			StringBuilder sb = new StringBuilder();
 			client.Headers.Clear();
-			client.Headers.Add(HttpRequestHeader.UserAgent, "dtxUploadClient/0.1");
+			client.Headers.Add(HttpRequestHeader.UserAgent, "dtxUploadClient/0.3");
 
 			if(user_info.session_key != null) {
 				sb.Append("session_key=");
 				sb.Append(user_info.session_key);
 				sb.Append(";");
 			}
-			if(user_info.client_username != null) {
+			if(user_info.username != null) {
 				sb.Append("client_username=");
-				sb.Append(user_info.client_username);
+				sb.Append(user_info.username);
 				sb.Append(";");
 			}
-			if(user_info.client_password_md5 != null) {
+			if(user_info.password_md5 != null) {
 				sb.Append("client_password=");
-				sb.Append(user_info.client_password_md5);
+				sb.Append(user_info.password_md5);
 				sb.Append(";");
 			}
 
@@ -157,7 +159,7 @@ namespace dtxUpload {
 		/// Execute connection request and login.
 		/// </summary>
 		public void connect() {
-			user_info.client_password_md5 = user_info.client_password;
+			user_info.password_md5 = user_info.password;
 			callServerMethod("user_verification");
 		}
 
@@ -217,6 +219,87 @@ namespace dtxUpload {
 			client.DownloadStringAsync(uri, method);
 #endif
 
+		}
+
+		/// <summary>
+		/// Execute a syncronous method on the server.
+		/// </summary>
+		/// <param name="method">Method name to execute on the server.</param>
+		public T callServerMethodSyncronous<T>(string method) {
+			return callServerMethodSyncronous<T>(method, null);
+		}
+
+		/// <summary>
+		/// Execute a syncronous method on the server.
+		/// </summary>
+		/// <param name="method">Method name to execute on the server.</param>
+		/// <param name="arguments">Arguments to pass to the method on the server.</param>
+		public T callServerMethodSyncronous<T>(string method, params string[] arguments) {
+			return callServerMethodSyncronous<T>(method, false, arguments);
+		}
+
+		/// <summary>
+		/// Execute a syncronous method on the server.
+		/// </summary>
+		/// <param name="method">Method name to execute on the server.</param>
+		/// <param name="use_cache">True to enable use of cache.  This will not query the server for the next 3 seconds with the same query.</param>
+		/// <param name="arguments">Arguments to pass to the method on the server.</param>
+		public T callServerMethodSyncronous<T>(string method, bool use_cache, params string[] arguments) {
+			Uri uri = buildUri(method, arguments);
+			string concat_uri = uri.ToString();
+
+			if(use_cache && cache_requests.ContainsKey(concat_uri)) {
+				if(cache_requests[concat_uri].request_time.AddSeconds(cache_length) < DateTime.Now) {
+					return (T)cache_requests[concat_uri].data;
+				} else {
+					cache_requests.Remove(concat_uri);
+				}
+			}
+
+			WebClient client = getWebClient();
+			string data = client.DownloadString(uri);
+
+			if(data == null) {
+				return default(T);
+
+			} else {
+				try {
+					string[] parsed = parseServerData(data);
+					JsonReader reader = new JsonReader(parsed[1]);
+					T data_deserialized = reader.Deserialize<T>();
+
+					if(data_deserialized == null) {
+						return default(T);
+					}
+
+					if(use_cache) {
+						cache_requests.Add(concat_uri, new DC_CacheRequest() {
+							data = data_deserialized,
+							request_time = DateTime.Now
+						});
+					}
+
+					return data_deserialized;
+				} catch {
+					return default(T);
+				}
+				
+			}
+		}
+
+
+		/// <summary>
+		/// Execute a syncronous method on the server.
+		/// </summary>
+		/// <param name="id">File ID to download</param>
+		/// <param name="offset">Offset of file to start to read from</param>
+		/// <param name="to_read">Total bytes to read.</param>
+		public byte[] partialFileDownloadSyncronous(string id, long offset, uint to_read) {
+			Uri uri = buildUri("view_file", id);
+
+			WebClient client = getWebClient();
+			//client.Headers.Set(HttpRequestHeader.Range, "bytes="+ offset + "-" + offset + to_read);
+			return client.DownloadData(uri);
 		}
 
 		/// <summary>

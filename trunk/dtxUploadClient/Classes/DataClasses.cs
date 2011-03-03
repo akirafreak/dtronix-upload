@@ -34,14 +34,18 @@ namespace dtxUpload {
 
 
 	public class DC_UserInformation {
+		public string id;
 		public string session_key;
-		public string client_username;
-		public string client_password;
-		public string client_password_md5;
+		public string username;
+		public string password;
+		public string password_md5;
+		public string registration_date;
 
-		public int total_uploaded_size;
-		public int total_allowed_upload_size;
-		public int upload_size_limit;
+		// Stats
+		public ulong total_uploaded_filesizes;
+		public int total_files_uploaded;
+		public ulong max_upload_space;
+		public ulong max_upload_size;
 
 		// Permissions
 		public bool can_upload;
@@ -57,9 +61,10 @@ namespace dtxUpload {
 		public string tag;
 		public string file_name;
 		public long file_size;
-		public int upload_date;
+		public string upload_date;
 		public int hits;
 		public string upload_id;
+		public string last_accessed;
 		public bool delete_after_upload = false;
 
 		/// <summary>
@@ -89,6 +94,11 @@ namespace dtxUpload {
 		public string stack_trace;
 		public string source;
 		public string message;
+	}
+
+	public class DC_CacheRequest {
+		public DateTime request_time;
+		public object data;
 	}
 
 }

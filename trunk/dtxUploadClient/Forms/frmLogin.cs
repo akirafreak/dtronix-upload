@@ -9,6 +9,7 @@ using dtxCore;
 using dtxCore.Json;
 using System.Net;
 using System.Reflection;
+using dtxCore.Dokan;
 
 namespace dtxUpload {
 	public partial class frmLogin : Form {
@@ -52,7 +53,7 @@ namespace dtxUpload {
 			_cmbScreenshotQuality.Text = Client.config.get<string>("frmlogin.screenshot_jpeg_quality", "90");
 
 			// Add the native context menu.
-			notifyIcon.ContextMenu = _contextMenu;
+			_notifyIcon.ContextMenu = _contextMenu;
 
 			// Make sure the form is the correct size.  Windows XP's form widths are less than 7's.
 			OperatingSystemInfo osi = Utilities.getOSInfo();
@@ -170,8 +171,8 @@ namespace dtxUpload {
 				}
 
 				_btnLogin.Enabled = false;
-				connector.user_info.client_username = _itxtUsername.Value;
-				connector.user_info.client_password = _itxtPassword.Value;
+				connector.user_info.username = _itxtUsername.Value;
+				connector.user_info.password = _itxtPassword.Value;
 				connector.connect();
 			}
 		}
@@ -455,12 +456,9 @@ namespace dtxUpload {
 		}
 
 
-
-
-
-
-
-
+		public void displayNotification(string title, string text, bool error) {
+			_notifyIcon.ShowBalloonTip(3, title, text, (error) ? ToolTipIcon.Error : ToolTipIcon.Info);
+		}
 
 		#region ContextMenu items and events.
 
@@ -532,6 +530,21 @@ namespace dtxUpload {
 
 		private void _cmiAbout_Click(object sender, EventArgs e) {
 			new dtxCore.Forms.frmAbout(Assembly.GetExecutingAssembly(), Properties.Resources.License_Dtronix_Upload, Properties.Resources.AboutLogoRev0).ShowDialog();
+		}
+
+		private void frmLogin_FormClosing(object sender, FormClosingEventArgs e) {
+
+			// Make sure we unmount the drive if it is mounted.
+			if(Client.drive_mount_thread != null) {
+				Client.drive_mount_thread.Abort();
+			}
+		}
+
+		private void frmLogin_FormClosed(object sender, FormClosedEventArgs e) {
+			// Make sure we unmount the drive if it is mounted.
+			if(Client.drive_mount_thread != null) {
+				Client.drive_mount_thread.Abort();
+			}
 		}
 
 
