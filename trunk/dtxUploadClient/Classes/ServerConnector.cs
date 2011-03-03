@@ -5,6 +5,8 @@ using System.Net;
 using dtxCore.Json;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Threading;
+using System.ComponentModel;
 
 namespace dtxUpload {
 
@@ -13,8 +15,14 @@ namespace dtxUpload {
 	/// </summary>
 	public partial class ServerConnector {
 		public short max_concurrent_connections;
+		//private short current_connections = 0;
+
+		private delegate void DownloadStringDelegate(Uri address, AsyncOperation async);
+		private DownloadStringDelegate asyncDownloadString;
+
 
 		private List<WebClient> web_clients = new List<WebClient>();
+		private List<HttpWebRequest> web_requests = new List<HttpWebRequest>();
 
 		public DC_ServerInformation server_info;
 		public DC_UserInformation user_info;
@@ -23,15 +31,47 @@ namespace dtxUpload {
 		public Dictionary<string, DC_CacheRequest> cache_requests = new Dictionary<string, DC_CacheRequest>();
 		private int cache_length = 7;
 
+
+		public void downloadString(Uri address, AsyncOperation async) {
+			if(Client.form_Console != null) 
+				Client.form_Console.writeLine("Searted downloading" + address.ToString());
+
+			HttpWebRequest request = HttpWebRequest.Create(address) as HttpWebRequest;
+			HttpWebResponse responce = request.GetResponse() as HttpWebResponse;
+
+			
+
+
+		}
+
+
+
 		/// <summary>
 		///  Uses global client information for connecting.
 		/// </summary>
 		public ServerConnector() {
+			asyncDownloadString = this.downloadString;
+
+
 			actions = new ClientActions(this);
 			server_info = Client.server_info;
 			user_info = Client.user_info;
 			max_concurrent_connections = Client.config.get<short>("serverconnector.concurrent_connections_max");
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		/// <summary>
 		/// Uses custom connection information.
@@ -141,11 +181,6 @@ namespace dtxUpload {
 		}
 
 		private void web_client_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e) {
-#if DEBUG
-			Client.form_connector.Invoke((MethodInvoker)delegate{
-				Client.form_connector.updateRequest((int)e.UserState, e.Result);
-			});
-#endif
 			//string called_method = e.UserState.ToString();
 			if(e.Error != null) {
 				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
@@ -210,15 +245,7 @@ namespace dtxUpload {
 		public void callServerMethod(string method, params string[] arguments) {
 			Uri uri = buildUri(method, arguments);
 			WebClient client = getWebClient();
-#if DEBUG
-			Client.form_connector.Invoke((MethodInvoker)delegate {
-				int request_id = Client.form_connector.addRequest(method, uri.Query);
-				client.DownloadStringAsync(uri, request_id);
-			});
-#else
 			client.DownloadStringAsync(uri, method);
-#endif
-
 		}
 
 		/// <summary>

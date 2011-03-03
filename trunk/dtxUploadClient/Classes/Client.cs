@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using dtxCore;
 using dtxCore.Dokan;
+using dtxCore.Forms;
 using System.Threading;
 
 namespace dtxUpload {
@@ -13,12 +14,9 @@ namespace dtxUpload {
 	public static class Client {
 		public static frmLogin form_Login;
 		public static frmQuickUpload form_QuickUpload;
+		public static frmConsole form_Console;
 
 		public static Config config;
-
-#if DEBUG
-		public static frmConnector form_connector;
-#endif
 
 		public static DC_ServerInformation server_info = new DC_ServerInformation();
 		public static DC_UserInformation user_info = new DC_UserInformation();
