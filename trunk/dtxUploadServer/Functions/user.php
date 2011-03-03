@@ -6,9 +6,8 @@ function _verifyUser(){
 
 function _registerAccount(){
 	if(count($_GET["args"]) == 3){
-		$username = $_GET["args"][0];
-		$password = $_GET["args"][1]; // Already MD5 hashed.
-		$email = $_GET["args"][2];
+
+		list($username, $password, $email) = $_GET["args"];
 		// Validation
 
 		if(strlen($username) < 3){
