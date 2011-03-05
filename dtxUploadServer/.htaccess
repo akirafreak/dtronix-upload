@@ -1,3 +1,0 @@
-RewriteEngine On
-RewriteRule ^([a-zA-Z0-9_-]+)$ dtxUpload.php?action=view_file&file=$1
-AddHandler application/x-httpd-php5 .php
