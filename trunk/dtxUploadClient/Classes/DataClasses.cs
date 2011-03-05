@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.ComponentModel;
 
 namespace dtxUpload {
 	public class DC_ServerInformation {
@@ -99,6 +100,13 @@ namespace dtxUpload {
 	public class DC_CacheRequest {
 		public DateTime request_time;
 		public object data;
+	}
+
+	public class DC_UploadProgressChangedEventArgs{
+		public long bytes_received = 0;
+		public long bytes_sent = 0;
+		public long total_byes_to_receive = 0;
+		public long total_bytes_to_send = 0;
 	}
 
 }

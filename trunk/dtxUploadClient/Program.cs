@@ -5,7 +5,6 @@ using System.Xml.Serialization;
 using System.Text;
 using dtxCore;
 using dtxCore.Json;
-using dtxCore.Dokan;
 
 namespace dtxUpload {
 	static class Program {
@@ -16,6 +15,9 @@ namespace dtxUpload {
 		static void Main() {
 #if !DEBUG
 			try {
+#endif
+#if DEBUG
+				dtxCore.Console.debug_mode = true;
 #endif
 				// Load all configurations and if the config file does not exist, generate a new one.
 				Client.config = new Config(delegate(Config current_config) {
@@ -38,11 +40,6 @@ namespace dtxUpload {
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 				Application.Run(new frmLogin());
-
-				if(Client.drive_mount_thread != null) {
-					DokanNet.DokanUnmount('n');
-					Client.drive_mount_thread.Abort();
-				}
 				
 #if !DEBUG
 			} catch(Exception e) {

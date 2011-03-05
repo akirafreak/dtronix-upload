@@ -7,71 +7,258 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Threading;
 using System.ComponentModel;
+using System.IO;
+using dtxCore;
+using System.Web;
+using System.Collections.Specialized;
 
 namespace dtxUpload {
+
+	public delegate void D_UploadProgressChanged(DC_UploadProgressChangedEventArgs e);
 
 	/// <summary>
 	/// Class to setup two way communication between HTTP server and client.
 	/// </summary>
 	public partial class ServerConnector {
+
+
 		public short max_concurrent_connections;
 		//private short current_connections = 0;
 
-		private delegate void DownloadStringDelegate(Uri address, AsyncOperation async);
-		private DownloadStringDelegate asyncDownloadString;
+		private delegate string GetStringDelegate(Uri address);
+		private delegate string PostFileStreamDelegate(Uri address, FileStream stream);
 
+		public D_UploadProgressChanged upload_progress_changed;
 
-		private List<WebClient> web_clients = new List<WebClient>();
-		private List<HttpWebRequest> web_requests = new List<HttpWebRequest>();
-
-		public DC_ServerInformation server_info;
+		public  DC_ServerInformation server_info;
 		public DC_UserInformation user_info;
 		private ClientActions actions;
 		public UploadFileItem upload_control;
 		public Dictionary<string, DC_CacheRequest> cache_requests = new Dictionary<string, DC_CacheRequest>();
 		private int cache_length = 7;
 
+		private string http_post_boundry;
+		private byte[] http_post_boundry_bytes;
 
-		public void downloadString(Uri address, AsyncOperation async) {
-			if(Client.form_Console != null) 
-				Client.form_Console.writeLine("Searted downloading" + address.ToString());
 
-			HttpWebRequest request = HttpWebRequest.Create(address) as HttpWebRequest;
-			HttpWebResponse responce = request.GetResponse() as HttpWebResponse;
 
+		public string getString(Uri address) {
+			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
+			HttpWebResponse response = request.GetResponse() as HttpWebResponse;
 			
-
-
+			return readServerResponse(request);
 		}
 
+		private void getStringResult(IAsyncResult result) {
+			GetStringDelegate del = result.AsyncState as GetStringDelegate;
+			string server_string = del.EndInvoke(result);
+
+			if(server_string == null) {
+				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
+				server_info.is_connected = false;
+			} else {
+				execServerResponse(server_string);
+			}
+		}
+
+		public string postFileStream(Uri address, FileStream in_stream) {
+			if(http_post_boundry_bytes == null) {
+				http_post_boundry = "---------------------------" + DateTime.Now.Ticks.ToString("x");
+				http_post_boundry_bytes = Encoding.UTF8.GetBytes("\r\n--" + http_post_boundry + "\r\n");
+			}
+
+			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
+			DC_UploadProgressChangedEventArgs upload_args = new DC_UploadProgressChangedEventArgs();
+			upload_args.total_bytes_to_send = in_stream.Length;
+
+			string header = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: application/octet-stream\r\n\r\n";
+			header = string.Format(header, "file", Path.GetFileName(in_stream.Name));
+			byte[] header_bytes = Encoding.UTF8.GetBytes(header);
+
+
+			Stream out_stream = request.GetRequestStream();
+			byte[] buffer = new byte[1024 * 48];
+			int read_length = 0;
+
+			out_stream.Write(http_post_boundry_bytes, 0, http_post_boundry_bytes.Length);
+			out_stream.Write(header_bytes, 0, header_bytes.Length);
+			
+
+			while((read_length = in_stream.Read(buffer, 0, buffer.Length)) > 0){
+				out_stream.Write(buffer, 0, read_length);
+
+				upload_args.bytes_sent += read_length;
+				upload_progress_changed.Invoke(upload_args);
+			}
+
+			byte[] trailer = Encoding.UTF8.GetBytes("\r\n--" + http_post_boundry + "--\r\n");
+
+			out_stream.Write(trailer, 0, trailer.Length);
+
+			out_stream.Close();
+			in_stream.Close();
+
+
+			return readServerResponse(request);
+		}
+
+		public string UploadFileEx(string uploadfile, Uri uri) {
+
+			string contenttype = "application/octet-stream";
+
+
+			string boundary = "----------" + DateTime.Now.Ticks.ToString("x");
+			HttpWebRequest webrequest = (HttpWebRequest)WebRequest.Create(uri);
+			webrequest.ContentType = "multipart/form-data; boundary=" + boundary;
+			webrequest.Method = "POST";
+
+			StringBuilder sb = new StringBuilder();
+			webrequest.UserAgent = "dtxUploadClient/0.3";
+
+			if(user_info.session_key != null) {
+				sb.Append("session_key=");
+				sb.Append(user_info.session_key);
+				sb.Append(";");
+			}
+			if(user_info.username != null) {
+				sb.Append("client_username=");
+				sb.Append(user_info.username);
+				sb.Append(";");
+			}
+			if(user_info.password_md5 != null) {
+				sb.Append("client_password=");
+				sb.Append(user_info.password_md5);
+				sb.Append(";");
+			}
+
+			webrequest.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
+
+			sb.Remove(0, sb.Length);
+
+
+			// Build up the post message header
+
+			sb.Append("--");
+			sb.Append(boundary);
+			sb.Append("\r\n");
+			sb.Append("Content-Disposition: form-data; name=\"");
+			sb.Append("file");
+			sb.Append("\"; filename=\"");
+			sb.Append(Path.GetFileName(uploadfile));
+			sb.Append("\"");
+			sb.Append("\r\n");
+			sb.Append("Content-Type: ");
+			sb.Append(contenttype);
+			sb.Append("\r\n");
+			sb.Append("\r\n");
+
+			string postHeader = sb.ToString();
+			byte[] postHeaderBytes = Encoding.UTF8.GetBytes(postHeader);
+
+			// Build the trailing boundary string as a byte array
+
+			// ensuring the boundary appears on a line by itself
+
+			byte[] boundaryBytes =
+				   Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+
+			FileStream fileStream = new FileStream(uploadfile,
+										FileMode.Open, FileAccess.Read);
+			long length = postHeaderBytes.Length + fileStream.Length +
+												   boundaryBytes.Length;
+			webrequest.ContentLength = length;
+
+			Stream requestStream = webrequest.GetRequestStream();
+
+			// Write out our post header
+
+			requestStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
+
+			// Write out the file contents
+
+			byte[] buffer = new Byte[checked((uint)Math.Min(4096,
+									 (int)fileStream.Length))];
+			int bytesRead = 0;
+			while((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+				requestStream.Write(buffer, 0, bytesRead);
+
+			// Write out the trailing boundary
+
+			requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
+			WebResponse responce = webrequest.GetResponse();
+			Stream s = responce.GetResponseStream();
+			StreamReader sr = new StreamReader(s);
+
+			return sr.ReadToEnd();
+		}
+
+
+
+
+
+		private void postFileStreamResult(IAsyncResult result) {
+			PostFileStreamDelegate del = result.AsyncState as PostFileStreamDelegate;
+			string server_string = del.EndInvoke(result);
+
+			if(server_string == null) {
+				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
+				server_info.is_connected = false;
+			} else {
+				execServerResponse(server_string);
+			}
+		}
+
+
+		private string readServerResponse(HttpWebRequest request) {
+			try {
+				HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+
+				if(response.StatusCode != HttpStatusCode.OK) {
+					dtxCore.Console.writeLine("Query[" + request.Address.Query + "] Returned Error: " + response.StatusDescription);
+					return null;
+				}
+
+				int length = 0;
+				byte[] buffer = new byte[512];
+				Stream st = response.GetResponseStream();
+				StringBuilder sb = new StringBuilder();
+
+
+				while((length = st.Read(buffer, 0, buffer.Length)) > 0) {
+					sb.Append(Encoding.UTF8.GetString(buffer, 0, length));
+				}
+
+				st.Close();
+				response.Close();
+				return sb.ToString();
+			} catch(Exception e) {
+				dtxCore.Console.writeLine("Query[" + request.Address.Query + "] " + e.Message);
+				return null;
+			}
+
+			
+		}
+
+
+		/// <summary>
+		/// Execute connection request and login.
+		/// </summary>
+		public void connect() {
+			user_info.password_md5 = user_info.password;
+			callServerMethod("user_verification");
+		}
 
 
 		/// <summary>
 		///  Uses global client information for connecting.
 		/// </summary>
 		public ServerConnector() {
-			asyncDownloadString = this.downloadString;
-
 
 			actions = new ClientActions(this);
 			server_info = Client.server_info;
 			user_info = Client.user_info;
 			max_concurrent_connections = Client.config.get<short>("serverconnector.concurrent_connections_max");
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		/// <summary>
 		/// Uses custom connection information.
@@ -93,42 +280,24 @@ namespace dtxUpload {
 			user_info = Client.user_info;
 			upload_control = up_control;
 
+			upload_progress_changed += new D_UploadProgressChanged(actions.upload_progress);
+
 			max_concurrent_connections = 1;
 		}
 
-		/// <summary>
-		/// Method to get or create an inactive WebClient.  Will create a new WebClient class up to max_concurrent_connections.
-		/// </summary>
-		/// <returns>Inactive WebClient</returns>
-		private WebClient getWebClient() {
+		private HttpWebRequest prepareRequest(WebRequest request) {
+			HttpWebRequest http_request = request as HttpWebRequest;
 
-			// Try to find an open client first.
-			int len = web_clients.Count;
-			for(int i = 0; i < len; i++) {
-				if(!web_clients[i].IsBusy) {
-					return prepareClient(web_clients[i]);
-				}
-			}
+			http_request.ContentType = "multipart/form-data; boundary=" + http_post_boundry;
+			http_request.Method = "POST";
+			http_request.KeepAlive = true;
+			http_request.Credentials = System.Net.CredentialCache.DefaultCredentials;
 
-			//No clients are currently avalible.
-			if(len < max_concurrent_connections) {
-				// We are under the max allowed ammount for the connector.
-				WebClient client = new WebClient();
-				setupEvents(client);
-				web_clients.Add(client);
 
-				return prepareClient(client);
 
-			} else {
-				// We have reached the max allowed connections to be open.  TODO: create error report for this.  TODO: Make sure to not cause a null reference exception... LIKE I AM DOING...
-				return null;
-			}
-		}
-
-		private WebClient prepareClient(WebClient client) {
 			StringBuilder sb = new StringBuilder();
-			client.Headers.Clear();
-			client.Headers.Add(HttpRequestHeader.UserAgent, "dtxUploadClient/0.3");
+			http_request.Headers.Clear();
+			http_request.UserAgent = "dtxUploadClient/0.3";
 
 			if(user_info.session_key != null) {
 				sb.Append("session_key=");
@@ -146,19 +315,9 @@ namespace dtxUpload {
 				sb.Append(";");
 			}
 
-			client.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
+			http_request.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
 
-			return client;
-		}
-
-		/// <summary>
-		/// Setup all async events for the WebClient.
-		/// </summary>
-		/// <param name="client">Corrasponding client to add the events to.</param>
-		private void setupEvents(WebClient client) {
-			client.UploadProgressChanged += new UploadProgressChangedEventHandler(web_client_UploadProgressChanged);
-			client.UploadFileCompleted += new UploadFileCompletedEventHandler(web_client_UploadFileCompleted);
-			client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(web_client_DownloadStringCompleted);
+			return http_request;
 		}
 
 		private void web_client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e) {
@@ -172,30 +331,8 @@ namespace dtxUpload {
 				server_info.is_connected = false;
 
 			} else {
-				execServerResponce(UTF8Encoding.UTF8.GetString(e.Result));
+				execServerResponse(UTF8Encoding.UTF8.GetString(e.Result));
 			}		
-		}
-
-		private void web_client_UploadProgressChanged(object sender, UploadProgressChangedEventArgs e) {
-			upload_control.uploadProgress(e);
-		}
-
-		private void web_client_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e) {
-			//string called_method = e.UserState.ToString();
-			if(e.Error != null) {
-				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
-				server_info.is_connected = false;
-			} else {
-				execServerResponce(e.Result);
-			}		
-		}
-
-		/// <summary>
-		/// Execute connection request and login.
-		/// </summary>
-		public void connect() {
-			user_info.password_md5 = user_info.password;
-			callServerMethod("user_verification");
 		}
 
 		public void disconnect() {
@@ -213,10 +350,10 @@ namespace dtxUpload {
 		/// Cancel all current connection requestes to the server.
 		/// </summary>
 		public void cancelActions() {
-			int len = web_clients.Count;
-			for(int i = 0; i < len; i++) {
-				web_clients[i].CancelAsync();
-			}
+			//int len = web_clients.Count;
+			//for(int i = 0; i < len; i++) {
+			//	web_clients[i].CancelAsync();
+			//}
 		}
 
 		/// <summary>
@@ -226,7 +363,12 @@ namespace dtxUpload {
 		/// 
 		public void uploadFile(string file_location) {
 			Uri uri = buildUri("upload_file");
-			getWebClient().UploadFileAsync(uri, file_location);
+			FileStream fs = new FileStream(file_location, FileMode.Open, FileAccess.Read, FileShare.Read);
+			if(!fs.CanRead) // If we can not read it, what CAN we do?
+				return;
+
+			PostFileStreamDelegate post = new PostFileStreamDelegate(postFileStream);
+			post.BeginInvoke(uri, fs, new AsyncCallback(postFileStreamResult), post);
 		}
 
 		/// <summary>
@@ -244,9 +386,10 @@ namespace dtxUpload {
 		/// <param name="arguments">Arguments to pass to the method on the server.</param>
 		public void callServerMethod(string method, params string[] arguments) {
 			Uri uri = buildUri(method, arguments);
-			WebClient client = getWebClient();
-			client.DownloadStringAsync(uri, method);
+			GetStringDelegate get = new GetStringDelegate(getString);
+			get.BeginInvoke(uri, new AsyncCallback(getStringResult), get);
 		}
+
 
 		/// <summary>
 		/// Execute a syncronous method on the server.
@@ -283,8 +426,8 @@ namespace dtxUpload {
 				}
 			}
 
-			WebClient client = getWebClient();
-			string data = client.DownloadString(uri);
+			//WebClient client = getWebClient();
+			string data = "client.DownloadString(uri);";
 
 			if(data == null) {
 				return default(T);
@@ -324,9 +467,11 @@ namespace dtxUpload {
 		public byte[] partialFileDownloadSyncronous(string id, long offset, uint to_read) {
 			Uri uri = buildUri("view_file", id);
 
-			WebClient client = getWebClient();
+			return new byte[224];
+
+			//WebClient client = getWebClient();
 			//client.Headers.Set(HttpRequestHeader.Range, "bytes="+ offset + "-" + offset + to_read);
-			return client.DownloadData(uri);
+			//return client.DownloadData(uri);
 		}
 
 		/// <summary>
@@ -360,7 +505,7 @@ namespace dtxUpload {
 		/// Data is passed here from the async request to be parsed and executed.
 		/// </summary>
 		/// <param name="server_data">Raw data that comes from the server</param>
-		private void execServerResponce(string server_data) {
+		private void execServerResponse(string server_data) {
 			string[] parsed = parseServerData(server_data);
 
 			if(parsed[0] == null) // If the server responce could not be  parsed, then just quit!

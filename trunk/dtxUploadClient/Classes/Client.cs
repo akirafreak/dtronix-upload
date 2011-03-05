@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using dtxCore;
-using dtxCore.Dokan;
 using dtxCore.Forms;
 using System.Threading;
 
@@ -14,7 +13,6 @@ namespace dtxUpload {
 	public static class Client {
 		public static frmLogin form_Login;
 		public static frmQuickUpload form_QuickUpload;
-		public static frmConsole form_Console;
 
 		public static Config config;
 

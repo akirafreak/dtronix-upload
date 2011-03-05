@@ -60,7 +60,6 @@
 			// 
 			// panel1
 			// 
-			this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.panel1.Controls.Add(this._btnUploadClipboard);
 			this.panel1.Controls.Add(this._btnCancelAll);
 			this.panel1.Controls.Add(this._btnClearList);
@@ -240,6 +239,7 @@
 			this._btnDropUploadFile.TabIndex = 1;
 			this._btnDropUploadFile.Text = "Upload file(s)";
 			this._btnDropUploadFile.UseVisualStyleBackColor = true;
+			this._btnDropUploadFile.Click += new System.EventHandler(this._btnDropUploadFile_Click);
 			this._btnDropUploadFile.DragDrop += new System.Windows.Forms.DragEventHandler(this._btnDropUploadFile_DragDrop);
 			this._btnDropUploadFile.DragEnter += new System.Windows.Forms.DragEventHandler(this._btnDropUploadFile_DragEnter);
 			// 

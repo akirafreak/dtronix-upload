@@ -81,6 +81,12 @@ namespace dtxUpload.Properties {
             }
         }
         
+        internal static System.IO.UnmanagedMemoryStream bubble_pop {
+            get {
+                return ResourceManager.GetStream("bubble_pop", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Bitmap clipboard_eye_24 {
             get {
                 object obj = ResourceManager.GetObject("clipboard_eye_24", resourceCulture);

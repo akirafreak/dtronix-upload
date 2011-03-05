@@ -38,11 +38,11 @@ namespace dtxUpload {
 		}
 
 
-		public void uploadProgress(UploadProgressChangedEventArgs e) {
+		public void uploadProgress(DC_UploadProgressChangedEventArgs e) {
 			_picPreview.Image = Properties.Resources.icon_24_em_up;
-			_lblStatus.Text = "(" + dtxCore.Utilities.formattedSize(e.BytesSent) + "/" + dtxCore.Utilities.formattedSize(e.TotalBytesToSend) + ")";
-			_barProgress.Maximum = (int)e.TotalBytesToSend;
-			_barProgress.Value = (int)e.BytesSent;
+			_lblStatus.Text = "(" + dtxCore.Utilities.formattedSize(e.bytes_sent) + "/" + dtxCore.Utilities.formattedSize(e.total_bytes_to_send) + ")";
+			_barProgress.Maximum = (int)e.total_bytes_to_send;
+			_barProgress.Value = (int)e.bytes_sent;
 		}
 
 

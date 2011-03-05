@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Drawing.Imaging;
 using dtxCore;
+using System.Media;
 
 namespace dtxUpload {
 	public partial class frmQuickUpload : Form {
@@ -62,12 +63,19 @@ namespace dtxUpload {
 
 		}
 
+		private void completeAllUploads() {
+
+			SoundPlayer player = new SoundPlayer(Properties.Resources.bubble_pop);
+			player.Play();
+		}
+
 		private void frmQuickUpload_Load(object sender, EventArgs e) {
 			drop_files_tween = new Tween(_panDropUpload, "Height", EasingEquations.expoEaseOut);
 
 			Rectangle r = Screen.PrimaryScreen.WorkingArea;
 			this.StartPosition = FormStartPosition.Manual;
 			this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Width - this.Width - 13, Screen.PrimaryScreen.WorkingArea.Height - this.Height - 13);
+
 		}
 
 		private UploadFileItem addUploadItem(DC_FileInformation upload_info) {
@@ -402,6 +410,10 @@ namespace dtxUpload {
 				uploadFile(file);
 				//uploadZipFile(file);
 			}
+		}
+
+		private void _btnDropUploadFile_Click(object sender, EventArgs e) {
+
 		}
 
 

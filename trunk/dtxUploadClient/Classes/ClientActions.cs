@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using dtxCore.Json;
 using System.Drawing;
 using System.Net;
-using dtxCore.Dokan;
 using System.Threading;
 
 namespace dtxUpload {
@@ -17,6 +16,36 @@ namespace dtxUpload {
 
 		public ClientActions(ServerConnector connector) {
 			this.connector = connector;
+		}
+
+		public void debug(string input) {
+			if(!dtxCore.Console.debug_mode)
+				return;
+			try {
+				StringBuilder sb = new StringBuilder();
+				JsonReader jr = new JsonReader(input);
+				JsonWriter jw = new JsonWriter(sb);
+
+				jw.PrettyPrint = true;
+
+				jw.Write(jr.Deserialize());
+
+				Client.form_Login.Invoke((MethodInvoker)delegate {
+					MessageBox.Show(sb.ToString());
+				});
+
+			} catch {
+				Client.form_Login.Invoke((MethodInvoker)delegate {
+					MessageBox.Show(input);
+				});
+
+			}
+		}
+
+
+		public void validation_invalid_server() {
+			clearSession();
+			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
 		}
 
 		public void validation_expired_user_session() {
@@ -44,6 +73,7 @@ namespace dtxUpload {
 			connector.user_info.password = null;
 			connector.user_info.session_key = session_key;
 			connector.server_info.is_connected = true;
+
 			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.serverConnected);
 		}
 
@@ -59,11 +89,6 @@ namespace dtxUpload {
 
 			if(connector.upload_control != null) {
 				upload_failed_not_connected();
-			}
-
-			if(Client.drive_mount_thread != null) {
-				DokanNet.DokanUnmount('n');
-				Client.drive_mount_thread = null;
 			}
 		}
 
@@ -126,6 +151,12 @@ namespace dtxUpload {
 			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.serverOnline);
 		}
 
+
+		public void upload_progress(DC_UploadProgressChangedEventArgs args) {
+			connector.upload_control.Invoke((MethodInvoker)delegate {
+				connector.upload_control.uploadProgress(args);
+			});
+		}
 
 		public void upload_successful(string input) {
 			connector.upload_control.Invoke((MethodInvoker)delegate{
