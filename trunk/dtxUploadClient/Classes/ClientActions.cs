@@ -6,6 +6,7 @@ using dtxCore.Json;
 using System.Drawing;
 using System.Net;
 using System.Threading;
+using System.Diagnostics;
 
 namespace dtxUpload {
 	class ClientActions {
@@ -19,8 +20,6 @@ namespace dtxUpload {
 		}
 
 		public void debug(string input) {
-			if(!dtxCore.Console.debug_mode)
-				return;
 			try {
 				StringBuilder sb = new StringBuilder();
 				JsonReader jr = new JsonReader(input);
@@ -155,6 +154,7 @@ namespace dtxUpload {
 		public void upload_progress(DC_UploadProgressChangedEventArgs args) {
 			connector.upload_control.Invoke((MethodInvoker)delegate {
 				connector.upload_control.uploadProgress(args);
+				connector.upload_control.Update();
 			});
 		}
 

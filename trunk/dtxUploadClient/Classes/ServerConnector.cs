@@ -10,7 +10,7 @@ using System.ComponentModel;
 using System.IO;
 using dtxCore;
 using System.Web;
-using System.Collections.Specialized;
+using System.Diagnostics;
 
 namespace dtxUpload {
 
@@ -44,8 +44,8 @@ namespace dtxUpload {
 
 		public string getString(Uri address) {
 			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
-			HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-			
+			request.Timeout = 4000;
+
 			return readServerResponse(request);
 		}
 
@@ -66,17 +66,22 @@ namespace dtxUpload {
 				http_post_boundry = "---------------------------" + DateTime.Now.Ticks.ToString("x");
 				http_post_boundry_bytes = Encoding.UTF8.GetBytes("\r\n--" + http_post_boundry + "\r\n");
 			}
-
-			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
-			DC_UploadProgressChangedEventArgs upload_args = new DC_UploadProgressChangedEventArgs();
-			upload_args.total_bytes_to_send = in_stream.Length;
-
+			
 			string header = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: application/octet-stream\r\n\r\n";
 			header = string.Format(header, "file", Path.GetFileName(in_stream.Name));
 			byte[] header_bytes = Encoding.UTF8.GetBytes(header);
 
+			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
+			DC_UploadProgressChangedEventArgs upload_args = new DC_UploadProgressChangedEventArgs();
+			upload_args.total_bytes_to_send = in_stream.Length;
+			request.ContentLength = (http_post_boundry_bytes.Length * 2) + in_stream.Length + header_bytes.Length;
+			request.AllowWriteStreamBuffering = false;
+			
+			//request.Headers.Set("Content-Length", request.ContentLength.ToString());
+
 
 			Stream out_stream = request.GetRequestStream();
+
 			byte[] buffer = new byte[1024 * 48];
 			int read_length = 0;
 
@@ -85,116 +90,26 @@ namespace dtxUpload {
 			
 
 			while((read_length = in_stream.Read(buffer, 0, buffer.Length)) > 0){
-				out_stream.Write(buffer, 0, read_length);
+				//IAsyncResult result = out_stream.BeginWrite(buffer, 0, read_length, null, null);
+				//out_stream.Flush();
+				//out_stream.EndWrite(result);
 
+
+				out_stream.Write(buffer, 0, read_length);
+				out_stream.Flush();
+
+				// Update any events with this information
 				upload_args.bytes_sent += read_length;
 				upload_progress_changed.Invoke(upload_args);
 			}
 
-			byte[] trailer = Encoding.UTF8.GetBytes("\r\n--" + http_post_boundry + "--\r\n");
-
-			out_stream.Write(trailer, 0, trailer.Length);
+			out_stream.Write(http_post_boundry_bytes, 0, http_post_boundry_bytes.Length);
 
 			out_stream.Close();
 			in_stream.Close();
 
-
 			return readServerResponse(request);
 		}
-
-		public string UploadFileEx(string uploadfile, Uri uri) {
-
-			string contenttype = "application/octet-stream";
-
-
-			string boundary = "----------" + DateTime.Now.Ticks.ToString("x");
-			HttpWebRequest webrequest = (HttpWebRequest)WebRequest.Create(uri);
-			webrequest.ContentType = "multipart/form-data; boundary=" + boundary;
-			webrequest.Method = "POST";
-
-			StringBuilder sb = new StringBuilder();
-			webrequest.UserAgent = "dtxUploadClient/0.3";
-
-			if(user_info.session_key != null) {
-				sb.Append("session_key=");
-				sb.Append(user_info.session_key);
-				sb.Append(";");
-			}
-			if(user_info.username != null) {
-				sb.Append("client_username=");
-				sb.Append(user_info.username);
-				sb.Append(";");
-			}
-			if(user_info.password_md5 != null) {
-				sb.Append("client_password=");
-				sb.Append(user_info.password_md5);
-				sb.Append(";");
-			}
-
-			webrequest.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
-
-			sb.Remove(0, sb.Length);
-
-
-			// Build up the post message header
-
-			sb.Append("--");
-			sb.Append(boundary);
-			sb.Append("\r\n");
-			sb.Append("Content-Disposition: form-data; name=\"");
-			sb.Append("file");
-			sb.Append("\"; filename=\"");
-			sb.Append(Path.GetFileName(uploadfile));
-			sb.Append("\"");
-			sb.Append("\r\n");
-			sb.Append("Content-Type: ");
-			sb.Append(contenttype);
-			sb.Append("\r\n");
-			sb.Append("\r\n");
-
-			string postHeader = sb.ToString();
-			byte[] postHeaderBytes = Encoding.UTF8.GetBytes(postHeader);
-
-			// Build the trailing boundary string as a byte array
-
-			// ensuring the boundary appears on a line by itself
-
-			byte[] boundaryBytes =
-				   Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
-
-			FileStream fileStream = new FileStream(uploadfile,
-										FileMode.Open, FileAccess.Read);
-			long length = postHeaderBytes.Length + fileStream.Length +
-												   boundaryBytes.Length;
-			webrequest.ContentLength = length;
-
-			Stream requestStream = webrequest.GetRequestStream();
-
-			// Write out our post header
-
-			requestStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
-
-			// Write out the file contents
-
-			byte[] buffer = new Byte[checked((uint)Math.Min(4096,
-									 (int)fileStream.Length))];
-			int bytesRead = 0;
-			while((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
-				requestStream.Write(buffer, 0, bytesRead);
-
-			// Write out the trailing boundary
-
-			requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
-			WebResponse responce = webrequest.GetResponse();
-			Stream s = responce.GetResponseStream();
-			StreamReader sr = new StreamReader(s);
-
-			return sr.ReadToEnd();
-		}
-
-
-
-
 
 		private void postFileStreamResult(IAsyncResult result) {
 			PostFileStreamDelegate del = result.AsyncState as PostFileStreamDelegate;
@@ -212,9 +127,8 @@ namespace dtxUpload {
 		private string readServerResponse(HttpWebRequest request) {
 			try {
 				HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-
 				if(response.StatusCode != HttpStatusCode.OK) {
-					dtxCore.Console.writeLine("Query[" + request.Address.Query + "] Returned Error: " + response.StatusDescription);
+					Debug.WriteLine("Query[" + request.Address.Query + "] Returned Error: " + response.StatusDescription);
 					return null;
 				}
 
@@ -232,7 +146,7 @@ namespace dtxUpload {
 				response.Close();
 				return sb.ToString();
 			} catch(Exception e) {
-				dtxCore.Console.writeLine("Query[" + request.Address.Query + "] " + e.Message);
+				Debug.WriteLine("Query[" + request.Address.Query + "] " + e.Message);
 				return null;
 			}
 
@@ -287,16 +201,12 @@ namespace dtxUpload {
 
 		private HttpWebRequest prepareRequest(WebRequest request) {
 			HttpWebRequest http_request = request as HttpWebRequest;
+			StringBuilder sb = new StringBuilder();
 
 			http_request.ContentType = "multipart/form-data; boundary=" + http_post_boundry;
 			http_request.Method = "POST";
 			http_request.KeepAlive = true;
 			http_request.Credentials = System.Net.CredentialCache.DefaultCredentials;
-
-
-
-			StringBuilder sb = new StringBuilder();
-			http_request.Headers.Clear();
 			http_request.UserAgent = "dtxUploadClient/0.3";
 
 			if(user_info.session_key != null) {

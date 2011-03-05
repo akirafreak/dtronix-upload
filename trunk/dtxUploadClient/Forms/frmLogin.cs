@@ -33,7 +33,6 @@ namespace dtxUpload {
 		}
 
 		public frmLogin() {
-
 			Client.form_Login = this;
 			InitializeComponent();
 

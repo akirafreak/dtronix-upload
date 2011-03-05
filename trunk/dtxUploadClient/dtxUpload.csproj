@@ -80,6 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\DtxHttpRequest.cs" />
     <Compile Include="Forms\frmCropScreen.cs">
       <SubType>Form</SubType>
     </Compile>

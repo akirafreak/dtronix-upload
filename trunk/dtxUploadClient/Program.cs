@@ -16,9 +16,6 @@ namespace dtxUpload {
 #if !DEBUG
 			try {
 #endif
-#if DEBUG
-				dtxCore.Console.debug_mode = true;
-#endif
 				// Load all configurations and if the config file does not exist, generate a new one.
 				Client.config = new Config(delegate(Config current_config) {
 					DC_Server[] server_list = new DC_Server[1];
