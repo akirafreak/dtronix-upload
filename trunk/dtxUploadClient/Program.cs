@@ -17,8 +17,6 @@ namespace dtxUpload {
 #if !DEBUG
 			try {
 #endif
-				// See if we are accidently are still taking up a drive.
-				DokanNet.DokanUnmount('n');
 				// Load all configurations and if the config file does not exist, generate a new one.
 				Client.config = new Config(delegate(Config current_config) {
 					DC_Server[] server_list = new DC_Server[1];

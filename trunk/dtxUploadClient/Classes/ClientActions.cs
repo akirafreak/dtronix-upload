@@ -45,56 +45,6 @@ namespace dtxUpload {
 			connector.user_info.session_key = session_key;
 			connector.server_info.is_connected = true;
 			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.serverConnected);
-
-			// Try to mount the server to a drive.
-
-			// Check to see if the thread is already running.  If so, unmount the drive and abort the thread.
-			if(Client.drive_mount_thread != null) {
-				DokanNet.DokanUnmount('n');
-				Client.drive_mount_thread.Abort();
-			}
-
-			Client.drive_mount_thread = new Thread((ThreadStart)delegate {
-				try {
-					DokanOptions options = new DokanOptions() {
-						DebugMode = false,
-						MountPoint = "n:\\",
-						ThreadCount = 0,
-						UseKeepAlive = true,
-						VolumeLabel = Client.server_info.server_name
-					};
-
-					int status = DokanNet.DokanMain(options, new UploadServerMount());
-					switch(status) {
-						case DokanNet.DOKAN_DRIVE_LETTER_ERROR:
-							Client.form_Login.displayNotification("Drive Mounting", "Server could not be mounted to drive letter \"N\".", true);
-							break;
-						case DokanNet.DOKAN_DRIVER_INSTALL_ERROR:
-							Client.form_Login.displayNotification("Drive Mounting", "Server could not be installed to drive.", true);
-							break;
-						case DokanNet.DOKAN_MOUNT_ERROR:
-							Client.form_Login.displayNotification("Drive Mounting", "Server could not be mounted to drive.", true);
-							break;
-						case DokanNet.DOKAN_START_ERROR:
-							Client.form_Login.displayNotification("Drive Mounting", "Could not start required components for drive mounting.", true);
-							break;
-						case DokanNet.DOKAN_ERROR:
-							Client.form_Login.displayNotification("Drive Mounting", "Unknown error occured when attempting to mount server to drive.", true);
-							break;
-						case DokanNet.DOKAN_SUCCESS: // No need to alert the user of something working.
-							break;
-						default:
-							Client.form_Login.displayNotification("Drive Mounting", "Unknown mounting status: \"" + status + "\".", true);
-							break;
-					}
-				} finally {
-					DokanNet.DokanUnmount('n');
-					Client.drive_mount_thread = null;
-				}
-			});
-
-			//Client.drive_mount_thread.Start();
-
 		}
 
 

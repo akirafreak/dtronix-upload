@@ -79,10 +79,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="dtxCore\Dokan\DokanNet.cs" />
-    <Compile Include="dtxCore\Dokan\DokanOperations.cs" />
-    <Compile Include="dtxCore\Dokan\Proxy.cs" />
-    <Compile Include="dtxCore\Dokan\UploadServerMount.cs" />
     <Compile Include="Forms\frmCropScreen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -222,7 +218,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="dtxCore.dll" />
     <Content Include="icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
