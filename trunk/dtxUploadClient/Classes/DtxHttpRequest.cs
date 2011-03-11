@@ -6,7 +6,8 @@ using System.Net;
 
 namespace dtxUpload {
 	public class DtxHttpRequest {
-		private NetworkStream stream;
+		//private NetworkStream stream;
+		private Socket server_socket;
 		public WebHeaderCollection headers = new WebHeaderCollection();
 		public Dictionary<string, string> post_data = new Dictionary<string,string>();
 		private bool headers_sent = false;
@@ -19,13 +20,14 @@ namespace dtxUpload {
 
 		public DtxHttpRequest(Uri address){
 			this.address = address;
-			Socket server_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			server_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			server_socket.Blocking = true;
 			server_socket.ReceiveTimeout = receive_timeout;
 			server_socket.SendTimeout = send_timeout;
+			server_socket.NoDelay = true;
 
 			server_socket.Connect(address.Host, address.Port);
-			stream = new NetworkStream(server_socket, true);
+			//stream = new NetworkStream(server_socket, true);
 
 			// Create default headers.
 			headers.Add(HttpRequestHeader.UserAgent, "DtronixCore/1.0");
@@ -74,7 +76,8 @@ Content-Length: 110458
 			string sbsaf = sb.ToString();
 
 			byte[] header_array = Encoding.UTF8.GetBytes(sb.ToString());
-			stream.Write(header_array, 0, header_array.Length);
+			server_socket.Send(header_array);
+			//stream.Write(header_array, 0, header_array.Length);
 
 			headers_sent = true;
 		}
@@ -84,7 +87,8 @@ Content-Length: 110458
 			if(!headers_sent)
 				writeHeaders();
 
-			stream.Write(buffer, offset, size);
+			//stream.Write(buffer, offset, size);
+			int sent = server_socket.Send(buffer, offset, size, SocketFlags.None);
 		}
 
 		public DtxHttpResponse getResponse() {
@@ -92,22 +96,26 @@ Content-Length: 110458
 			if(!headers_sent)
 				writeHeaders();
 
-			return new DtxHttpResponse(stream);
+			return new DtxHttpResponse(server_socket);
 		}
 
 		public void close(){
-			stream.Close();
+			server_socket.Close();
+			//stream.Close();
 		}
 	}
 
 	public class DtxHttpResponse {
-		private NetworkStream stream;
+		private Socket server_socket;
 		public WebHeaderCollection headers = new WebHeaderCollection();
 		public HttpStatusCode status_code;
 		private bool first_read = true;
+		private byte[] internal_buffer
 
-		public DtxHttpResponse(NetworkStream stream) {
-			this.stream = stream;
+		//public DtxHttpResponse(NetworkStream stream) {
+		public DtxHttpResponse(Socket socket) {
+			server_socket = socket;
+			//this.stream = stream;
 			readHeaders();
 		}
 
@@ -134,29 +142,13 @@ Content-Length: 110458
 			}
 		}
 
-		private string readLine() {
-			List<byte> buffer = new List<byte>();
-			while (true) {
-				int byt = stream.ReadByte();
-				if (byt == -1) {
-					return null;
-				}
-				if (byt == 10) {
-					break;
-				}
-				if (byt != 13) {
-					buffer.Add((byte)byt);
-				}
-			}
-
-			return Encoding.UTF8.GetString(buffer.ToArray());
-
-		}
 
 		public string readString() {
 			int length = 0;
 			byte[] buffer = new byte[512];
 			StringBuilder sb = new StringBuilder();
+
+			stream.
 
 			length = read(buffer, 0, buffer.Length);
 			sb.Append(Encoding.UTF8.GetString(buffer, 0, length));
