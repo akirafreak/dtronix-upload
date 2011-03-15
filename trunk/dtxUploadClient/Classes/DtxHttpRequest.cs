@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
+using dtxCore;
 
 namespace dtxUpload {
 	public class DtxHttpRequest {
@@ -110,7 +111,8 @@ Content-Length: 110458
 		public WebHeaderCollection headers = new WebHeaderCollection();
 		public HttpStatusCode status_code;
 		private bool first_read = true;
-		private byte[] internal_buffer
+		private byte[] internal_buffer;
+		private byte[] http_sep = Encoding.UTF8.GetBytes("\r\n\r\n");
 
 		//public DtxHttpResponse(NetworkStream stream) {
 		public DtxHttpResponse(Socket socket) {
@@ -121,13 +123,36 @@ Content-Length: 110458
 
 		private void readHeaders() {
 			string line;
-			int index, status_int = -1;
+			int index = -1,
+				status_int = -1,
+				offset = 0,
+				read = 0;
 
-			// Get status
-			line = readLine();
+			byte[] header_buffer = new byte[1024 * 16];
 
-			index = line.IndexOf(' ');
-			string status = line.Substring(index +1, 3);
+			while ((read = server_socket.Receive(header_buffer, offset, 64, SocketFlags.None)) > 0) {
+				offset += read;
+
+				if ((index = Utilities.byteIndexOf(header_buffer, http_sep)) == -1) {
+					continue;
+				} else {
+					break;
+				}
+			}
+
+			if(index == -1){
+				throw new Exception("Server's header exceeded the maxumum 16 KB limit.");
+			}
+
+			internal_buffer = new byte[offset - index - 4];
+			Array.Copy(header_buffer, index + 4, internal_buffer, 0, internal_buffer.Length);
+
+			string header = Encoding.UTF8.GetString(header_buffer, 0, index);
+			string[] header_lines = header.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+			index = header_lines[0].IndexOf(' ');
+			string status = header_lines[0].Substring(index + 1, 3);
+
 
 			try {
 				status_int = int.Parse(status);
@@ -136,10 +161,12 @@ Content-Length: 110458
 				throw new Exception("Server did not respond with non-standard status code: "+ status_int.ToString());
 			}
 
-			while ((line = readLine()) != "") {
-				index = line.IndexOf(':');
-				headers.Add(line.Substring(0, index), line.Substring(index));
+			for (int i = 1; i < header_lines.Length; i++) {
+				index = header_lines[i].IndexOf(':');
+				headers.Add(header_lines[i].Substring(0, index), header_lines[i].Substring(index +2));
 			}
+
+			return;
 		}
 
 
@@ -148,7 +175,7 @@ Content-Length: 110458
 			byte[] buffer = new byte[512];
 			StringBuilder sb = new StringBuilder();
 
-			stream.
+			//stream.
 
 			length = read(buffer, 0, buffer.Length);
 			sb.Append(Encoding.UTF8.GetString(buffer, 0, length));
@@ -161,18 +188,35 @@ Content-Length: 110458
 		}
 
 		public int read(byte[] buffer, int offset, int count) {
-			if(!stream.DataAvailable)
-				return 0;
 
-			return stream.Read(buffer, offset, count);
+			// If we have buffered content, flush that first.
+			if (internal_buffer != null) {
+				// Make sure we don't try to copy too much.
+				int read_length = Math.Min(count, internal_buffer.Length);
+				Array.Copy(internal_buffer, 0, buffer, offset, read_length);
+
+				if (read_length < internal_buffer.Length) {
+					byte[] new_internal_buffer = new byte[internal_buffer.Length - read_length];
+					Array.Copy(internal_buffer, read_length, new_internal_buffer, 0, new_internal_buffer.Length);
+				} else {
+					internal_buffer = null;
+				}
+
+				return read_length;
+			}
+
+			// If we do not have a buffer left, just output the information
+			return server_socket.Receive(buffer, offset, count, SocketFlags.None);
+
 		}
 
 		public void close() {
-			stream.Close();
+			server_socket.Close();
 		}
 
 		public int readByte() {
-			return stream.ReadByte();
+			//return stream.ReadByte();
+			return -1;
 		}
 	}
 }
