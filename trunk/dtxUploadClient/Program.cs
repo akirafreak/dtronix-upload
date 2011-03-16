@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using System.Text;
 using dtxCore;
 using dtxCore.Json;
+using System.IO;
 
 namespace dtxUpload {
 	static class Program {
@@ -17,6 +18,9 @@ namespace dtxUpload {
 			try {
 #endif
 				// Load all configurations and if the config file does not exist, generate a new one.
+				string settings_file = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "dtxUpload") + "\\settings.dcf";
+				
+
 				Client.config = new Config(delegate(Config current_config) {
 					DC_Server[] server_list = new DC_Server[1];
 					server_list[0] = new DC_Server {
@@ -26,7 +30,9 @@ namespace dtxUpload {
 					};
 
 					current_config.set("frmlogin.servers_list", server_list);
-				});
+				}, settings_file);
+
+			
 
 				// Set configurations if they are not already set.
 				Client.config.setIfNotSet("serverconnector.concurrent_connections_max", 2);

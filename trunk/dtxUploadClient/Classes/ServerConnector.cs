@@ -37,8 +37,9 @@ namespace dtxUpload {
 		public Dictionary<string, DC_CacheRequest> cache_requests = new Dictionary<string, DC_CacheRequest>();
 		private int cache_length = 7;
 
-		private string http_post_boundry;
-		private byte[] http_post_boundry_bytes;
+		private string boundry;
+		private byte[] boundry_bytes;
+		private byte[] boundry_end_bytes;
 
 
 
@@ -62,43 +63,42 @@ namespace dtxUpload {
 		}
 
 		public string postFileStream(Uri address, FileStream in_stream) {
-			if(http_post_boundry_bytes == null) {
-				http_post_boundry = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-				http_post_boundry_bytes = Encoding.UTF8.GetBytes("\r\n--" + http_post_boundry + "\r\n");
+			if(boundry_bytes == null) {
+				boundry = "---------------------------" + DateTime.Now.Ticks.ToString("x");
+				boundry_bytes = Encoding.UTF8.GetBytes("\r\n" + boundry + "\r\n");
+				boundry_end_bytes = Encoding.UTF8.GetBytes("\r\n" + boundry + "--\r\n");
 			}
+			byte[] buffer = new byte[1024 * 48];
+			int read_length = 0;
 			
-			string header = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: application/octet-stream\r\n\r\n";
-			header = string.Format(header, "file", Path.GetFileName(in_stream.Name));
+			string header = "Content-Disposition: form-data; name=\"file\"; filename=\"{1}\"\r\nContent-Type: application/octet-stream\r\n\r\n";
+			header = string.Format(header, Path.GetFileName(in_stream.Name));
 			byte[] header_bytes = Encoding.UTF8.GetBytes(header);
 
 			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
 			DC_UploadProgressChangedEventArgs upload_args = new DC_UploadProgressChangedEventArgs();
 			upload_args.total_bytes_to_send = in_stream.Length;
-			request.ContentLength = (http_post_boundry_bytes.Length * 2) + in_stream.Length + header_bytes.Length;
+			request.ContentLength = boundry_bytes.Length + boundry_end_bytes.Length + in_stream.Length + header_bytes.Length;
 			request.AllowWriteStreamBuffering = false;
 
+			Stream write_stream = request.GetRequestStream();
 
-			Stream out_stream = request.GetRequestStream();
-
-			byte[] buffer = new byte[1024 * 48];
-			int read_length = 0;
-
-			out_stream.Write(http_post_boundry_bytes, 0, http_post_boundry_bytes.Length);
-			out_stream.Write(header_bytes, 0, header_bytes.Length);
+			write_stream.Write(boundry_bytes, 0, boundry_bytes.Length);
+			write_stream.Write(header_bytes, 0, header_bytes.Length);
 			
 
 			while((read_length = in_stream.Read(buffer, 0, buffer.Length)) > 0){
-				out_stream.Write(buffer, 0, read_length);
-				out_stream.Flush();
+				write_stream.Write(buffer, 0, read_length);
+				write_stream.Flush();
 
 				// Update any events with this information
 				upload_args.bytes_sent += read_length;
 				upload_progress_changed.Invoke(upload_args);
 			}
 
-			out_stream.Write(http_post_boundry_bytes, 0, http_post_boundry_bytes.Length);
+			write_stream.Write(boundry_end_bytes, 0, boundry_end_bytes.Length);
 
-			out_stream.Close();
+			write_stream.Close();
 			in_stream.Close();
 
 			return readServerResponse(request);
@@ -196,7 +196,7 @@ namespace dtxUpload {
 			HttpWebRequest http_request = request as HttpWebRequest;
 			StringBuilder sb = new StringBuilder();
 
-			http_request.ContentType = "multipart/form-data; boundary=" + http_post_boundry;
+			http_request.ContentType = "multipart/form-data; boundary=" + boundry;
 			http_request.Method = "POST";
 			http_request.KeepAlive = true;
 			http_request.Credentials = System.Net.CredentialCache.DefaultCredentials;
