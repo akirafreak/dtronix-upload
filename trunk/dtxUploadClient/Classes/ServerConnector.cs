@@ -43,9 +43,8 @@ namespace dtxUpload {
 
 
 		public string getString(Uri address) {
-			DtxHttpRequest request = new DtxHttpRequest(address);
-			prepareRequest(request);
-			request.receive_timeout = 4000;
+			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
+			request.Timeout = 4000;
 
 			return readServerResponse(request);
 		}
@@ -72,39 +71,34 @@ namespace dtxUpload {
 			header = string.Format(header, "file", Path.GetFileName(in_stream.Name));
 			byte[] header_bytes = Encoding.UTF8.GetBytes(header);
 
-
-			DtxHttpRequest request = new DtxHttpRequest(address);
-			prepareRequest(request);
-			request.headers.Add(HttpRequestHeader.ContentType, "multipart/form-data; boundary=" + http_post_boundry);
-			request.method = "POST";
-
+			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
 			DC_UploadProgressChangedEventArgs upload_args = new DC_UploadProgressChangedEventArgs();
 			upload_args.total_bytes_to_send = in_stream.Length;
+			request.ContentLength = (http_post_boundry_bytes.Length * 2) + in_stream.Length + header_bytes.Length;
+			request.AllowWriteStreamBuffering = false;
 
-			request.headers.Add(HttpRequestHeader.ContentLength, ((http_post_boundry_bytes.Length * 2) + in_stream.Length + header_bytes.Length).ToString());
+
+			Stream out_stream = request.GetRequestStream();
 
 			byte[] buffer = new byte[1024 * 48];
 			int read_length = 0;
 
-			request.write(http_post_boundry_bytes, 0, http_post_boundry_bytes.Length);
-			request.write(header_bytes, 0, header_bytes.Length);
+			out_stream.Write(http_post_boundry_bytes, 0, http_post_boundry_bytes.Length);
+			out_stream.Write(header_bytes, 0, header_bytes.Length);
 			
 
 			while((read_length = in_stream.Read(buffer, 0, buffer.Length)) > 0){
-				//IAsyncResult result = out_stream.BeginWrite(buffer, 0, read_length, null, null);
-				//out_stream.Flush();
-				//out_stream.EndWrite(result);
-
-
-				request.write(buffer, 0, read_length);
+				out_stream.Write(buffer, 0, read_length);
+				out_stream.Flush();
 
 				// Update any events with this information
 				upload_args.bytes_sent += read_length;
 				upload_progress_changed.Invoke(upload_args);
 			}
 
-			request.write(http_post_boundry_bytes, 0, http_post_boundry_bytes.Length);
+			out_stream.Write(http_post_boundry_bytes, 0, http_post_boundry_bytes.Length);
 
+			out_stream.Close();
 			in_stream.Close();
 
 			return readServerResponse(request);
@@ -123,24 +117,30 @@ namespace dtxUpload {
 		}
 
 
-		private string readServerResponse(DtxHttpRequest request) {
+		private string readServerResponse(HttpWebRequest request) {
 			try {
-
-				DtxHttpResponse response = request.getResponse();
-				if(response.status_code != HttpStatusCode.OK) {
-					Debug.WriteLine("Query[" + request.address.Query + "] Returned Error: (" + response.status_code.GetHashCode() + ")" + response.status_code);
+				HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+				if(response.StatusCode != HttpStatusCode.OK) {
+					Debug.WriteLine("Query[" + request.Address.Query + "] Returned Error: " + response.StatusDescription);
 					return null;
 				}
 
-				string read_string = response.readString();
+				int length = 0;
+				byte[] buffer = new byte[512];
+				Stream st = response.GetResponseStream();
+				StringBuilder sb = new StringBuilder();
 
-				response.close();
-				return read_string;
+
+				while((length = st.Read(buffer, 0, buffer.Length)) > 0) {
+					sb.Append(Encoding.UTF8.GetString(buffer, 0, length));
+				}
+
+				st.Close();
+				response.Close();
+				return sb.ToString();
 			} catch(Exception e) {
-				Debug.WriteLine("Query[" + request.address.Query + "] " + e.Message);
+				Debug.WriteLine("Query[" + request.Address.Query + "] " + e.Message);
 				return null;
-
-
 			}
 
 			
@@ -192,12 +192,15 @@ namespace dtxUpload {
 			max_concurrent_connections = 1;
 		}
 
-		private void prepareRequest(DtxHttpRequest request) {
+		private HttpWebRequest prepareRequest(WebRequest request) {
+			HttpWebRequest http_request = request as HttpWebRequest;
 			StringBuilder sb = new StringBuilder();
 
-			//http_request.KeepAlive = true;
-			//http_request.Credentials = System.Net.CredentialCache.DefaultCredentials;
-			request.headers.Add(HttpRequestHeader.UserAgent, "dtxUploadClient/0.3");
+			http_request.ContentType = "multipart/form-data; boundary=" + http_post_boundry;
+			http_request.Method = "POST";
+			http_request.KeepAlive = true;
+			http_request.Credentials = System.Net.CredentialCache.DefaultCredentials;
+			http_request.UserAgent = "dtxUploadClient/0.3";
 
 			if(user_info.session_key != null) {
 				sb.Append("session_key=");
@@ -215,7 +218,9 @@ namespace dtxUpload {
 				sb.Append(";");
 			}
 
-			request.headers.Add(HttpRequestHeader.Cookie, sb.ToString());
+			http_request.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
+
+			return http_request;
 		}
 
 		private void web_client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e) {
