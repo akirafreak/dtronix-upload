@@ -112,7 +112,11 @@ Content-Length: 110458
 		public HttpStatusCode status_code;
 		private bool first_read = true;
 		private byte[] internal_buffer;
-		private byte[] http_sep = Encoding.UTF8.GetBytes("\r\n\r\n");
+		private byte[] http_nlsep = Encoding.UTF8.GetBytes("\r\n\r\n");
+		private byte[] http_rcnl = Encoding.UTF8.GetBytes("\r\n");
+		private bool is_chuncked = false;
+		private int chunk_left = -1;
+		private byte[] chunk_buffer;
 
 		//public DtxHttpResponse(NetworkStream stream) {
 		public DtxHttpResponse(Socket socket) {
@@ -133,7 +137,7 @@ Content-Length: 110458
 			while ((read = server_socket.Receive(header_buffer, offset, 64, SocketFlags.None)) > 0) {
 				offset += read;
 
-				if ((index = Utilities.byteIndexOf(header_buffer, http_sep)) == -1) {
+				if ((index = Utilities.byteIndexOf(header_buffer, http_nlsep)) == -1) {
 					continue;
 				} else {
 					break;
@@ -144,8 +148,9 @@ Content-Length: 110458
 				throw new Exception("Server's header exceeded the maxumum 16 KB limit.");
 			}
 
-			internal_buffer = new byte[offset - index - 4];
-			Array.Copy(header_buffer, index + 4, internal_buffer, 0, internal_buffer.Length);
+			// Copy the excess to the buffer.
+			chunk_buffer = new byte[offset - index - 4];
+			Array.Copy(header_buffer, index + 4, chunk_buffer, 0, chunk_buffer.Length);
 
 			string header = Encoding.UTF8.GetString(header_buffer, 0, index);
 			string[] header_lines = header.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
@@ -166,6 +171,10 @@ Content-Length: 110458
 				headers.Add(header_lines[i].Substring(0, index), header_lines[i].Substring(index +2));
 			}
 
+			if(headers[HttpRequestHeader.TransferEncoding] != null && headers[HttpRequestHeader.TransferEncoding].ToLower() == "chunked") {
+				is_chuncked = true;
+			}
+
 			return;
 		}
 
@@ -175,10 +184,6 @@ Content-Length: 110458
 			byte[] buffer = new byte[512];
 			StringBuilder sb = new StringBuilder();
 
-			//stream.
-
-			length = read(buffer, 0, buffer.Length);
-			sb.Append(Encoding.UTF8.GetString(buffer, 0, length));
 			while((length = read(buffer, 0, buffer.Length)) > 0) {
 				sb.Append(Encoding.UTF8.GetString(buffer, 0, length));
 			}
@@ -188,26 +193,74 @@ Content-Length: 110458
 		}
 
 		public int read(byte[] buffer, int offset, int count) {
-
+			int read_length;
+			byte[] parsed,
+				tmp_buffer;
 			// If we have buffered content, flush that first.
-			if (internal_buffer != null) {
-				// Make sure we don't try to copy too much.
-				int read_length = Math.Min(count, internal_buffer.Length);
-				Array.Copy(internal_buffer, 0, buffer, offset, read_length);
+			if(chunk_buffer != null) {
+				if(is_chuncked) {
+					parsed = parseChunk(chunk_buffer, chunk_buffer.Length);
 
-				if (read_length < internal_buffer.Length) {
-					byte[] new_internal_buffer = new byte[internal_buffer.Length - read_length];
-					Array.Copy(internal_buffer, read_length, new_internal_buffer, 0, new_internal_buffer.Length);
+					if(parsed.Length == -1) { // We are in-between a chunk.  Need more bytes.
+						tmp_buffer = new byte[count];
+						read_length = server_socket.Receive(tmp_buffer, 0, tmp_buffer.Length, SocketFlags.None);
+						if(read_length == 0)
+							return 0;
+
+						parsed = parseChunk(tmp_buffer, chunk_buffer.Length);
+					}
+					Array.Copy(parsed, 0, buffer, offset, parsed.Length);
+					return parsed.Length;
+
 				} else {
-					internal_buffer = null;
-				}
+					// Make sure we don't try to copy too much.
+					read_length = Math.Min(count, chunk_buffer.Length);
 
-				return read_length;
+					Array.Copy(chunk_buffer, 0, buffer, offset, read_length);
+					return read_length;
+				}
+			} else if(is_chuncked) {
+				tmp_buffer = new byte[count];
+				read_length = server_socket.Receive(tmp_buffer, 0, tmp_buffer.Length, SocketFlags.None);
+				parsed = parseChunk(tmp_buffer, read_length);
+
+				Array.Copy(parsed, 0, buffer, offset, parsed.Length);
+				return parsed.Length;
+
+			} else {
+				return server_socket.Receive(buffer, offset, count, SocketFlags.None);
 			}
 
-			// If we do not have a buffer left, just output the information
-			return server_socket.Receive(buffer, offset, count, SocketFlags.None);
 
+		}
+
+		private byte[] parseChunk(byte[] partial_chunk, int chunk_length) {
+			if(chunk_buffer.Length > 0) {
+				if(chunk_length <= chunk_buffer.Length) {
+
+					// If the chunk length is the size of the partial chunk, just return partial_chunk.
+					if(partial_chunk.Length == chunk_length) {
+						return partial_chunk;
+
+					} else {
+						byte[] middle_chunk = new byte[chunk_length];
+						Array.Copy(partial_chunk, middle_chunk, middle_chunk.Length);
+						return middle_chunk;
+					}
+
+				} else { // We have at least one chunk here.
+					byte[] end_chunk = new byte[chunk_buffer.Length];
+					Array.Copy(partial_chunk, end_chunk, end_chunk.Length);
+
+					// Copy
+					chunk_buffer = new byte[chunk_length - chunk_buffer.Length];
+					Array.Copy(partial_chunk, end_chunk.Length, chunk_buffer, 0, chunk_buffer.Length);
+
+					return end_chunk;
+				}
+			} else {
+
+			}
 		}
 
 		public void close() {
