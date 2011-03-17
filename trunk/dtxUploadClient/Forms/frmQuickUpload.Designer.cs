@@ -24,7 +24,6 @@
 		/// </summary>
 		private void InitializeComponent() {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmQuickUpload));
-			this._btnClearList = new System.Windows.Forms.Button();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this._btnUploadClipboard = new System.Windows.Forms.Button();
 			this._btnCancelAll = new System.Windows.Forms.Button();
@@ -41,6 +40,11 @@
 			this._btnDropPrivate = new System.Windows.Forms.Button();
 			this._btnDropUploadFile = new System.Windows.Forms.Button();
 			this._btnDropZip = new System.Windows.Forms.Button();
+			this._uploadItemContext = new System.Windows.Forms.ContextMenu();
+			this._mItemOpenLinks = new System.Windows.Forms.MenuItem();
+			this._mItemCopyLinks = new System.Windows.Forms.MenuItem();
+			this._mItemDelete = new System.Windows.Forms.MenuItem();
+			this._mItemCancel = new System.Windows.Forms.MenuItem();
 			this.panel1.SuspendLayout();
 			this._tlpUploadTable.SuspendLayout();
 			this._panConfirmUpload.SuspendLayout();
@@ -48,26 +52,15 @@
 			this._panDropUpload.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// _btnClearList
-			// 
-			this._btnClearList.Location = new System.Drawing.Point(3, 4);
-			this._btnClearList.Name = "_btnClearList";
-			this._btnClearList.Size = new System.Drawing.Size(58, 23);
-			this._btnClearList.TabIndex = 1;
-			this._btnClearList.Text = "&Clear List";
-			this._btnClearList.UseVisualStyleBackColor = true;
-			this._btnClearList.Click += new System.EventHandler(this._btnClearList_Click);
-			// 
 			// panel1
 			// 
 			this.panel1.Controls.Add(this._btnUploadClipboard);
 			this.panel1.Controls.Add(this._btnCancelAll);
-			this.panel1.Controls.Add(this._btnClearList);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel1.Location = new System.Drawing.Point(0, 379);
 			this.panel1.Margin = new System.Windows.Forms.Padding(0);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(270, 33);
+			this.panel1.Size = new System.Drawing.Size(278, 33);
 			this.panel1.TabIndex = 2;
 			// 
 			// _btnUploadClipboard
@@ -82,11 +75,11 @@
 			// 
 			// _btnCancelAll
 			// 
-			this._btnCancelAll.Location = new System.Drawing.Point(67, 4);
+			this._btnCancelAll.Location = new System.Drawing.Point(4, 4);
 			this._btnCancelAll.Name = "_btnCancelAll";
-			this._btnCancelAll.Size = new System.Drawing.Size(62, 23);
+			this._btnCancelAll.Size = new System.Drawing.Size(90, 23);
 			this._btnCancelAll.TabIndex = 2;
-			this._btnCancelAll.Text = "Cancel &All";
+			this._btnCancelAll.Text = "C&ancel Uploads";
 			this._btnCancelAll.UseVisualStyleBackColor = true;
 			this._btnCancelAll.Click += new System.EventHandler(this._btnCancelAll_Click);
 			// 
@@ -99,7 +92,7 @@
 			this._panFileItemContainer.Location = new System.Drawing.Point(0, 0);
 			this._panFileItemContainer.Margin = new System.Windows.Forms.Padding(0);
 			this._panFileItemContainer.Name = "_panFileItemContainer";
-			this._panFileItemContainer.Size = new System.Drawing.Size(270, 349);
+			this._panFileItemContainer.Size = new System.Drawing.Size(278, 349);
 			this._panFileItemContainer.TabIndex = 3;
 			this._panFileItemContainer.DragDrop += new System.Windows.Forms.DragEventHandler(this._panFileItemContainer_DragDrop);
 			this._panFileItemContainer.DragEnter += new System.Windows.Forms.DragEventHandler(this._panFileItemContainer_DragEnter);
@@ -119,7 +112,7 @@
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
-			this._tlpUploadTable.Size = new System.Drawing.Size(270, 412);
+			this._tlpUploadTable.Size = new System.Drawing.Size(278, 412);
 			this._tlpUploadTable.TabIndex = 4;
 			// 
 			// _panConfirmUpload
@@ -134,7 +127,7 @@
 			this._panConfirmUpload.Location = new System.Drawing.Point(0, 349);
 			this._panConfirmUpload.Margin = new System.Windows.Forms.Padding(0);
 			this._panConfirmUpload.Name = "_panConfirmUpload";
-			this._panConfirmUpload.Size = new System.Drawing.Size(270, 30);
+			this._panConfirmUpload.Size = new System.Drawing.Size(278, 30);
 			this._panConfirmUpload.TabIndex = 4;
 			// 
 			// _btnConfirmClipboardUpload
@@ -197,8 +190,9 @@
 			this._panDropUpload.Dock = System.Windows.Forms.DockStyle.Top;
 			this._panDropUpload.Location = new System.Drawing.Point(0, 0);
 			this._panDropUpload.Name = "_panDropUpload";
-			this._panDropUpload.Size = new System.Drawing.Size(270, 74);
+			this._panDropUpload.Size = new System.Drawing.Size(278, 74);
 			this._panDropUpload.TabIndex = 5;
+			this._panDropUpload.Visible = false;
 			this._panDropUpload.DragDrop += new System.Windows.Forms.DragEventHandler(this._panDropUpload_DragDrop);
 			this._panDropUpload.DragEnter += new System.Windows.Forms.DragEventHandler(this._panDropUpload_DragEnter);
 			// 
@@ -257,11 +251,43 @@
 			this._btnDropZip.DragDrop += new System.Windows.Forms.DragEventHandler(this._btnDropZip_DragDrop);
 			this._btnDropZip.DragEnter += new System.Windows.Forms.DragEventHandler(this._btnDropZip_DragEnter);
 			// 
+			// _uploadItemContext
+			// 
+			this._uploadItemContext.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this._mItemOpenLinks,
+            this._mItemCopyLinks,
+            this._mItemDelete,
+            this._mItemCancel});
+			this._uploadItemContext.Popup += new System.EventHandler(this._uploadItemContext_Popup);
+			// 
+			// _mItemOpenLinks
+			// 
+			this._mItemOpenLinks.Index = 0;
+			this._mItemOpenLinks.Text = "Open Link(s)";
+			this._mItemOpenLinks.Click += new System.EventHandler(this._mItemOpenLinks_Click);
+			// 
+			// _mItemCopyLinks
+			// 
+			this._mItemCopyLinks.Index = 1;
+			this._mItemCopyLinks.Text = "Copy Link(s)";
+			this._mItemCopyLinks.Click += new System.EventHandler(this._mItemCopyLinks_Click);
+			// 
+			// _mItemDelete
+			// 
+			this._mItemDelete.Index = 2;
+			this._mItemDelete.Text = "Delete Uploaded Item";
+			this._mItemDelete.Click += new System.EventHandler(this._mItemDelete_Click);
+			// 
+			// _mItemCancel
+			// 
+			this._mItemCancel.Index = 3;
+			this._mItemCancel.Text = "Cancel Upload(s)";
+			// 
 			// frmQuickUpload
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(270, 412);
+			this.ClientSize = new System.Drawing.Size(278, 412);
 			this.Controls.Add(this._panDropUpload);
 			this.Controls.Add(this._tlpUploadTable);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -286,8 +312,6 @@
 
 		#endregion
 
-
-		private System.Windows.Forms.Button _btnClearList;
 		private System.Windows.Forms.Panel panel1;
 		private System.Windows.Forms.Panel _panFileItemContainer;
 		private System.Windows.Forms.Button _btnCancelAll;
@@ -304,5 +328,10 @@
 		private System.Windows.Forms.Button _btnDropZip;
 		private System.Windows.Forms.Button _btnDropPrivate;
 		private System.Windows.Forms.Button _btnDropEncrypt;
+		private System.Windows.Forms.ContextMenu _uploadItemContext;
+		private System.Windows.Forms.MenuItem _mItemOpenLinks;
+		private System.Windows.Forms.MenuItem _mItemCopyLinks;
+		private System.Windows.Forms.MenuItem _mItemDelete;
+		private System.Windows.Forms.MenuItem _mItemCancel;
 	}
 }

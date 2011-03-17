@@ -67,18 +67,61 @@ namespace dtxUpload {
 		public string upload_id;
 		public string last_accessed;
 		public bool delete_after_upload = false;
-
-		/// <summary>
-		/// -1 = Unknown; 1 = Uploading; 2 = Uploaded; 3 = Deleted; 4 = Pending Deletion; 5 = Pending Upload; 5 = Disabled; 6 = Failed Uploading;
-		/// </summary>
-		public int status = -1;
+		public DC_FileInformationStatus status = DC_FileInformationStatus.UnknownStatus;
 
 		// Permissions
 		public bool is_public;
 		public bool is_visible;
 		public bool is_shared;
 		public bool is_disabled;
-		public int[] shared_ids;
+		public string[] shared_ids;
+	}
+
+	public enum DC_FileInformationStatus {
+		/// <summary>
+		/// Do not know what the status of the file is.  Default value.
+		/// </summary>
+		UnknownStatus = -1,
+
+		/// <summary>
+		/// File is currently being uploaded to the server.
+		/// </summary>
+		Uploading = 1,
+
+		/// <summary>
+		/// File is uploaded to the server.
+		/// </summary>
+		Uploaded = 2,
+
+		/// <summary>
+		/// File has been deleted from the server.
+		/// </summary>
+		Deleted = 3,
+
+		/// <summary>
+		/// The file has been put in queue to be deleted from the server.  (Not implimented yet.)
+		/// </summary>
+		PendingDeletion = 4,
+
+		/// <summary>
+		/// The file is waiting to be uploaded to the server.
+		/// </summary>
+		PendingUpload = 5,
+
+		/// <summary>
+		/// File exists on the server, but is not avalible for viewing.
+		/// </summary>
+		Disabled = 6,
+
+		/// <summary>
+		/// Server could not handle the upload.
+		/// </summary>
+		UploadFailed = 7,
+
+		/// <summary>
+		/// User canceled the upload of the file.
+		/// </summary>
+		UploadCanceled = 8
 	}
 
 	public class DC_ImageInformation {

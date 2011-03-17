@@ -20,16 +20,15 @@ namespace dtxUpload {
 	/// Class to setup two way communication between HTTP server and client.
 	/// </summary>
 	public partial class ServerConnector {
-
-
-		public short max_concurrent_connections;
-		//private short current_connections = 0;
-
+		// Delegates
 		private delegate string GetStringDelegate(Uri address);
 		private delegate string PostFileStreamDelegate(Uri address, FileStream stream);
 
+		// Events.
 		public D_UploadProgressChanged upload_progress_changed;
+		private bool cancel_upload = false;
 
+		// Classes
 		public  DC_ServerInformation server_info;
 		public DC_UserInformation user_info;
 		private ClientActions actions;
@@ -37,13 +36,14 @@ namespace dtxUpload {
 		public Dictionary<string, DC_CacheRequest> cache_requests = new Dictionary<string, DC_CacheRequest>();
 		private int cache_length = 7;
 
+		// Internal Vars.
+		public short max_concurrent_connections;
 		private string boundry;
 		private byte[] boundry_bytes;
 		private byte[] boundry_end_bytes;
 
 
-
-		public string getString(Uri address) {
+		private string getString(Uri address) {
 			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
 			request.Timeout = 4000;
 
@@ -62,53 +62,66 @@ namespace dtxUpload {
 			}
 		}
 
-		public string postFileStream(Uri address, FileStream in_stream) {
-			if(boundry_bytes == null) {
+		private string postFileStream(Uri address, FileStream file_stream) {
+			if (boundry_bytes == null) {
 				boundry = "---------------------------" + DateTime.Now.Ticks.ToString("x");
 				boundry_bytes = Encoding.UTF8.GetBytes("\r\n" + boundry + "\r\n");
 				boundry_end_bytes = Encoding.UTF8.GetBytes("\r\n" + boundry + "--\r\n");
 			}
-			byte[] buffer = new byte[1024 * 48];
+			byte[] buffer = new byte[1024 * 4];
 			int read_length = 0;
-			
-			string header = "Content-Disposition: form-data; name=\"file\"; filename=\"{1}\"\r\nContent-Type: application/octet-stream\r\n\r\n";
-			header = string.Format(header, Path.GetFileName(in_stream.Name));
+
+			string header = "Content-Disposition: form-data; name=\"file\"; filename=\"{0}\"\r\nContent-Type: application/octet-stream\r\n\r\n";
+			header = string.Format(header, Path.GetFileName(file_stream.Name));
 			byte[] header_bytes = Encoding.UTF8.GetBytes(header);
 
 			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
 			DC_UploadProgressChangedEventArgs upload_args = new DC_UploadProgressChangedEventArgs();
-			upload_args.total_bytes_to_send = in_stream.Length;
-			request.ContentLength = boundry_bytes.Length + boundry_end_bytes.Length + in_stream.Length + header_bytes.Length;
+			upload_args.total_bytes_to_send = file_stream.Length;
+			request.ContentLength = boundry_bytes.Length + boundry_end_bytes.Length + file_stream.Length + header_bytes.Length;
 			request.AllowWriteStreamBuffering = false;
 
 			Stream write_stream = request.GetRequestStream();
 
 			write_stream.Write(boundry_bytes, 0, boundry_bytes.Length);
 			write_stream.Write(header_bytes, 0, header_bytes.Length);
-			
 
-			while((read_length = in_stream.Read(buffer, 0, buffer.Length)) > 0){
+
+			while ((read_length = file_stream.Read(buffer, 0, buffer.Length)) > 0) {
 				write_stream.Write(buffer, 0, read_length);
 				write_stream.Flush();
+				if (cancel_upload) {
+					break;
+				}
 
 				// Update any events with this information
 				upload_args.bytes_sent += read_length;
 				upload_progress_changed.Invoke(upload_args);
 			}
 
-			write_stream.Write(boundry_end_bytes, 0, boundry_end_bytes.Length);
+			if (!cancel_upload) {
+				write_stream.Write(boundry_end_bytes, 0, boundry_end_bytes.Length);
+			}
 
 			write_stream.Close();
-			in_stream.Close();
+			file_stream.Close();
 
-			return readServerResponse(request);
+			if (cancel_upload) {
+				cancel_upload = false;
+				return "UPLOAD_FILE_CANCELED";
+			}else{
+				return readServerResponse(request);
+			}
 		}
 
 		private void postFileStreamResult(IAsyncResult result) {
 			PostFileStreamDelegate del = result.AsyncState as PostFileStreamDelegate;
 			string server_string = del.EndInvoke(result);
 
-			if(server_string == null) {
+
+			if (server_string == "UPLOAD_FILE_CANCELED") {
+				upload_control.uploadCanceled();
+			}else if(server_string == null) {
 				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
 				server_info.is_connected = false;
 			} else {
@@ -160,7 +173,6 @@ namespace dtxUpload {
 		///  Uses global client information for connecting.
 		/// </summary>
 		public ServerConnector() {
-
 			actions = new ClientActions(this);
 			server_info = Client.server_info;
 			user_info = Client.user_info;
@@ -176,6 +188,7 @@ namespace dtxUpload {
 			actions = new ClientActions(this);
 			server_info = server;
 			user_info = user;
+			max_concurrent_connections = Client.config.get<short>("serverconnector.concurrent_connections_max");
 		}
 
 		/// <summary>
@@ -186,9 +199,7 @@ namespace dtxUpload {
 			server_info = Client.server_info;
 			user_info = Client.user_info;
 			upload_control = up_control;
-
 			upload_progress_changed += new D_UploadProgressChanged(actions.upload_progress);
-
 			max_concurrent_connections = 1;
 		}
 
@@ -223,21 +234,6 @@ namespace dtxUpload {
 			return http_request;
 		}
 
-		private void web_client_UploadFileCompleted(object sender, UploadFileCompletedEventArgs e) {
-			upload_control.Invoke((MethodInvoker)upload_control.uploadPostCompleted);
-
-			if(e.Cancelled) {
-				actions.upload_canceled();
-
-			}else if(e.Error != null) {
-				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
-				server_info.is_connected = false;
-
-			} else {
-				execServerResponse(UTF8Encoding.UTF8.GetString(e.Result));
-			}		
-		}
-
 		public void disconnect() {
 			callServerMethod("logout");
 		}
@@ -253,10 +249,7 @@ namespace dtxUpload {
 		/// Cancel all current connection requestes to the server.
 		/// </summary>
 		public void cancelActions() {
-			//int len = web_clients.Count;
-			//for(int i = 0; i < len; i++) {
-			//	web_clients[i].CancelAsync();
-			//}
+			cancel_upload = true;
 		}
 
 		/// <summary>
@@ -329,7 +322,6 @@ namespace dtxUpload {
 				}
 			}
 
-			//WebClient client = getWebClient();
 			string data = "client.DownloadString(uri);";
 
 			if(data == null) {
@@ -369,12 +361,7 @@ namespace dtxUpload {
 		/// <param name="to_read">Total bytes to read.</param>
 		public byte[] partialFileDownloadSyncronous(string id, long offset, uint to_read) {
 			Uri uri = buildUri("view_file", id);
-
-			return new byte[224];
-
-			//WebClient client = getWebClient();
-			//client.Headers.Set(HttpRequestHeader.Range, "bytes="+ offset + "-" + offset + to_read);
-			//return client.DownloadData(uri);
+			return new byte[1];
 		}
 
 		/// <summary>

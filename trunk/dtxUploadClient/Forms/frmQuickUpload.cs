@@ -14,6 +14,7 @@ namespace dtxUpload {
 	public partial class frmQuickUpload : Form {
 
 		private List<UploadFileItem> uploading_itmes = new List<UploadFileItem>();
+		private List<UploadFileItem> selected_upload_items = new List<UploadFileItem>();
 		private EncoderParameters encoder_params_jpg = new EncoderParameters(1);
 		private ImageCodecInfo codec_jpeg;
 		private Tween drop_files_tween;
@@ -64,7 +65,6 @@ namespace dtxUpload {
 		}
 
 		private void completeAllUploads() {
-
 			SoundPlayer player = new SoundPlayer(Properties.Resources.bubble_pop);
 			player.Play();
 		}
@@ -79,26 +79,51 @@ namespace dtxUpload {
 		}
 
 		private UploadFileItem addUploadItem(DC_FileInformation upload_info) {
-
 			UploadFileItem control = new UploadFileItem(upload_info) {
 				Dock = DockStyle.Top,
 				Location = new Point(0, 50),
-				MaximumSize = new Size(250, 50),
-				MinimumSize = new Size(250, 36),
-				Size = new Size(250, 50),
-				TabIndex = 1
-
+				ContextMenu = _uploadItemContext
 			};
+
+			control.onEnter += delegate(object sender, MouseEventArgs e) {
+				if (Control.ModifierKeys == Keys.Control){
+					if(selected_upload_items.Contains(control)){
+						if (e.Button != MouseButtons.Right) {
+							selected_upload_items.Remove(control);
+						}
+					}else{
+						selected_upload_items.Add(control);
+					}
+				}else{
+					if (e.Button != MouseButtons.Right) {
+						selected_upload_items.Clear();
+					}
+					selected_upload_items.Add(control);
+				}
+
+				
+				foreach (UploadFileItem loop_control in _panFileItemContainer.Controls) {
+					if (!selected_upload_items.Contains(loop_control)) {
+						loop_control.onLeave();
+					}
+				}
+			};
+
+			
+
 			_panFileItemContainer.Controls.Add(control);
 			uploading_itmes.Add(control);
 
 			return control;
 		}
 
+
+
+
 		private void uploadFile(string location) {
 			FileInfo fi = new FileInfo(location);
 			DC_FileInformation file_info = new DC_FileInformation() {
-				status = 5,
+				status = DC_FileInformationStatus.PendingUpload,
 				file_name = fi.Name,
 				file_size = fi.Length,
 				local_file_location = location,
@@ -294,17 +319,6 @@ namespace dtxUpload {
 			};
 		}
 
-
-
-		private void _btnClearList_Click(object sender, EventArgs e) {
-			foreach(UploadFileItem upload in uploading_itmes) {
-				// Do not remove the file if it is currently uploading.
-				if(upload.file_info.status != 1) {
-					_panFileItemContainer.Controls.Remove(upload);
-				}
-			}
-		}
-
 		private void _btnCancelAll_Click(object sender, EventArgs e) {
 			foreach(UploadFileItem upload in uploading_itmes) {
 				upload.cancelUpload();
@@ -413,6 +427,49 @@ namespace dtxUpload {
 		}
 
 		private void _btnDropUploadFile_Click(object sender, EventArgs e) {
+
+		}
+
+		private void _uploadItemContext_Popup(object sender, EventArgs e) {
+			bool is_uploading = false; // Check to see if we have any uploading items.
+			bool is_uploaded = false;
+
+			foreach (UploadFileItem item in selected_upload_items) {
+				if (item.file_info.status == DC_FileInformationStatus.Uploading || item.file_info.status == DC_FileInformationStatus.PendingUpload) {
+					is_uploading = true;
+				} else if (item.file_info.status == DC_FileInformationStatus.Uploaded) {
+					is_uploaded = true;
+				}
+			}
+
+			_mItemCancel.Visible = is_uploading;
+			_mItemDelete.Visible = is_uploaded;
+		}
+
+		private void _mItemOpenLinks_Click(object sender, EventArgs e) {
+			foreach (UploadFileItem item in selected_upload_items) {
+				if (item.file_info.status == DC_FileInformationStatus.Uploaded) {
+					System.Diagnostics.Process.Start(item.file_info.url);					
+				}
+			}
+		}
+
+		private void _mItemCopyLinks_Click(object sender, EventArgs e) {
+			StringBuilder clip_text = new StringBuilder();
+
+			foreach (UploadFileItem item in selected_upload_items) {
+				if (item.file_info.status == DC_FileInformationStatus.Uploaded) {
+					clip_text.Append(item.file_info.url);
+					clip_text.Append("\n");
+				}
+			}
+			// No need to over write the user's clipboard if there is nothing to copy.
+			if(clip_text.Length > 0){
+				Clipboard.SetText(clip_text.ToString());
+			}
+		}
+
+		private void _mItemDelete_Click(object sender, EventArgs e) {
 
 		}
 

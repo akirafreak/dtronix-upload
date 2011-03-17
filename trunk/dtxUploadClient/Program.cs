@@ -40,7 +40,6 @@ namespace dtxUpload {
 				Client.config.setIfNotSet("frmquickupload.show_clipboard_confirmation", true);
 				Client.config.save();
 
-				//new DtxHttpRequest(new Uri("http://google.com/")).getResponse();
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
 				Application.Run(new frmLogin());

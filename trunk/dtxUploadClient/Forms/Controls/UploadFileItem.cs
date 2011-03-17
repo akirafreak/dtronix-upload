@@ -13,6 +13,7 @@ namespace dtxUpload {
 
 		public DC_FileInformation file_info;
 		private ServerConnector connector;
+		public MouseEventHandler onEnter;
 
 		public UploadFileItem(DC_FileInformation file_info) {
 			connector = new ServerConnector(this);
@@ -20,26 +21,14 @@ namespace dtxUpload {
 			this.file_info = file_info;
 			InitializeComponent();
 
-			file_info.status = 6;
+			file_info.status = DC_FileInformationStatus.PendingUpload;
 			_barProgress.Value = 0;
 			_lblFileName.Text = file_info.file_name;
 			_lblStatus.Text = "[WAITING] File Size: " + file_info.file_size.ToString();
 		}
 
-		private void _btnCancel_Click(object sender, EventArgs e) {
-			if(_btnCancel.Text == "Cancel") {
-				// The button is it's default cancel action.
-				cancelUpload();
-
-			} else {
-				// The button is the open action.
-				System.Diagnostics.Process.Start(file_info.url);
-			}
-		}
-
-
 		public void uploadProgress(DC_UploadProgressChangedEventArgs e) {
-			_picPreview.Image = Properties.Resources.icon_24_em_up;
+			_picPreview.BackgroundImage = Properties.Resources.icon_24_em_up;
 			_lblStatus.Text = "(" + dtxCore.Utilities.formattedSize(e.bytes_sent) + "/" + dtxCore.Utilities.formattedSize(e.total_bytes_to_send) + ")";
 			_barProgress.Maximum = (int)e.total_bytes_to_send;
 			_barProgress.Value = (int)e.bytes_sent;
@@ -67,26 +56,35 @@ namespace dtxUpload {
 		}
 
 
-		
+
+		public void openUrl() {
+			System.Diagnostics.Process.Start(file_info.url);
+		}
+
+		public string getFullUrl() {
+			return file_info.url;
+		}
+
+		public void copyUrl() {
+			Clipboard.SetText(file_info.url);
+		}
 
 		public void uploadCanceled() {
+			uploadPostCompleted();
+
 			_barProgress.Value = 1;
 			_barProgress.Maximum = 1;
 			_lblStatus.Text = "Canceled";
-			_picPreview.Image = Properties.Resources.icon_24_em_cross;
-			_btnCancel.Visible = false;
-			_btnCopyUrl.Visible = false;
-			file_info.status = 6;
+			_picPreview.BackgroundImage = Properties.Resources.icon_24_em_cross;
+			file_info.status = DC_FileInformationStatus.UploadCanceled;
 		}
 
 
 		public void uploadSuccessful(string server_data) {
 			_lblStatus.Visible = false;
 			_barProgress.Visible = false;
-			_btnCopyUrl.Visible = true;
-			_picPreview.Image = Properties.Resources.icon_24_em_check;
-			_btnCancel.Text = "Open";
-			file_info.status = 2;
+			_picPreview.BackgroundImage = Properties.Resources.icon_24_em_check;
+			file_info.status = DC_FileInformationStatus.Uploaded;
 
 			JsonReader jr = new JsonReader(server_data);
 			DC_FileInformation info = jr.Deserialize<DC_FileInformation>();
@@ -103,11 +101,10 @@ namespace dtxUpload {
 
 
 		private void uploadFailed() {
+			uploadCanceled();
 			_barProgress.Visible = false;
-			_btnCancel.Visible = false;
-			_btnCopyUrl.Visible = false;
-			_picPreview.Image = Properties.Resources.icon_24_em_cross;
-			file_info.status = 6;
+			_picPreview.BackgroundImage = Properties.Resources.icon_24_em_cross;
+			file_info.status = DC_FileInformationStatus.UploadFailed;
 		}
 
 		public void uploadFailedDB() {
@@ -125,21 +122,51 @@ namespace dtxUpload {
 			_lblStatus.Text = "Not Connected";
 		}
 
-
 		public void startUpload() {
-			file_info.status = 1;
+			file_info.status = DC_FileInformationStatus.Uploading;
 			connector.uploadFile(file_info.local_file_location);
 		}
 
 		public void cancelUpload() {
-			if(file_info.status == 1 || file_info.status == 5) {
+			if(file_info.status == DC_FileInformationStatus.Uploading || file_info.status == DC_FileInformationStatus.PendingUpload) {
 				connector.cancelActions();
 			}
 		}
 
-		private void _btnCopyUrl_Click(object sender, EventArgs e) {
-			Clipboard.SetText(file_info.url);
+
+
+		private void _barProgress_MouseDown(object sender, MouseEventArgs e) {
+			tableLayoutPanel1_MouseDown(sender, e);
 		}
+
+		private void _lblStatus_MouseDown(object sender, MouseEventArgs e) {
+			tableLayoutPanel1_MouseDown(sender, e);
+		}
+
+		private void _lblFileName_MouseDown(object sender, MouseEventArgs e) {
+			tableLayoutPanel1_MouseDown(sender, e);
+		}
+
+		private void _picPreview_MouseDown(object sender, MouseEventArgs e) {
+			tableLayoutPanel1_MouseDown(sender, e);
+		}
+
+
+		private void tableLayoutPanel1_MouseDown(object sender, MouseEventArgs e) {
+			BackColor = SystemColors.Highlight;
+			_lblFileName.ForeColor = SystemColors.ControlLightLight;
+			_lblStatus.ForeColor = SystemColors.ControlLightLight;
+			onEnter(sender, e);
+		}
+
+		public void onLeave() {
+			BackColor = SystemColors.ControlLightLight;
+			_lblFileName.ForeColor = SystemColors.ControlText;
+			_lblStatus.ForeColor = SystemColors.ControlText;
+		}
+
+
+
 
 	}
 }
