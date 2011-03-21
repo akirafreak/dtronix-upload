@@ -473,6 +473,12 @@ namespace dtxUpload {
 
 		}
 
+		private void _mItemCancel_Click(object sender, EventArgs e) {
+			foreach(UploadFileItem item in selected_upload_items) {
+				item.cancelUpload();
+			}
+		}
+
 
 
 

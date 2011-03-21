@@ -102,7 +102,8 @@ namespace dtxUpload {
 			if (!cancel_upload) {
 				write_stream.Write(boundry_end_bytes, 0, boundry_end_bytes.Length);
 			}
-
+			write_stream.
+			request.Abort();
 			write_stream.Close();
 			file_stream.Close();
 
@@ -209,7 +210,8 @@ namespace dtxUpload {
 
 			http_request.ContentType = "multipart/form-data; boundary=" + boundry;
 			http_request.Method = "POST";
-			http_request.KeepAlive = true;
+			http_request.KeepAlive = false;
+			http_request.Timeout = Timeout.Infinite;
 			http_request.Credentials = System.Net.CredentialCache.DefaultCredentials;
 			http_request.UserAgent = "dtxUploadClient/0.3";
 
