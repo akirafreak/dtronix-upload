@@ -102,13 +102,15 @@ namespace dtxUpload {
 			if (!cancel_upload) {
 				write_stream.Write(boundry_end_bytes, 0, boundry_end_bytes.Length);
 			}
-			write_stream.
+			//write_stream.Flush();
 			request.Abort();
+			write_stream.Flush();
 			write_stream.Close();
 			file_stream.Close();
 
 			if (cancel_upload) {
 				cancel_upload = false;
+				request.GetResponse().Close();
 				return "UPLOAD_FILE_CANCELED";
 			}else{
 				return readServerResponse(request);
@@ -121,7 +123,7 @@ namespace dtxUpload {
 
 
 			if (server_string == "UPLOAD_FILE_CANCELED") {
-				upload_control.uploadCanceled();
+				actions.upload_canceled();
 			}else if(server_string == null) {
 				Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidServer);
 				server_info.is_connected = false;

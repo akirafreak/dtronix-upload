@@ -60,7 +60,7 @@
 			this.panel1.Location = new System.Drawing.Point(0, 379);
 			this.panel1.Margin = new System.Windows.Forms.Padding(0);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(270, 33);
+			this.panel1.Size = new System.Drawing.Size(278, 33);
 			this.panel1.TabIndex = 2;
 			// 
 			// _btnUploadClipboard
@@ -92,7 +92,7 @@
 			this._panFileItemContainer.Location = new System.Drawing.Point(0, 0);
 			this._panFileItemContainer.Margin = new System.Windows.Forms.Padding(0);
 			this._panFileItemContainer.Name = "_panFileItemContainer";
-			this._panFileItemContainer.Size = new System.Drawing.Size(270, 349);
+			this._panFileItemContainer.Size = new System.Drawing.Size(278, 349);
 			this._panFileItemContainer.TabIndex = 3;
 			this._panFileItemContainer.DragDrop += new System.Windows.Forms.DragEventHandler(this._panFileItemContainer_DragDrop);
 			this._panFileItemContainer.DragEnter += new System.Windows.Forms.DragEventHandler(this._panFileItemContainer_DragEnter);
@@ -112,7 +112,7 @@
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
-			this._tlpUploadTable.Size = new System.Drawing.Size(270, 412);
+			this._tlpUploadTable.Size = new System.Drawing.Size(278, 412);
 			this._tlpUploadTable.TabIndex = 4;
 			// 
 			// _panConfirmUpload
@@ -127,7 +127,7 @@
 			this._panConfirmUpload.Location = new System.Drawing.Point(0, 349);
 			this._panConfirmUpload.Margin = new System.Windows.Forms.Padding(0);
 			this._panConfirmUpload.Name = "_panConfirmUpload";
-			this._panConfirmUpload.Size = new System.Drawing.Size(270, 30);
+			this._panConfirmUpload.Size = new System.Drawing.Size(278, 30);
 			this._panConfirmUpload.TabIndex = 4;
 			// 
 			// _btnConfirmClipboardUpload
@@ -190,7 +190,7 @@
 			this._panDropUpload.Dock = System.Windows.Forms.DockStyle.Top;
 			this._panDropUpload.Location = new System.Drawing.Point(0, 0);
 			this._panDropUpload.Name = "_panDropUpload";
-			this._panDropUpload.Size = new System.Drawing.Size(270, 75);
+			this._panDropUpload.Size = new System.Drawing.Size(278, 75);
 			this._panDropUpload.TabIndex = 5;
 			this._panDropUpload.Visible = false;
 			this._panDropUpload.DragDrop += new System.Windows.Forms.DragEventHandler(this._panDropUpload_DragDrop);
@@ -288,7 +288,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(270, 412);
+			this.ClientSize = new System.Drawing.Size(278, 412);
 			this.Controls.Add(this._panDropUpload);
 			this.Controls.Add(this._tlpUploadTable);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
