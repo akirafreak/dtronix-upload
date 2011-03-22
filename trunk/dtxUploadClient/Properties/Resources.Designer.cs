@@ -213,5 +213,12 @@ namespace dtxUpload.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        internal static System.Drawing.Bitmap square_green_16_ns {
+            get {
+                object obj = ResourceManager.GetObject("square_green_16_ns", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

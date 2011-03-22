@@ -45,7 +45,6 @@ namespace dtxUpload {
 
 		private string getString(Uri address) {
 			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
-			request.Timeout = 4000;
 
 			return readServerResponse(request);
 		}
@@ -324,7 +323,7 @@ namespace dtxUpload {
 				}
 			}
 
-			string data = "client.DownloadString(uri);";
+			string data = getString(uri);
 
 			if(data == null) {
 				return default(T);
@@ -361,6 +360,7 @@ namespace dtxUpload {
 		/// <param name="id">File ID to download</param>
 		/// <param name="offset">Offset of file to start to read from</param>
 		/// <param name="to_read">Total bytes to read.</param>
+		[Obsolete]
 		public byte[] partialFileDownloadSyncronous(string id, long offset, uint to_read) {
 			Uri uri = buildUri("view_file", id);
 			return new byte[1];

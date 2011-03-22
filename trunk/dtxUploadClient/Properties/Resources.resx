@@ -190,4 +190,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <data name="circle_blue_16_ns" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\circle-blue-16-ns.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="square_green_16_ns" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\square-green-16-ns.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

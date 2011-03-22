@@ -122,13 +122,6 @@ namespace dtxUpload {
 		}
 
 
-
-
-
-
-
-
-
 		/// <summary>
 		/// Updates the settings of the server.
 		/// </summary>
@@ -188,6 +181,19 @@ namespace dtxUpload {
 		public void upload_canceled() {
 			connector.upload_control.Invoke((MethodInvoker)connector.upload_control.uploadCanceled);
 		}
+
+#region File Manager callbacks.
+
+		public void directory_contents(string input) {
+			JsonReader reader = new JsonReader(input);
+			DC_FileInformation[] files = reader.Deserialize<DC_FileInformation[]>();
+
+			Client.form_Manage.Invoke((MethodInvoker)delegate{
+				Client.form_Manage.displayFolderContents(files);
+			});
+		}
+
+#endregion
 
 
 	}

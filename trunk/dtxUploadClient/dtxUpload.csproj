@@ -142,6 +142,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Readme.txt" />
+    <None Include="Resources\square-green-16-ns.png" />
     <None Include="Resources\asset-grey-16-ns.png" />
     <None Include="Resources\circle-blue-16-ns.png" />
     <None Include="Resources\asset-blue-16-ns.png" />

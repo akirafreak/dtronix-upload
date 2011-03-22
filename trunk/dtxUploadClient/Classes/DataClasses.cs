@@ -66,6 +66,7 @@ namespace dtxUpload {
 		public int hits;
 		public string upload_id;
 		public string last_accessed;
+		public string directory;
 		public bool delete_after_upload = false;
 		public DC_FileInformationStatus status = DC_FileInformationStatus.UnknownStatus;
 
