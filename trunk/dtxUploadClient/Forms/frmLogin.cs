@@ -313,6 +313,7 @@ namespace dtxUpload {
 			_cmiUploadFiles.Visible = true;
 			_cmiUploadCropScreenshot.Visible = true;
 			_cmiUploadScreenshot.Visible = true;
+			_cmiBrowseToServer.Visible = true;
 
 			// Hide the login window untill we need to login again.
 			if(this.WindowState == FormWindowState.Normal) this.Hide();
@@ -337,6 +338,7 @@ namespace dtxUpload {
 			_cmiUploadFiles.Visible = !true;
 			_cmiUploadCropScreenshot.Visible = !true;
 			_cmiUploadScreenshot.Visible = !true;
+			_cmiBrowseToServer.Visible = !true;
 
 			this.Show();
 		}
@@ -459,6 +461,15 @@ namespace dtxUpload {
 		#region ContextMenu items and events.
 
 		private void _cmiManageFiles_Click(object sender, EventArgs e) {
+			if (Client.form_Manage == null) {
+				new frmManage().Show();
+			} else {
+				Client.form_Manage.Show();
+			}
+		}
+
+
+		private void _cmiBrowseToServer_Click(object sender, EventArgs e) {
 			System.Diagnostics.Process.Start(Client.server_info.server_url);
 		}
 
@@ -542,6 +553,7 @@ namespace dtxUpload {
 				Client.drive_mount_thread.Abort();
 			}
 		}
+
 
 
 	}

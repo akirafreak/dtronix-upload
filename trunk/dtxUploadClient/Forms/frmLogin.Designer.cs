@@ -54,6 +54,7 @@
 			this._contextMenu = new System.Windows.Forms.ContextMenu();
 			this._cmiManageFiles = new System.Windows.Forms.MenuItem();
 			this._cmiUploadFiles = new System.Windows.Forms.MenuItem();
+			this._cmiBrowseToServer = new System.Windows.Forms.MenuItem();
 			this._cmiLoggedSeparator = new System.Windows.Forms.MenuItem();
 			this._cmiLogin = new System.Windows.Forms.MenuItem();
 			this._cmiLogout = new System.Windows.Forms.MenuItem();
@@ -134,9 +135,9 @@
 			this._panButtons.Controls.Add(this._btnCancel);
 			this._panButtons.Controls.Add(this._btnLogin);
 			this._panButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this._panButtons.Location = new System.Drawing.Point(0, 270);
+			this._panButtons.Location = new System.Drawing.Point(0, 278);
 			this._panButtons.Name = "_panButtons";
-			this._panButtons.Size = new System.Drawing.Size(234, 32);
+			this._panButtons.Size = new System.Drawing.Size(242, 32);
 			this._panButtons.TabIndex = 9;
 			// 
 			// _btnSettings
@@ -314,7 +315,7 @@
 			this._picLogo.InitialImage = null;
 			this._picLogo.Location = new System.Drawing.Point(0, 0);
 			this._picLogo.Name = "_picLogo";
-			this._picLogo.Size = new System.Drawing.Size(234, 70);
+			this._picLogo.Size = new System.Drawing.Size(242, 70);
 			this._picLogo.TabIndex = 2;
 			this._picLogo.TabStop = false;
 			this._picLogo.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picLogo_MouseDown);
@@ -349,6 +350,7 @@
             this._cmiUploadFiles,
             this._cmiUploadCropScreenshot,
             this._cmiUploadScreenshot,
+            this._cmiBrowseToServer,
             this._cmiLoggedSeparator,
             this._cmiLogin,
             this._cmiLogout,
@@ -371,28 +373,35 @@
 			this._cmiUploadFiles.Visible = false;
 			this._cmiUploadFiles.Click += new System.EventHandler(this._cmiUploadFiles_Click);
 			// 
+			// _cmiBrowseToServer
+			// 
+			this._cmiBrowseToServer.Index = 4;
+			this._cmiBrowseToServer.Text = "Browse to Server";
+			this._cmiBrowseToServer.Visible = false;
+			this._cmiBrowseToServer.Click += new System.EventHandler(this._cmiBrowseToServer_Click);
+			// 
 			// _cmiLoggedSeparator
 			// 
-			this._cmiLoggedSeparator.Index = 4;
+			this._cmiLoggedSeparator.Index = 5;
 			this._cmiLoggedSeparator.Text = "-";
 			this._cmiLoggedSeparator.Visible = false;
 			// 
 			// _cmiLogin
 			// 
-			this._cmiLogin.Index = 5;
+			this._cmiLogin.Index = 6;
 			this._cmiLogin.Text = "Login";
 			this._cmiLogin.Click += new System.EventHandler(this._cmiLogin_Click);
 			// 
 			// _cmiLogout
 			// 
-			this._cmiLogout.Index = 6;
+			this._cmiLogout.Index = 7;
 			this._cmiLogout.Text = "Logout";
 			this._cmiLogout.Visible = false;
 			this._cmiLogout.Click += new System.EventHandler(this._cmiLogout_Click);
 			// 
 			// _cmiSettings
 			// 
-			this._cmiSettings.Index = 7;
+			this._cmiSettings.Index = 8;
 			this._cmiSettings.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this._cmiSettingsConfirmUpload,
             this._cmiSettingsUploadCopy});
@@ -412,13 +421,13 @@
 			// 
 			// _cmiAbout
 			// 
-			this._cmiAbout.Index = 8;
+			this._cmiAbout.Index = 9;
 			this._cmiAbout.Text = "About";
 			this._cmiAbout.Click += new System.EventHandler(this._cmiAbout_Click);
 			// 
 			// _cmiExit
 			// 
-			this._cmiExit.Index = 9;
+			this._cmiExit.Index = 10;
 			this._cmiExit.Text = "Exit";
 			this._cmiExit.Click += new System.EventHandler(this._cmiExit_Click);
 			// 
@@ -429,7 +438,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.CancelButton = this._btnCancel;
-			this.ClientSize = new System.Drawing.Size(234, 302);
+			this.ClientSize = new System.Drawing.Size(242, 310);
 			this.ControlBox = false;
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this._panLoginInputs);
@@ -503,5 +512,6 @@
 		private System.Windows.Forms.MenuItem _cmiExit;
 		private System.Windows.Forms.MenuItem _cmiSettingsUploadCopy;
 		private System.Windows.Forms.MenuItem _cmiAbout;
+		private System.Windows.Forms.MenuItem _cmiBrowseToServer;
 	}
 }

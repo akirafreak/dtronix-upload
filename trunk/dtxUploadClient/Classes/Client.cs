@@ -13,6 +13,7 @@ namespace dtxUpload {
 	public static class Client {
 		public static frmLogin form_Login;
 		public static frmQuickUpload form_QuickUpload;
+		public static frmManage form_Manage;
 
 		public static Config config;
 

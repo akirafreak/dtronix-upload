@@ -124,6 +124,8 @@ namespace dtxUpload {
 
 		public void startUpload() {
 			file_info.status = DC_FileInformationStatus.Uploading;
+			Icon file_icon = Icon.ExtractAssociatedIcon(file_info.local_file_location);
+			_picPreview.Image = file_icon.ToBitmap();
 			connector.uploadFile(file_info.local_file_location);
 		}
 

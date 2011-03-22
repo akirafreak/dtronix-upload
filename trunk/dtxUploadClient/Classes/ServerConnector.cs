@@ -64,8 +64,8 @@ namespace dtxUpload {
 
 		private string postFileStream(Uri address, FileStream file_stream) {
 			if (boundry_bytes == null) {
-				boundry = "---------------------------" + DateTime.Now.Ticks.ToString("x");
-				boundry_bytes = Encoding.UTF8.GetBytes("\r\n" + boundry + "\r\n");
+				boundry = "----------------" + DateTime.Now.Ticks.ToString("x");
+				boundry_bytes = Encoding.UTF8.GetBytes("\r\n--" + boundry + "\r\n");
 				boundry_end_bytes = Encoding.UTF8.GetBytes("\r\n" + boundry + "--\r\n");
 			}
 			byte[] buffer = new byte[1024 * 4];
@@ -78,14 +78,14 @@ namespace dtxUpload {
 			HttpWebRequest request = prepareRequest(HttpWebRequest.Create(address));
 			DC_UploadProgressChangedEventArgs upload_args = new DC_UploadProgressChangedEventArgs();
 			upload_args.total_bytes_to_send = file_stream.Length;
-			request.ContentLength = boundry_bytes.Length + boundry_end_bytes.Length + file_stream.Length + header_bytes.Length;
+			request.ContentLength = boundry_bytes.Length + boundry_bytes.Length + file_stream.Length + header_bytes.Length;
 			request.AllowWriteStreamBuffering = false;
 
 			Stream write_stream = request.GetRequestStream();
 
 			write_stream.Write(boundry_bytes, 0, boundry_bytes.Length);
 			write_stream.Write(header_bytes, 0, header_bytes.Length);
-
+			
 
 			while ((read_length = file_stream.Read(buffer, 0, buffer.Length)) > 0) {
 				write_stream.Write(buffer, 0, read_length);
@@ -100,7 +100,7 @@ namespace dtxUpload {
 			}
 
 			if (!cancel_upload) {
-				write_stream.Write(boundry_end_bytes, 0, boundry_end_bytes.Length);
+				write_stream.Write(boundry_bytes, 0, boundry_bytes.Length);
 				write_stream.Close();
 			}
 

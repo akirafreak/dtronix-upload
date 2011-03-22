@@ -95,10 +95,14 @@ namespace dtxUpload {
 						selected_upload_items.Add(control);
 					}
 				}else{
-					if (e.Button != MouseButtons.Right) {
+					if (e.Button != MouseButtons.Right ||
+						(e.Button == MouseButtons.Right && !selected_upload_items.Contains(control))) {
 						selected_upload_items.Clear();
+						selected_upload_items.Add(control);
+
+					} else if (!selected_upload_items.Contains(control)) {
+						selected_upload_items.Add(control);
 					}
-					selected_upload_items.Add(control);
 				}
 
 				
@@ -116,9 +120,6 @@ namespace dtxUpload {
 
 			return control;
 		}
-
-
-
 
 		private void uploadFile(string location) {
 			FileInfo fi = new FileInfo(location);
@@ -139,7 +140,6 @@ namespace dtxUpload {
 		private void uploadZipFile(string location) {
 
 		}
-
 
 		private void frmQuickUpload_FormClosing(object sender, FormClosingEventArgs e) {
 			e.Cancel = true;
@@ -183,8 +183,6 @@ namespace dtxUpload {
 				sw.Write(Clipboard.GetText());
 				sw.Close();
 
-
-
 				int total_text = Client.config.getAndIncrement("uploads.total_text_files");
 				string new_filename = Path.GetTempPath() + "\\Clipboard_Text_" + total_text.ToString() + ".txt";
 
@@ -199,7 +197,6 @@ namespace dtxUpload {
 				};
 
 				uploadFile(file_info);
-
 			}
 		}
 
@@ -447,6 +444,11 @@ namespace dtxUpload {
 		}
 
 		private void _mItemOpenLinks_Click(object sender, EventArgs e) {
+			if (selected_upload_items.Count > 6) {
+				DialogResult result = MessageBox.Show("Are you sure you want to open " + selected_upload_items.Count.ToString() + " files?", "Confirm Open", MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+				if (result != DialogResult.OK)
+					return;
+			}
 			foreach (UploadFileItem item in selected_upload_items) {
 				if (item.file_info.status == DC_FileInformationStatus.Uploaded) {
 					System.Diagnostics.Process.Start(item.file_info.url);					
@@ -460,7 +462,7 @@ namespace dtxUpload {
 			foreach (UploadFileItem item in selected_upload_items) {
 				if (item.file_info.status == DC_FileInformationStatus.Uploaded) {
 					clip_text.Append(item.file_info.url);
-					clip_text.Append("\n");
+					clip_text.Append("\r\n");
 				}
 			}
 			// No need to over write the user's clipboard if there is nothing to copy.

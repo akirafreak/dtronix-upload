@@ -74,6 +74,13 @@ namespace dtxUpload.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap asset_blue_16_ns {
+            get {
+                object obj = ResourceManager.GetObject("asset_blue_16_ns", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap asset_blue_24 {
             get {
                 object obj = ResourceManager.GetObject("asset_blue_24", resourceCulture);
@@ -81,9 +88,23 @@ namespace dtxUpload.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap asset_grey_16_ns {
+            get {
+                object obj = ResourceManager.GetObject("asset_grey_16_ns", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.IO.UnmanagedMemoryStream bubble_pop {
             get {
                 return ResourceManager.GetStream("bubble_pop", resourceCulture);
+            }
+        }
+        
+        internal static System.Drawing.Bitmap circle_blue_16_ns {
+            get {
+                object obj = ResourceManager.GetObject("circle_blue_16_ns", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
