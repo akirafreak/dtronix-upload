@@ -101,16 +101,14 @@ namespace dtxUpload {
 
 			if (!cancel_upload) {
 				write_stream.Write(boundry_end_bytes, 0, boundry_end_bytes.Length);
+				write_stream.Close();
 			}
-			//write_stream.Flush();
-			request.Abort();
-			write_stream.Flush();
-			write_stream.Close();
+
 			file_stream.Close();
 
 			if (cancel_upload) {
 				cancel_upload = false;
-				request.GetResponse().Close();
+				request.Abort();
 				return "UPLOAD_FILE_CANCELED";
 			}else{
 				return readServerResponse(request);
