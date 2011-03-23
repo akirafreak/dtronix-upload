@@ -35,9 +35,9 @@
 			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this._imlFiles = new System.Windows.Forms.ImageList(this.components);
 			this.mainMenu1 = new System.Windows.Forms.MainMenu(this.components);
 			this.menuItem1 = new System.Windows.Forms.MenuItem();
-			this.menuItem17 = new System.Windows.Forms.MenuItem();
 			this.menuItem7 = new System.Windows.Forms.MenuItem();
 			this.menuItem8 = new System.Windows.Forms.MenuItem();
 			this.menuItem9 = new System.Windows.Forms.MenuItem();
@@ -45,9 +45,7 @@
 			this.menuItem2 = new System.Windows.Forms.MenuItem();
 			this.menuItem5 = new System.Windows.Forms.MenuItem();
 			this.menuItem4 = new System.Windows.Forms.MenuItem();
-			this._imlFiles = new System.Windows.Forms.ImageList(this.components);
 			this._contextMenuFolders = new System.Windows.Forms.ContextMenu();
-			this.menuItem16 = new System.Windows.Forms.MenuItem();
 			this.menuItem10 = new System.Windows.Forms.MenuItem();
 			this.menuItem11 = new System.Windows.Forms.MenuItem();
 			this.menuItem12 = new System.Windows.Forms.MenuItem();
@@ -55,6 +53,14 @@
 			this.menuItem14 = new System.Windows.Forms.MenuItem();
 			this.menuItem15 = new System.Windows.Forms.MenuItem();
 			this.vistaMenu = new dtxCore.Controls.VistaMenu(this.components);
+			this._barStatusProgress = new System.Windows.Forms.ToolStripProgressBar();
+			this._lblStatusText = new System.Windows.Forms.ToolStripStatusLabel();
+			this.menuItem6 = new System.Windows.Forms.MenuItem();
+			this.menuItem16 = new System.Windows.Forms.MenuItem();
+			this._contextMenuFiles = new System.Windows.Forms.ContextMenu();
+			this.menuItem17 = new System.Windows.Forms.MenuItem();
+			this.menuItem18 = new System.Windows.Forms.MenuItem();
+			this.statusStrip1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
@@ -63,6 +69,9 @@
 			// 
 			// statusStrip1
 			// 
+			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._barStatusProgress,
+            this._lblStatusText});
 			this.statusStrip1.Location = new System.Drawing.Point(0, 455);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(747, 22);
@@ -147,6 +156,12 @@
 			this.columnHeader5.Text = "Views";
 			this.columnHeader5.Width = 47;
 			// 
+			// _imlFiles
+			// 
+			this._imlFiles.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
+			this._imlFiles.ImageSize = new System.Drawing.Size(16, 16);
+			this._imlFiles.TransparentColor = System.Drawing.Color.Transparent;
+			// 
 			// mainMenu1
 			// 
 			this.mainMenu1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
@@ -157,36 +172,30 @@
 			// 
 			this.menuItem1.Index = 0;
 			this.menuItem1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem17,
             this.menuItem7,
             this.menuItem8,
             this.menuItem9,
             this.menuItem3});
 			this.menuItem1.Text = "File";
 			// 
-			// menuItem17
-			// 
-			this.menuItem17.Index = 0;
-			this.menuItem17.Text = "New Folder";
-			// 
 			// menuItem7
 			// 
-			this.menuItem7.Index = 1;
+			this.menuItem7.Index = 0;
 			this.menuItem7.Text = "Open Selection";
 			// 
 			// menuItem8
 			// 
-			this.menuItem8.Index = 2;
+			this.menuItem8.Index = 1;
 			this.menuItem8.Text = "Copy Selection";
 			// 
 			// menuItem9
 			// 
-			this.menuItem9.Index = 3;
+			this.menuItem9.Index = 2;
 			this.menuItem9.Text = "-";
 			// 
 			// menuItem3
 			// 
-			this.menuItem3.Index = 4;
+			this.menuItem3.Index = 3;
 			this.menuItem3.Text = "Close";
 			// 
 			// menuItem2
@@ -207,63 +216,90 @@
 			this.menuItem4.Index = 1;
 			this.menuItem4.Text = "Delete";
 			// 
-			// _imlFiles
-			// 
-			this._imlFiles.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
-			this._imlFiles.ImageSize = new System.Drawing.Size(16, 16);
-			this._imlFiles.TransparentColor = System.Drawing.Color.Transparent;
-			// 
 			// _contextMenuFolders
 			// 
 			this._contextMenuFolders.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem16,
-            this.menuItem10,
+            this.menuItem6,
             this.menuItem11,
+            this.menuItem10,
+            this.menuItem16,
             this.menuItem12,
             this.menuItem13,
             this.menuItem14,
             this.menuItem15});
 			// 
-			// menuItem16
-			// 
-			this.menuItem16.Index = 0;
-			this.menuItem16.Text = "New Folder";
-			// 
 			// menuItem10
 			// 
-			this.menuItem10.Index = 1;
+			this.menuItem10.Index = 2;
 			this.menuItem10.Text = "Delete";
 			// 
 			// menuItem11
 			// 
-			this.menuItem11.Index = 2;
+			this.menuItem11.Index = 1;
 			this.menuItem11.Text = "Rename";
 			// 
 			// menuItem12
 			// 
-			this.menuItem12.Index = 3;
-			this.menuItem12.Text = "Make Private";
+			this.menuItem12.Index = 4;
+			this.menuItem12.Text = "Make Folder Private";
 			// 
 			// menuItem13
 			// 
-			this.menuItem13.Index = 4;
-			this.menuItem13.Text = "Make Public";
+			this.menuItem13.Index = 5;
+			this.menuItem13.Text = "Make Folder Public";
 			this.menuItem13.Visible = false;
 			// 
 			// menuItem14
 			// 
-			this.menuItem14.Index = 5;
+			this.menuItem14.Index = 6;
 			this.menuItem14.Text = "Share Folder";
 			// 
 			// menuItem15
 			// 
-			this.menuItem15.Index = 6;
+			this.menuItem15.Index = 7;
 			this.menuItem15.Text = "Remove Folder Share";
 			this.menuItem15.Visible = false;
 			// 
 			// vistaMenu
 			// 
 			this.vistaMenu.ContainerControl = this;
+			// 
+			// _barStatusProgress
+			// 
+			this._barStatusProgress.Name = "_barStatusProgress";
+			this._barStatusProgress.Size = new System.Drawing.Size(100, 16);
+			// 
+			// _lblStatusText
+			// 
+			this._lblStatusText.Name = "_lblStatusText";
+			this._lblStatusText.Size = new System.Drawing.Size(44, 17);
+			this._lblStatusText.Text = "Loading";
+			// 
+			// menuItem6
+			// 
+			this.menuItem6.Index = 0;
+			this.menuItem6.Text = "Copy Folder Url";
+			// 
+			// menuItem16
+			// 
+			this.menuItem16.Index = 3;
+			this.menuItem16.Text = "-";
+			// 
+			// _contextMenuFiles
+			// 
+			this._contextMenuFiles.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItem17,
+            this.menuItem18});
+			// 
+			// menuItem17
+			// 
+			this.menuItem17.Index = 0;
+			this.menuItem17.Text = "Move";
+			// 
+			// menuItem18
+			// 
+			this.menuItem18.Index = 1;
+			this.menuItem18.Text = "Delete";
 			// 
 			// frmManage
 			// 
@@ -277,6 +313,8 @@
 			this.Name = "frmManage";
 			this.Text = "Manage Uploaded Files";
 			this.Load += new System.EventHandler(this.frmManage_Load);
+			this.statusStrip1.ResumeLayout(false);
+			this.statusStrip1.PerformLayout();
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel2.ResumeLayout(false);
 			this.splitContainer1.ResumeLayout(false);
@@ -309,8 +347,6 @@
 		private System.Windows.Forms.ImageList _imlFolders;
 		private System.Windows.Forms.ImageList _imlFiles;
 		private System.Windows.Forms.ContextMenu _contextMenuFolders;
-		private System.Windows.Forms.MenuItem menuItem17;
-		private System.Windows.Forms.MenuItem menuItem16;
 		private System.Windows.Forms.MenuItem menuItem10;
 		private System.Windows.Forms.MenuItem menuItem11;
 		private System.Windows.Forms.MenuItem menuItem12;
@@ -318,6 +354,13 @@
 		private System.Windows.Forms.MenuItem menuItem14;
 		private System.Windows.Forms.MenuItem menuItem15;
 		private dtxCore.Controls.VistaMenu vistaMenu;
+		private System.Windows.Forms.ToolStripProgressBar _barStatusProgress;
+		private System.Windows.Forms.ToolStripStatusLabel _lblStatusText;
+		private System.Windows.Forms.MenuItem menuItem6;
+		private System.Windows.Forms.MenuItem menuItem16;
+		private System.Windows.Forms.ContextMenu _contextMenuFiles;
+		private System.Windows.Forms.MenuItem menuItem17;
+		private System.Windows.Forms.MenuItem menuItem18;
 
 	}
 }

@@ -185,6 +185,13 @@ namespace dtxUpload {
 #region File Manager callbacks.
 
 		public void directory_contents(string input) {
+			if (input == "[[]]") {
+				Client.form_Manage.Invoke((MethodInvoker)delegate {
+					Client.form_Manage.displayFolderContents(null);
+				});
+				return;
+			}
+
 			JsonReader reader = new JsonReader(input);
 			DC_FileInformation[] files = reader.Deserialize<DC_FileInformation[]>();
 

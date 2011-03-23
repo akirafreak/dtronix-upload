@@ -8,14 +8,14 @@ using System.Windows.Forms;
 
 namespace dtxUpload {
 	public partial class frmManage : Form {
-		ServerConnector connector = new ServerConnector();
+		private ServerConnector connector = new ServerConnector();
+		private TreeNode last_selected;
+		private TreeNode node_root;
 
 		public frmManage() {
 			Client.form_Manage = this;
 			InitializeComponent();
 		}
-
-		TreeNode node_root;
 
 		private void frmManage_Load(object sender, EventArgs e) {
 			_treFolders.ContextMenu = _contextMenuFolders;
@@ -39,12 +39,26 @@ namespace dtxUpload {
 		}
 
 		private void _treFolders_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e) {
+			if (last_selected == e.Node && e.Button == MouseButtons.Right)
+				return;
+
+			last_selected = e.Node;
+			_lstFiles.Items.Clear();
 			if (e.Node.Name == "folder_unsorted") {
 				connector.callServerMethod("files_in_directory", "/");
+
+			} else if (e.Node.Name == "folder_private") {
+				connector.callServerMethod("files_in_directory", "");
+
+			} else {
+				connector.callServerMethod("files_in_directory", "/" + e.Node.Text);
 			}
 		}
 
 		public void displayFolderContents(DC_FileInformation[] files) {
+			if (files == null)
+				return;
+
 			foreach(DC_FileInformation file in files){
 				ListViewItem item = _lstFiles.Items.Add("file_" + file.url_id, file.file_name, "file");
 
