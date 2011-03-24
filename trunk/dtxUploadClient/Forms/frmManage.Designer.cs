@@ -26,6 +26,8 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmManage));
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+			this._barStatusProgress = new System.Windows.Forms.ToolStripProgressBar();
+			this._lblStatusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this._treFolders = new System.Windows.Forms.TreeView();
 			this._imlFolders = new System.Windows.Forms.ImageList(this.components);
@@ -46,20 +48,20 @@
 			this.menuItem5 = new System.Windows.Forms.MenuItem();
 			this.menuItem4 = new System.Windows.Forms.MenuItem();
 			this._contextMenuFolders = new System.Windows.Forms.ContextMenu();
-			this.menuItem10 = new System.Windows.Forms.MenuItem();
+			this.menuItem6 = new System.Windows.Forms.MenuItem();
 			this.menuItem11 = new System.Windows.Forms.MenuItem();
+			this.menuItem10 = new System.Windows.Forms.MenuItem();
+			this.menuItem16 = new System.Windows.Forms.MenuItem();
 			this.menuItem12 = new System.Windows.Forms.MenuItem();
 			this.menuItem13 = new System.Windows.Forms.MenuItem();
 			this.menuItem14 = new System.Windows.Forms.MenuItem();
 			this.menuItem15 = new System.Windows.Forms.MenuItem();
 			this.vistaMenu = new dtxCore.Controls.VistaMenu(this.components);
-			this._barStatusProgress = new System.Windows.Forms.ToolStripProgressBar();
-			this._lblStatusText = new System.Windows.Forms.ToolStripStatusLabel();
-			this.menuItem6 = new System.Windows.Forms.MenuItem();
-			this.menuItem16 = new System.Windows.Forms.MenuItem();
 			this._contextMenuFiles = new System.Windows.Forms.ContextMenu();
 			this.menuItem17 = new System.Windows.Forms.MenuItem();
 			this.menuItem18 = new System.Windows.Forms.MenuItem();
+			this.menuItem19 = new System.Windows.Forms.MenuItem();
+			this.menuItem20 = new System.Windows.Forms.MenuItem();
 			this.statusStrip1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -77,6 +79,17 @@
 			this.statusStrip1.Size = new System.Drawing.Size(747, 22);
 			this.statusStrip1.TabIndex = 1;
 			this.statusStrip1.Text = "statusStrip1";
+			// 
+			// _barStatusProgress
+			// 
+			this._barStatusProgress.Name = "_barStatusProgress";
+			this._barStatusProgress.Size = new System.Drawing.Size(100, 16);
+			// 
+			// _lblStatusText
+			// 
+			this._lblStatusText.Name = "_lblStatusText";
+			this._lblStatusText.Size = new System.Drawing.Size(44, 17);
+			this._lblStatusText.Text = "Loading";
 			// 
 			// splitContainer1
 			// 
@@ -228,15 +241,25 @@
             this.menuItem14,
             this.menuItem15});
 			// 
-			// menuItem10
+			// menuItem6
 			// 
-			this.menuItem10.Index = 2;
-			this.menuItem10.Text = "Delete";
+			this.menuItem6.Index = 0;
+			this.menuItem6.Text = "Copy Folder Url";
 			// 
 			// menuItem11
 			// 
 			this.menuItem11.Index = 1;
 			this.menuItem11.Text = "Rename";
+			// 
+			// menuItem10
+			// 
+			this.menuItem10.Index = 2;
+			this.menuItem10.Text = "Delete";
+			// 
+			// menuItem16
+			// 
+			this.menuItem16.Index = 3;
+			this.menuItem16.Text = "-";
 			// 
 			// menuItem12
 			// 
@@ -264,42 +287,33 @@
 			// 
 			this.vistaMenu.ContainerControl = this;
 			// 
-			// _barStatusProgress
-			// 
-			this._barStatusProgress.Name = "_barStatusProgress";
-			this._barStatusProgress.Size = new System.Drawing.Size(100, 16);
-			// 
-			// _lblStatusText
-			// 
-			this._lblStatusText.Name = "_lblStatusText";
-			this._lblStatusText.Size = new System.Drawing.Size(44, 17);
-			this._lblStatusText.Text = "Loading";
-			// 
-			// menuItem6
-			// 
-			this.menuItem6.Index = 0;
-			this.menuItem6.Text = "Copy Folder Url";
-			// 
-			// menuItem16
-			// 
-			this.menuItem16.Index = 3;
-			this.menuItem16.Text = "-";
-			// 
 			// _contextMenuFiles
 			// 
 			this._contextMenuFiles.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItem20,
+            this.menuItem19,
             this.menuItem17,
             this.menuItem18});
 			// 
 			// menuItem17
 			// 
-			this.menuItem17.Index = 0;
+			this.menuItem17.Index = 2;
 			this.menuItem17.Text = "Move";
 			// 
 			// menuItem18
 			// 
-			this.menuItem18.Index = 1;
+			this.menuItem18.Index = 3;
 			this.menuItem18.Text = "Delete";
+			// 
+			// menuItem19
+			// 
+			this.menuItem19.Index = 1;
+			this.menuItem19.Text = "Copy Link(s)";
+			// 
+			// menuItem20
+			// 
+			this.menuItem20.Index = 0;
+			this.menuItem20.Text = "Open Link(s)";
 			// 
 			// frmManage
 			// 
@@ -361,6 +375,8 @@
 		private System.Windows.Forms.ContextMenu _contextMenuFiles;
 		private System.Windows.Forms.MenuItem menuItem17;
 		private System.Windows.Forms.MenuItem menuItem18;
+		private System.Windows.Forms.MenuItem menuItem19;
+		private System.Windows.Forms.MenuItem menuItem20;
 
 	}
 }

@@ -19,6 +19,7 @@ namespace dtxUpload {
 
 		private void frmManage_Load(object sender, EventArgs e) {
 			_treFolders.ContextMenu = _contextMenuFolders;
+			_lstFiles.ContextMenu = _contextMenuFiles;
 
 			string server_name = Client.server_info.server_name;
 			_imlFolders.Images.Add("folder", Properties.Resources.asset_blue_16_ns);

@@ -13,12 +13,15 @@ using System.Reflection;
 namespace dtxUpload {
 	public partial class frmLogin : Form {
 
+		public DateTime last_ping_time;
+
 		private ServerConnector connector = new ServerConnector();
 		private List<DC_Server> server_list;
 
 		private Tween tween_image_height;
 		private Tween tween_form_width;
 		private Tween tween_form_position = new Tween(dtxCore.EasingEquations.expoEaseOut);
+		private Timer ping_timer = new Timer();
 
 		private BackgroundWorker loadLogoWorker = new BackgroundWorker();
 
@@ -68,6 +71,11 @@ namespace dtxUpload {
 				this.MaximumSize = max_size;
 				this.Size = min_size;
 			}
+
+			// Timer to ensure the session does not expire.
+			ping_timer.Enabled = false;
+			ping_timer.Tick += new EventHandler(ping_timer_Tick);
+			ping_timer.Interval = 1000 * 30; // 20 seconds.
 
 
 			frmLogin_Activated(new object(), new EventArgs());
@@ -144,6 +152,11 @@ namespace dtxUpload {
 			Rectangle r = Screen.PrimaryScreen.WorkingArea;
 			this.StartPosition = FormStartPosition.Manual;
 			this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Width - this.Width - 8, Screen.PrimaryScreen.WorkingArea.Height - this.Height - 8);
+		}
+
+
+		void ping_timer_Tick(object sender, EventArgs e) {
+			connector.callServerMethod("ping");
 		}
 
 		private void _btnLogin_Click(object sender, EventArgs e) {
@@ -245,6 +258,14 @@ namespace dtxUpload {
 			_lblWarnServer.ForeColor = Color.Red;
 		}
 
+		public void serverMaintenanceMode() {
+			if (this.WindowState != FormWindowState.Normal) this.ShowDialog();
+
+			_btnLogin.Enabled = true;
+			_lblWarnServer.Text = "Server is in maintenance mode.";
+			_lblWarnServer.ForeColor = Color.Red;
+		}
+
 		/// <summary>
 		/// Method that is called when the server reports that the session has expired.
 		/// </summary>
@@ -318,6 +339,8 @@ namespace dtxUpload {
 			// Hide the login window untill we need to login again.
 			if(this.WindowState == FormWindowState.Normal) this.Hide();
 
+			ping_timer.Enabled = true;
+
 			// Check to see if the quick upload form has already been loaded, if not, then create it, otherwise use the existing form.
 			if(Client.form_QuickUpload != null) {
 				Client.form_QuickUpload.Show();
@@ -330,6 +353,8 @@ namespace dtxUpload {
 		public void loggedOut() {
 			if(Client.form_QuickUpload != null)
 				Client.form_QuickUpload.Hide();
+
+			ping_timer.Enabled = false;
 
 			_cmiLogout.Visible = !true;
 			_cmiLogin.Visible = !false;

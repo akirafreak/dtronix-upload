@@ -210,6 +210,7 @@ namespace dtxUpload {
 			http_request.ContentType = "multipart/form-data; boundary=" + boundry;
 			http_request.Method = "POST";
 			http_request.KeepAlive = false;
+			http_request.Pipelined = false;
 			http_request.Timeout = Timeout.Infinite;
 			http_request.Credentials = System.Net.CredentialCache.DefaultCredentials;
 			http_request.UserAgent = "dtxUploadClient/0.3";

@@ -57,6 +57,8 @@ namespace dtxUpload {
 			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.sessionExpired);
 		}
 
+
+
 		public void validation_invalid_username() {
 			clearSession();
 			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.invalidUsername);
@@ -90,6 +92,27 @@ namespace dtxUpload {
 				upload_failed_not_connected();
 			}
 		}
+
+		private class ping_class {
+			public bool maintenance_mode;
+		}
+
+		public void ping(string input) {
+			JsonReader reader = new JsonReader(input);
+			ping_class info = reader.Deserialize<ping_class>();
+
+			if (info.maintenance_mode) {
+				mainenance_mode();
+				return;
+			}
+
+			Client.form_Login.last_ping_time = DateTime.Now;
+		}
+
+		public void mainenance_mode() {
+			Client.form_Login.Invoke((MethodInvoker)Client.form_Login.serverMaintenanceMode);
+		}
+
 
 		
 
