@@ -194,7 +194,120 @@ function errorHandler($errno, $errstr, $errfile, $errline){
 
 /*          ------------------------------------[USER FUNCTIONS]------------------------------------          */
 
+
+
+
 function validateUser(){
+	global $_USER, $_CONFIG;
+	if(isset($_COOKIE["client_username"]) && isset($_COOKIE["client_password"])){
+		// User is tring to login.
+
+		$user_session = mysqlQuery("SELECT *
+			FROM `users`
+			WHERE `username` = '%s'
+			LIMIT 1", array($_COOKIE["client_username"]), "assoc");
+
+		if(!empty($user_session)){
+			$user = $user_session[0];
+			$pass1 = strtoupper($user["password"]);
+			$pass2 = strtoupper($_COOKIE["client_password"]);
+			if($pass1 == $pass2){
+				// User has a valid username and password.
+
+				// TODO: Generate a completely random hash.
+				$session_key = md5(microtime());
+
+				// Limit the total number of logins on one account to 5.
+				myInsert("sessions", array(
+					"session" => $session_key,
+					"user_id" => $user["id"],
+					"last_active" => "NOW()",
+					"date_created" => "CURDATE()"
+				));
+
+				$all_user_sessions = mysqlQuery("SELECT `session`
+					FROM `sessions`
+					WHERE `user_id` = %s
+					ORDER BY `last_active` DESC
+					LIMIT 6", array($user["id"]));
+
+				// If the user has too many sessions, delete the one last accessed.
+				if(count($all_user_sessions) > 5){
+					mysqlQuery("DELETE FROM `sessions`
+						WHERE `session` = '%s'
+						LIMIT 1;", array($all_user_sessions[5]["session"]), "successful");
+				}
+
+				// Update the client cookies.
+				setcookie("client_username", "", time() - 60 * 60 * 24);
+				setcookie("client_password", "", time() - 60 * 60 * 24);
+				setcookie("session_key", $session_key, time() + (60 * 60 * 24 * 90));
+
+				// Return the current session
+				callClientMethod("validation_successful", $session_key);
+
+			}else{
+				// Invalid password.
+				callClientMethod("validation_invalid_password");
+			}
+
+		}else{
+			// Query could not find any rows.
+			callClientMethod("validation_invalid_username");
+		}
+	}elseif(isset($_COOKIE["session_key"])){
+		// User is attempting to use an exsiting session.
+		if(empty($_COOKIE["session_key"])){
+			setcookie("session_key", $_COOKIE["session_key"], time() - (60 * 60 * 24 * 90));
+			callClientMethod("validation_invalid_user_session");
+		}
+
+		$user_session = mysqlQuery("SELECT `user_id`, `last_active`
+			FROM `sessions`
+			WHERE `session` = '%s'
+			ORDER BY `last_active` DESC
+			LIMIT 1", array($_COOKIE["session_key"]));
+
+		if(count($user_session) == 0){
+			setcookie("session_key", $_COOKIE["session_key"], time() - (60 * 60 * 24 * 90));
+			callClientMethod("validation_invalid_user_session");
+		}
+
+		$last_active = strtotime($user_session[0]["last_active"]);
+
+		// Check to see if the session has expired
+		if($last_active + $_CONFIG["session_max_life"] < time()){
+			mysqlQuery("DELETE FROM `sessions`
+				WHERE `session` = '%s'
+				LIMIT 1;", array($_COOKIE["session_key"]));
+
+			setcookie("session_key", $_COOKIE["session_key"], time() - (60 * 60 * 24 * 90));
+			callClientMethod("validation_expired_user_session");
+		}
+
+		myUpdate("sessions", array(
+			"last_active" => "NOW()"
+		), "session = '". $_COOKIE["session_key"] ."'");
+
+		$user_data = mysqlQuery("SELECT *
+			FROM `users`
+			WHERE `id` = '%s'
+			LIMIT 1", array($user_session[0]["user_id"]), "assoc");
+
+		$user = $user_data[0];
+		$_USER = array_merge($_USER, $user);
+		$_USER["session"] = $_COOKIE["session_key"];
+	}else{
+		callClientMethod("validation_failed_no_login");
+	}
+}
+
+
+
+
+
+
+function _validateUser_OLD(){
 	global $_USER, $_CONFIG;
 	if(isset($_COOKIE["client_username"]) && isset($_COOKIE["client_password"])){
 		// User is tring to login.
@@ -210,7 +323,8 @@ function validateUser(){
 			$pass2 = strtoupper($_COOKIE["client_password"]);
 			if($pass1 == $pass2){
 				// User has a valid username and password.
-				
+
+				// TODO: Generate a completely random hash.
 				$session_key = md5(microtime());
 				
 				// Generate a new session id and update the user's last active time.

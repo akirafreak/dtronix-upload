@@ -53,9 +53,9 @@ function _getUserInfo(){
 function _logout(){
 	global $_USER;
 
-	$logged_out = myUpdate("users", array(
-		"session_key" => ""
-	), "`id` = " . $_USER["id"]);
+	$logged_out = mysqlQuery("DELETE FROM `sessions` 
+		WHERE `session` = '%s'
+		LIMIT 1;", array($_USER["session"]), "successful");
 
 	if($logged_out){
 		callClientMethod("logout_successful");

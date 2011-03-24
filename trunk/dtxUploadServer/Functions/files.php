@@ -16,7 +16,7 @@ function _filesInDirectory(){
 
 	list($directory) = $_GET["args"];
 
-	$files = mysqlQuery("SELECT `file_name`, `upload_date`, `file_size`, `last_accessed`, `url_id`
+	$files = mysqlQuery("SELECT `file_name`, `upload_date`, `file_size`, `last_accessed`, `url_id`, `directory`
 		FROM `files`
 		WHERE `owner_id` = '%s'
 		AND `directory` = '%s'
@@ -246,7 +246,7 @@ function incrementID($input, $curr_index = null){
 
 function _uploadNewFile(){
 	global $_USER, $_CONFIG, $morpher, $mime_types;
-	
+	//callClientMethod("error", $_FILES);
 	// Check to see if this file exceeds the maximum size alotted.
 	$total_used_space = $_USER["total_uploaded_filesizes"] + $_FILES["file"]["size"];
 	if($total_used_space > getPermission("max_upload_space")){
@@ -258,6 +258,8 @@ function _uploadNewFile(){
 	}
 
 	$url_id = createNewId();
+
+	
 
 	if(move_uploaded_file($_FILES["file"]["tmp_name"], $_CONFIG["upload_dir"] . $url_id)) {
 
