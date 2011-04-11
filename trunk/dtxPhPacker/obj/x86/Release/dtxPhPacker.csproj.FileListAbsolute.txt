@@ -1,5 +1,0 @@
-C:\Users\Daniel\Documents\Visual Studio 2010\Projects\dtxPhPacker\bin\Release\dtxPhPacker.exe
-C:\Users\Daniel\Documents\Visual Studio 2010\Projects\dtxPhPacker\bin\Release\dtxPhPacker.pdb
-C:\Users\Daniel\Documents\Visual Studio 2010\Projects\dtxPhPacker\obj\x86\Release\ResolveAssemblyReference.cache
-C:\Users\Daniel\Documents\Visual Studio 2010\Projects\dtxPhPacker\obj\x86\Release\dtxPhPacker.exe
-C:\Users\Daniel\Documents\Visual Studio 2010\Projects\dtxPhPacker\obj\x86\Release\dtxPhPacker.pdb
