@@ -1,0 +1,5 @@
+c:\users\daniel\documents\visual studio 2010\Projects\dtxPhPacker\bin\Debug\dtxPhPacker.exe
+c:\users\daniel\documents\visual studio 2010\Projects\dtxPhPacker\bin\Debug\dtxPhPacker.pdb
+c:\users\daniel\documents\visual studio 2010\Projects\dtxPhPacker\obj\x86\Debug\ResolveAssemblyReference.cache
+c:\users\daniel\documents\visual studio 2010\Projects\dtxPhPacker\obj\x86\Debug\dtxPhPacker.exe
+c:\users\daniel\documents\visual studio 2010\Projects\dtxPhPacker\obj\x86\Debug\dtxPhPacker.pdb
