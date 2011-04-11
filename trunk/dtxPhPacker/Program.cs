@@ -227,8 +227,8 @@ namespace dtxPhPacker {
 					Console.WriteLine("Detecting Version...");
 					StreamReader version_file = file.OpenText();
 					version_file.ReadLine();
-					project_start_date = DateTime.Parse(version_file.ReadLine().Replace("//Project Start Date:", ""));
-					project_version = version_file.ReadLine().Replace("//Project Version:", "");
+					project_start_date = DateTime.Parse(version_file.ReadLine().Replace("//Start Date:", ""));
+					project_version = version_file.ReadLine().Replace("//Version:", "");
 					Console.WriteLine("Version: " + project_start_date);
 				}
 
