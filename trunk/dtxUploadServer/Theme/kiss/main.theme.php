@@ -1,8 +1,28 @@
 <?php
 
-function theme_main_header(){
-	global $T_VAR;
-?>
+class ThemeMain{
+	private $_USER, $_CONFIG, $_QUERY, $T_VAR;
+
+	public function ThemeMain(&$user, &$config, $query) {
+		$this->_USER = &$user;
+		$this->_CONFIG = &$config;
+		$this->_QUERY = $query;
+
+		$this->T_VAR["theme_url"] = $this->_CONFIG["uri"] . "Theme/" . $this->_CONFIG["html_theme"]. "/";
+
+		$this->mainHeader();
+		//if(count($query) == 0){
+		$this->mainLogin();
+		$this->mainRegister();
+		$this->displayFiles();
+		$this->adminInterface();
+		//}
+		$this->mainFooter();
+	}
+
+
+
+	private function mainHeader(){ ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
@@ -13,36 +33,27 @@ function theme_main_header(){
 	<title>dtxUpload File Manager</title>
 
 	<!-- StyleSheet -->
-	<link href="<?php echo $T_VAR["theme_url"]; ?>default.css" rel="stylesheet" type="text/css" />
-	<link href="default.css" type="text/css"/>
+	<link href="<?= $this->T_VAR["theme_url"] ?>default.css" rel="stylesheet" type="text/css" />
 
 
 	<!-- Scripts -->
-	<script src="<?php echo $T_VAR["theme_url"]; ?>js/mootools.js" type="text/javascript"></script>
-	<script src="<?php echo $T_VAR["theme_url"]; ?>js/main.js" type="text/javascript"></script>
-	<script src="<?php echo $T_VAR["theme_url"]; ?>js/md5.js" type="text/javascript"></script>
+	<script src="<?= $this->T_VAR["theme_url"] ?>js/mootools.js" type="text/javascript"></script>
+	<script src="<?= $this->T_VAR["theme_url"] ?>js/main.js" type="text/javascript"></script>
+	<script src="<?= $this->T_VAR["theme_url"] ?>js/md5.js" type="text/javascript"></script>
 
 </head>
 <body>
-<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #303030;" id="hider"></div>
-<?php
-}
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #303030;" id="hider"></div><?php
+	}
 
 
-function theme_main_footer(){
-	global $T_VAR;
-?>
+	private function mainFooter(){ ?>
 <div id="BumpBar"></div>
 </body>
-</html>
+</html><?php
+	}
 
-<?php
-
-}
-
-function theme_main_login(){
-	global $_USER, $T_VAR;
-?>
+	private function mainLogin(){ ?>
 <div id="login_div" style="top: 50%;" class="center_div">
 	<div class="header_text">Login</div>
 	<form action="" id="login_form">
@@ -67,13 +78,10 @@ function theme_main_login(){
 			</tbody>
 		</table>
 	</form>
-</div>
-<?php
-}
+</div><?php
+	}
 
-function theme_main_register(){
-	global $_USER, $T_VAR;
-?>
+	private function mainRegister(){ ?>
 <div id="register_div" style="top: 50%; margin-left: -220px;" class="center_div">
 	<div class="header_text">Register</div>
 	<form action="" id="register_form">
@@ -109,14 +117,11 @@ function theme_main_register(){
 			</tbody>
 		</table>
 	</form>
-</div>
-<?php
-}
+</div><?php
+	}
 
 
-function theme_main_displayFiles(){
-	global $_USER, $T_VAR;
-?>
+	private function displayFiles(){ ?>
 <div id="files_container">
 	<a href="#" id="user_info_link"></a>
 	<a href="#" style="position: absolute; float: right; margin-left: 50px;" id="logout_link">Logout</a>
@@ -154,32 +159,15 @@ function theme_main_displayFiles(){
 
 		</tbody>
 	</table>
-</div>
-<?php
-}
+</div><?php
+	}
 
-function theme_main_adminInterface(){
-	global $_USER, $T_VAR;
-?>
+	private function adminInterface(){ ?>
 <div id="admin_container">
 
 </div>
-<?php
-}
-
-
-
-function theme_main_default(){
-	global $_USER, $T_VAR;
-	
-	theme_main_header();
-
-	theme_main_login();
-	theme_main_register();
-	theme_main_displayFiles();
-	theme_main_adminInterface();
-
-	theme_main_footer();
+	<?php
+	}
 }
 
 

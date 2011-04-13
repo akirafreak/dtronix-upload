@@ -2,8 +2,4 @@
 
 include("dtxUpload.php");
 
-//phpinfo();
-
-
-
 ?>

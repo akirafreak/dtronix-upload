@@ -1,22 +1,60 @@
 <?php
+
 // Define this before all the includes to ensure that all the files are actually included through this main file.
 define("requireParrent", true);
 
-$INSTALL_VAR["download_beta"] = false;
-
 if(file_exists("functions.php")) require_once("functions.php");
 
-head();
+$INSTALL_VAR["download_beta"] = false;
 
-continueIfTrue(checkPHPVersion());
-continueIfTrue(checkForInstallationFiles());
-continueIfTrue(initialFileChecks());
-continueIfTrue(basicConfigurations());
-continueIfTrue(mysqlConfigurations());
-continueIfTrue(mysqlInstallation());
-continueIfTrue(configFileCreation());
+// Determine if we need to upgrade or install.
+if(key_exists("action", $_GET) == false){
+	head(); ?>
+<a href="install.php?action=install">Force Re-Install of Server</a> |
+<a href="install.php?action=upgrade">Upgrade Current Installation</a><?
 
-foot("Delete Installaion Files");
+}else if($_GET["action"] == "upgrade"){
+	// Setup upgrade variables.
+	$INSTALL_VAR["upgrade_installation"] = true;
+
+	if(!file_exists("config.php")) die("Can not upgrade existing installation.  Can not find config.php.<br /> <a href='install.php?action=install'>Re-Install Server</a>");
+	require_once("config.php");
+
+	head(); ?>
+<span class="main_header">Dtronix Upload Server Upgrade</span><br/><?
+
+	continueIfTrue(checkPHPVersion());
+	continueIfTrue(checkForInstallationFiles());
+	continueIfTrue(initialFileChecks());
+	continueIfTrue(connectToDb());
+	continueIfTrue(upgradeTo_0_2_101());
+
+?>
+<input type="hidden" name="delete_installation_files" value="true" />
+<span style="font-size: 18px; color: green;">Upgrade to Complete!</span><br/><?php
+	foot("Delete Installaion Files");
+
+}else if($_GET["action"] == "install"){
+	// Set the variables for a fresh installation.
+	$INSTALL_VAR["upgrade_installation"] = false;
+
+	if(file_exists("config.php") && !isset($_POST["delete_installation_files"])) die("Config file already exists.  Exiting installer.");
+
+	head(); ?>
+<span class="main_header">Dtronix Upload Server Installer</span><br/><?
+
+	continueIfTrue(checkPHPVersion());
+	continueIfTrue(checkForInstallationFiles());
+	continueIfTrue(initialFileChecks());
+	continueIfTrue(basicConfigurations());
+	continueIfTrue(mysqlConfigurations());
+	continueIfTrue(mysqlInstallation());
+	continueIfTrue(configFileCreation());
+
+	foot("Delete Installaion Files");
+}else{
+	die("Unknown action requested.");
+}
 
 function checkPHPVersion(){
 	$continue_installation = true; ?>
@@ -79,8 +117,8 @@ function checkForInstallationFiles(){
 			<td>Verifying installation files:</td>
 			<td><?php
 
-				if(file_exists("install.data.php") && file_exists("install.info.php") && !isset($_GET["force_download"])){
-					writeInfo("green", "Required files Exist. <a href=\"install.php?force_download=true\">(Force download latest version)</a>");
+				if((file_exists("install.data.php") || file_exists("install.data")) && file_exists("install.info.php") && !isset($_GET["force_download"])){
+					writeInfo("green", "Required files Exist. <a href=\"". $_SERVER["REQUEST_URI"] ."&force_download=true\">(Force download latest version)</a>");
 				}else{
 					if(!isset($_GET["force_download"])){
 						writeInfo("red", "Required installation files do not exist.");
@@ -106,16 +144,23 @@ function checkForInstallationFiles(){
 		<tr>
 			<td>Verifying Files:</td>
 			<td><?php
+				if(file_exists("install.data") && !file_exists("install.data.php")){
+					ob_start();
+					readgzfile("install.data");
+					file_put_contents("install.data.php", ob_get_clean());
+					ob_end_clean();
+				}
 				if(md5_file("install.data.php") == $_INSTALL_INFO["MD5_hash"]){
 					writeInfo("green", "MD5 hashes match. Valid files.");
 				}else{
+
 					$continue_installation = false;
-					writeInfo("red", "Installation files corrupted. <a href=\"install.php?force_download=true\">(Force download latest version)</a>");
+					writeInfo("red", "Installation files corrupted. <a href=\"". $_SERVER["REQUEST_URI"] ."&force_download=true\">(Force download latest version)</a>");
 				}
 			?></td>
 		</tr><?php
 		}
-		if((isset($_GET["force_download"]) || !file_exists("dtxUpload.php")) && $continue_installation){ ?>
+		if((isset($_GET["force_download"]) || !file_exists("dtxUpload.php") || $INSTALL_VAR["upgrade_installation"]) && $continue_installation){ ?>
 		<tr>
 			<td>Extracting:</td>
 			<td><?php
@@ -361,6 +406,7 @@ function mysqlInstallation(){
 		`id` int(11) NOT NULL AUTO_INCREMENT,
 		`owner_id` int(11) NOT NULL,
 		`url_id` varchar(32) NOT NULL,
+		`directory` varchar(64) NOT NULL DEFAULT '/',
 		`tags` text NOT NULL,
 		`upload_date` date NOT NULL,
 		`upload_id` varchar(32) NOT NULL,
@@ -379,7 +425,7 @@ function mysqlInstallation(){
 		KEY `url_id` (`url_id`),
 		KEY `owner_id` (`owner_id`),
 		FULLTEXT KEY `tags` (`tags`)
-	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;"));
+	) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;"));
 
 	continueIfTrue(mysqlTableCreate("users", "CREATE TABLE IF NOT EXISTS `users` (
 		`id` int(11) NOT NULL AUTO_INCREMENT,
@@ -392,6 +438,7 @@ function mysqlInstallation(){
 		`is_email_validated` tinyint(1) NOT NULL,
 		`account_verification_code` varchar(32) NOT NULL,
 		`permissions` int(11) NOT NULL,
+		`settings` text NOT NULL,
 		`total_files_uploaded` int(11) NOT NULL DEFAULT '0',
 		`total_uploaded_filesizes` int(11) NOT NULL DEFAULT '0',
 		PRIMARY KEY (`id`),
@@ -409,18 +456,25 @@ function mysqlInstallation(){
 		`manage_users` tinyint(1) NOT NULL,
 		`manage_uploads` tinyint(1) NOT NULL,
 		`full_access` tinyint(1) NOT NULL,
-		`max_upload_space` int(11) NOT NULL,
-		`max_upload_size` int(11) NOT NULL,
+		`max_upload_space` varchar(64) NOT NULL,
+		`max_upload_size` varchar(64) NOT NULL,
 		`default_permission_set` tinyint(1) NOT NULL COMMENT 'True if the current record is part of the default permission system.',
 		PRIMARY KEY (`id`)
 	) ENGINE=MyISAM DEFAULT CHARSET=latin1;"));
 
 	continueIfTrue(mysqlRowInsert("users_permissions", "INSERT INTO `users_permissions` (`id`, `name`, `is_disabled`, `can_connect`, `can_upload`, `manage_users`, `manage_uploads`, `full_access`, `max_upload_space`, `max_upload_size`, `default_permission_set`) VALUES
-		(0, 'Admin', 0, 1, 1, 1, 1, 1, 100000, 100000, 1),
-		(1, 'User', 0, 1, 1, 0, 0, 0, 100000, 20000, 1),
-		(1, 'Subscriber', 0, 1, 1, 0, 0, 0, 100000, 100000, 1),
-		(2, 'Banned', 1, 0, 0, 0, 0, 0, -1, -1, 1);"));
-	
+		(0, 'Admin', 0, 1, 1, 1, 1, 1, '100000000', '100000000', 1),
+		(1, 'User', 0, 1, 1, 0, 0, 0, '100000000', '20000000', 1),
+		(2, 'Banned', 1, 0, 0, 0, 0, 0, '-1', '-1', 1),
+		(3, 'Subscriber', 0, 1, 1, 0, 0, 0, '100000000', '100000000', 1);"));
+
+	continueIfTrue(mysqlTableCreate("sessions", "CREATE TABLE IF NOT EXISTS `sessions` (
+		`session` varchar(32) NOT NULL,
+		`user_id` int(11) NOT NULL,
+		`last_active` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		`date_created` date NOT NULL
+	) ENGINE=MyISAM DEFAULT CHARSET=latin1;"));
+
 	?><input type="hidden" name="mysql_existing_db" value="true" /><?php
 	}else{
 		writeInfo("darkorange", "MySQL database creation/insertion skipped due to existing databases.");
@@ -462,6 +516,7 @@ function configFileCreation(){
 	$_CONFIG["registration_verify_email"] = false;
 
 	$_CONFIG["session_max_life"] = 60 * 2000;
+	$_CONFIG["version"] = $_INSTALL_INFO["version"];
 
 	if(saveConfigFile($_CONFIG)){
 		writeInfo("green", "Successfully created configuration file.");
@@ -478,21 +533,20 @@ function configFileCreation(){
 }
 
 function head(){
-	if(file_exists("config.php") && !isset($_POST["delete_installation_files"])) die("Config file already exists.  Exiting installer.");
-
-	if(empty($_POST["installation_level"])){
-		$_POST["installation_level"] = "1";
-	}
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <style>
-	* {
-		font-family:monospace;
-		font-size: 11px;
-	}
+* {
+	font-family:monospace;
+	font-size: 11px;
+}
+.main_header{
+	font-size: 20px;
+	text-decoration: underline;
+}
 </style>
 </head>
 <body>
@@ -504,11 +558,16 @@ function head(){
 		deleteFile("install.php");
 		deleteFile("install.data.php");
 		deleteFile("install.info.php");
-		writeInfo("red", "NOTE: Make sure to register immediately.  The first user that registers is admin.");
+
+		if(file_exists("install.data"))
+			deleteFile("install.data");
+
+		if($_GET["action"] == "install"){
+			writeInfo("red", "NOTE: Make sure to register immediately.  The first user that registers is admin.");
+		}
 		foot("Go to Dtronix Upload");
 	}else{ ?>
-<form method="post" action="install.php">
-<span style="font-size: 20px; text-decoration: underline;">Dtronix Upload Server Installer</span><br/><br/><?php
+<form method="post" action="<?= $_SERVER["REQUEST_URI"] ?>"><?php
 	}
 
 }
@@ -542,6 +601,28 @@ function mysqlRowInsert($name, $sql){
 		return false;
 	}else{
 		writeInfo("green", "Successfully inserted records into \"$name\".");
+		return true;
+	}
+}
+
+function mysqlTableDrop($name, $sql){
+	$query = mysql_query($sql);
+	if(!$query){
+		writeInfo("red", "Could not drop table \"$name\". ". mysql_error());
+		return false;
+	}else{
+		writeInfo("green", "Successfully dropped table \"$name\".");
+		return true;
+	}
+}
+
+function mysqlTableAlter($name, $sql){
+	$query = mysql_query($sql);
+	if(!$query){
+		writeInfo("red", "Could not alter table \"$name\". ". mysql_error());
+		return false;
+	}else{
+		writeInfo("green", "Successfully altered table \"$name\".");
 		return true;
 	}
 }
@@ -580,15 +661,6 @@ function writeInputCheckbox($name){
 	}
 	?> /><?php
 }
-function gzdecode($data){
-	$g=tempnam('/tmp','ff');
-	@file_put_contents($g,$data);
-	ob_start();
-	readgzfile($g);
-	$d=ob_get_clean();
-	unlink($g);
-	return $d;
-}
 
 function saveUrl($url, $file_name){
     $curl = curl_init();
@@ -606,7 +678,7 @@ function saveUrl($url, $file_name){
     curl_close($curl);
 
 	if($download_string === true){
-		writeInfo("red", "Failed downloading $file_name.  Please manually download $file_name and place it in the same directory as the install.php.");
+		writeInfo("red", "Failed downloading ". $file_name .".  Please manually download ". $file_name ." and place it in the same directory as the ". $_SERVER["PHP_SELF"] .".");
 		return false;
 
 	}else{
@@ -614,6 +686,105 @@ function saveUrl($url, $file_name){
 		writeInfo($color, $file_name ." downloaded successfully.");
 		return true;
 	}
+}
+
+
+
+
+function connectToDb(){
+	global $_CONFIG;
+
+	$database_connection = @mysql_connect($_CONFIG["mysql_server"], $_CONFIG["mysql_user"], $_CONFIG["mysql_password"]);
+	if($database_connection){
+		$db_link = @mysql_select_db($_CONFIG["mysql_database"]);
+		if(!$db_link) {
+			writeInfo("red", "Database selection error: ". mysql_error());
+			return false;
+
+		}else{
+			writeInfo("green", "Database successfully connected.");
+			return true;
+		}
+	}else{
+		writeInfo("red", "Could not connect to database server.");
+		return false;
+	}
+}
+
+function upgradeTo_0_2_101(){
+	global $_CONFIG;
+	// Before this point, versions were not saved inside the config.php, so we can use this to determine the version to upgrade from.
+	if(key_exists("version", $_CONFIG) == true)
+		return true;
+
+	$continue_installation = true; ?>
+<br />
+<span style="font-size: 18px;">Upgrading To Version 0.2.100</span>
+<table>
+	<tbody valign="top">
+		<tr>
+			<td>Upgrading MySQL Database</td>
+			<td><?php
+// Create the new sessions table to handle multiple user connections on one account.
+continueIfTrue(mysqlTableCreate("sessions", "CREATE TABLE IF NOT EXISTS `sessions` (
+	`session` varchar(32) NOT NULL,
+	`user_id` int(11) NOT NULL,
+	`last_active` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`date_created` date NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;"));
+
+continueIfTrue(mysqlTableDrop("users_permissions", "DROP TABLE `users_permissions`"));
+
+continueIfTrue(mysqlTableCreate("users_permissions", "CREATE TABLE IF NOT EXISTS `users_permissions` (
+	`id` int(11) NOT NULL,
+	`name` varchar(64) NOT NULL,
+	`is_disabled` tinyint(1) NOT NULL,
+	`can_connect` tinyint(1) NOT NULL,
+	`can_upload` tinyint(1) NOT NULL,
+	`manage_users` tinyint(1) NOT NULL,
+	`manage_uploads` tinyint(1) NOT NULL,
+	`full_access` tinyint(1) NOT NULL,
+	`max_upload_space` varchar(64) NOT NULL,
+	`max_upload_size` varchar(64) NOT NULL,
+	`default_permission_set` tinyint(1) NOT NULL COMMENT 'True if the current record is part of the default permission system.',
+	PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;"));
+
+continueIfTrue(mysqlRowInsert("users_permissions", "INSERT INTO `users_permissions` (`id`, `name`, `is_disabled`, `can_connect`, `can_upload`, `manage_users`, `manage_uploads`, `full_access`, `max_upload_space`, `max_upload_size`, `default_permission_set`) VALUES
+	(0, 'Admin', 0, 1, 1, 1, 1, 1, '100000000', '100000000', 1),
+	(1, 'User', 0, 1, 1, 0, 0, 0, '100000000', '20000000', 1),
+	(2, 'Banned', 1, 0, 0, 0, 0, 0, '-1', '-1', 1),
+	(3, 'Subscriber', 0, 1, 1, 0, 0, 0, '100000000', '100000000', 1);"));
+
+// Remove old sessions data from table.
+continueIfTrue(mysqlTableAlter("users", "ALTER TABLE `users` DROP `session_key`"));
+
+// Add settings.
+continueIfTrue(mysqlTableAlter("users", "ALTER TABLE `users` ADD `settings` text NOT NULL AFTER `permissions`"));
+
+// Add the directory tree.
+continueIfTrue(mysqlTableAlter("files", "ALTER TABLE `files` ADD`directory` varchar(64) NOT NULL DEFAULT '/' AFTER `url_id`"));
+
+writeInfo("green", "Completed upgrade of MySQL"); ?>
+			</td>
+		</tr>
+		<tr>
+			<td>Upgrading Config File</td>
+			<td><?php
+		$_CONFIG["version"] = "0.2.100";
+		if(saveConfigFile($_CONFIG)){
+			writeInfo("green", "Successfully upgraded configuration file.");
+
+		}else{
+			writeInfo("red", "Failed to upgrade configuration file.");
+			$continue_installation = false;
+		} ?>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<?php
+	return $continue_installation;
 }
 
 ?>

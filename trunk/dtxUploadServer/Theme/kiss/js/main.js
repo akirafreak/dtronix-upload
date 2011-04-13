@@ -128,7 +128,7 @@ var main = {
 		// Attempt to auto login.
 		if(Cookie.read("session_key") != null){
 			this.loginRequest.get({
-				"action": "user_verification"
+				"action": "user:verify"
 			});
 		}
 
@@ -209,7 +209,7 @@ var main = {
 		Cookie.write("client_password", MD5(this.$el.input_password.value));
 
 		this.loginRequest.get({
-			"action": "user_verification"
+			"action": "user:verify"
 		})
 
 	},
@@ -289,7 +289,7 @@ var main = {
 		}
 
 		this.registerRequest.get({
-			"action": "register",
+			"action": "user:register",
 			"args": [username, MD5(pass), email]
 		})
 	},
@@ -320,11 +320,13 @@ var main = {
 			this.$el.register_username.focus();
 
 		}else if(data["function"] == "registration_email_existing"){
-			BumpBar.pushNew("Email already exists.", "red");
+			BumpBar.pushNew("Email already in use on another account.", "red");
 			this.$el.register_email.focus();
 
 		}else if(data["function"] == "registration_success_activated"){
-			BumpBar.pushNew("Account created and activated.  Logging you in...", "green");
+			BumpBar.pushNew("Account created and activated.  Please login.", "green");
+			this.$el.button_cancel_register.fireEvent("click");
+			this.$el.input_username.focus();
 
 		}else if(data["function"] == "registration_failure_server"){
 			BumpBar.pushNew("There was a registration error on the server.  Please contact support about this error.", "red");
@@ -342,7 +344,7 @@ var main = {
 		this.$el.uploaded_files_inject.empty();
 
 		this.loadFilesRequest.get({
-			"action": "load_files_quick",
+			"action": "files:listFiles",
 			"page": page
 		});
 	},
@@ -395,8 +397,8 @@ var main = {
 	fileAction: function(fid, action){
 		if(action == "delete"){
 			this.fileActionRequest.get({
-				"action": "file_delete",
-				"file_id": fid
+				"action": "files:delete",
+				"args": [fid]
 			});
 		}
 	},
@@ -419,7 +421,7 @@ var main = {
 
 	loadUserInfo: function(){
 		this.loadUserInfoRequest.get({
-			"action": "load_user_info"
+			"action": "user:info"
 		});
 	},
 
@@ -452,7 +454,7 @@ var main = {
 
 	logout:function(){
 		this.logoutRequest.get({
-			"action": "logout"
+			"action": "user:logout"
 		});
 	},
 	
