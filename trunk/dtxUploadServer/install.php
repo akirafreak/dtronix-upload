@@ -6,6 +6,7 @@ define("requireParrent", true);
 if(file_exists("functions.php")) require_once("functions.php");
 
 $INSTALL_VAR["download_beta"] = false;
+$INSTALL_VAR["continue_prompt_count"] = 0;
 
 // Determine if we need to upgrade or install.
 if(key_exists("action", $_GET) == false){
@@ -27,6 +28,7 @@ if(key_exists("action", $_GET) == false){
 	continueIfTrue(checkForInstallationFiles());
 	continueIfTrue(initialFileChecks());
 	continueIfTrue(connectToDb());
+	continueIfTrue(continuePrompt());
 	continueIfTrue(upgradeTo_0_2_101());
 
 ?>
@@ -42,7 +44,6 @@ if(key_exists("action", $_GET) == false){
 
 	head(); ?>
 <span class="main_header">Dtronix Upload Server Installer</span><br/><?
-
 	continueIfTrue(checkPHPVersion());
 	continueIfTrue(checkForInstallationFiles());
 	continueIfTrue(initialFileChecks());
@@ -660,6 +661,19 @@ function writeInputCheckbox($name){
 		echo " checked=\"checked\"";
 	}
 	?> /><?php
+}
+
+function continuePrompt(){
+	global $INSTALL_VAR;
+	$current_number = $INSTALL_VAR["continue_prompt_count"]++;
+	?><input type="hidden" name="continue_prompt_<?= $current_number ?>" /><?php
+	if(array_key_exists("continue_prompt_". $current_number, $_POST) == false){
+		return false;
+		
+	}else{
+		return true;
+	}
+
 }
 
 function saveUrl($url, $file_name){
