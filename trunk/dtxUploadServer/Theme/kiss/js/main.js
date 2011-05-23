@@ -46,27 +46,27 @@ var main = {
 			
 		var self = this;
 
-		page: 0,
-
 		this.registerRequest = new Request.JSON({
-			url: "dtxUpload.php" + this.debug,
+			url: this.options.request_url + this.debug,
 			noCache: true,
 			onSuccess: function(data){
-				self.registerActions(data);
-			},
+				var method = this.registerRequest.getHeader("Call-Client-Method");
+				this.registerActions(method, data);
+			}.bind(this),
 			onFailure: function(){
-				self.registerActions({"function": "request_failure"});
-			}
+				this.registerActions("request_failure", null);
+			}.bind(this)
 		});
 
 		this.loginRequest = new Request.JSON({
 			url: this.options.request_url + this.debug,
 			noCache: true,
 			onSuccess: function(data){
-				this.loginActions(data);
+				var method = this.loginRequest.getHeader("Call-Client-Method");
+				this.loginActions(method, data);
 			}.bind(this),
 			onFailure: function(){
-				this.loginActions({"function": "request_failure"});
+				this.loginActions("request_failure", null);
 			}.bind(this)
 		});
 
@@ -74,10 +74,11 @@ var main = {
 			url: this.options.request_url + this.debug,
 			noCache: true,
 			onSuccess: function(data){
-				this.logoutActions(data);
+				var method = this.logoutRequest.getHeader("Call-Client-Method");
+				this.logoutActions(method, data);
 			}.bind(this),
 			onFailure: function(){
-				this.logoutActions({"function": "request_failure"});
+				this.logoutActions("request_failure", null);
 			}.bind(this)
 		});
 
@@ -85,11 +86,12 @@ var main = {
 			url: this.options.request_url + this.debug,
 			noCache: true,
 			onSuccess: function(data){
-				self.loadFilesActions(data);
-			},
+				var method = this.loadFilesRequest.getHeader("Call-Client-Method");
+				this.loadFilesActions(method, data);
+			}.bind(this),
 			onFailure: function(){
-				self.loadFilesActions({"function": "request_failure"});
-			}
+				this.loadFilesActions("request_failure", null);
+			}.bind(this)
 
 		});
 		
@@ -97,11 +99,12 @@ var main = {
 			url: this.options.request_url + this.debug,
 			noCache: true,
 			onSuccess: function(data){
-				self.loadUserInfoActions(data);
-			},
+				var method = this.loadUserInfoRequest.getHeader("Call-Client-Method");
+				this.loadUserInfoActions(method, data);
+			}.bind(this),
 			onFailure: function(){
-				self.loadUserInfoActions({"function": "request_failure"});
-			}
+				this.loadUserInfoActions("request_failure", null);
+			}.bind(this)
 
 		});
 
@@ -109,11 +112,12 @@ var main = {
 			url: this.options.request_url + this.debug,
 			noCache: true,
 			onSuccess: function(data){
-				self.fileActionActions(data);
-			},
+				var method = this.fileActionRequest.getHeader("Call-Client-Method");
+				this.fileActionActions(method, data);
+			}.bind(this),
 			onFailure: function(){
-				self.fileActionActions({"function": "request_failure"});
-			}
+				this.fileActionActions("request_failure", null);
+			}.bind(this)
 		});
 
 		this.$el.register_div.setStyles({
@@ -134,13 +138,20 @@ var main = {
 
 		this.$el.input_username.focus();
 	},
-
+	
+	/**
+	 * Method to quickly add all parameters to the $el property.  Parameters must be element ids
+	 *
+	 */
 	addElements: function(){
 		for(var i = 0; i < arguments.length; i++){
 			this.$el[arguments[i]] = $(arguments[i]);
 		}
 	},
-
+	
+	/**
+	 * Handles all the event registrations for the site.
+	 */
 	eventRegistration:function(){
 
 		// Setup variables for the script.
@@ -196,12 +207,11 @@ var main = {
 
 			return false;
 		});
-
-
-
-		
 	},
-
+	
+	/**
+	 * Login to the site with the credentials provided.
+	 */
 	login: function(){
 		BumpBar.pushNew("Submitting login information...");
 		document.cookie = "";
@@ -213,39 +223,78 @@ var main = {
 		})
 
 	},
-
-	loginActions: function(data){
-		if(data["function"] == "validation_invalid_password"){
-			BumpBar.pushNew("Invalid password provided for username.  Please verify password.", "red");
-			this.$el.input_password.focus();
-
-		}else if(data["function"] == "validation_successful"){
-			this.displayFileInterface();
-			this.$el.login_div.tween("opacity", 0);
-			BumpBar.pushNew("Logged in successfully.  Loading interface...", "green");
-			
-		}else if(data["function"] == "validation_invalid_username"){
-			BumpBar.pushNew("Username entered was invalid.  Please enter a valid username or register.", "red");
-			this.$el.input_username.focus();
-
-		}else if(data["function"] == "validation_expired_user_session"){
-			BumpBar.pushNew("Session has expired.  Please login again.", "red");
-			this.logout();
-
-		}else if(data["function"] == "validation_invalid_user_session"){
-			BumpBar.pushNew("Session is invalid.  Please login again.", "red");
-			this.logout();
-
-		}else if(data["function"] == "validation_failed_no_login"){
-			//The automatic login failed due to no cookies being set.
-
-		}else if(data["function"] == "request_failure"){
-			BumpBar.pushNew("Can not connect to the server at this time.", "red");
-		}else{
-			BumpBar.pushNew("Something has gone horribly wrong.  Please try reloading the page.", "red");
+	
+	/**
+	 * All possible actions to execute for the associated request.
+	 */
+	loginActions: function(method, data){
+		switch(method){
+			case "validation_invalid_password":
+				BumpBar.pushNew("Invalid password provided for username.  Please verify password.", "red");
+				this.$el.input_password.focus();
+				break;
+				
+			case "validation_successful":
+				this.displayFileInterface();
+				this.$el.login_div.tween("opacity", 0);
+				BumpBar.pushNew("Logged in successfully.  Loading interface...", "green");
+				break;
+				
+			case "validation_invalid_username":
+				BumpBar.pushNew("Username entered was invalid.  Please enter a valid username or register.", "red");
+				this.$el.input_username.focus();
+				break;
+				
+			case "validation_expired_user_session":
+				BumpBar.pushNew("Session has expired.  Please login again.", "red");
+				this.logout();
+				break;
+				
+			case "validation_invalid_user_session":
+				BumpBar.pushNew("Session is invalid.  Please login again.", "red");
+				this.logout();
+				break;
+				
+			case "validation_failed_no_login":
+				//The automatic login failed due to no cookies being set.
+				break;
+				
+			default: this.defaultActions(method); break;
 		}
 	},
+	
+	/**
+	 * Actions that can take place on any request are placed in this method.
+	 */
+	defaultActions: function(method){
+		switch(method){
+			case "request_failure":
+				BumpBar.pushNew("Can not connect to the server at this time.", "red");
+				break;
+				
+			case "maintenance_mode":
+				BumpBar.pushNew("The server is currently in maintenance mode and is not allowing logins at this time.", "red");
+				break;
+				
+			case "validation_user_connection_dissabled":
+				BumpBar.pushNew("You are not allowed to connect to your account at this time.", "red", true);
+				this.logoutActions("logout_successful");
+				break;
+				
+			case "validation_account_dissabled":
+				BumpBar.pushNew("Your account has been dissabled pending review.  Please contact support if you think this is in error.", "red", true);
+				this.logoutActions("logout_successful");
+				break;
 
+			default:
+				BumpBar.pushNew("Something has gone horribly wrong.  Please try reloading the page.", "red");
+				break;
+		}
+	},
+	
+	/**
+	 * Register an account on the site.
+	 */
 	register: function(){
 		var username = this.$el.register_username.value;
 		var pass = this.$el.register_password.value;
@@ -253,22 +302,22 @@ var main = {
 		var email = this.$el.register_email.value;
 
 		// Username verification.
-
 		if(username.length < 3){
-			this.registerActions({"function": "registration_username_short"});
+			this.registerActions("registration_username_short");
 			return;
 		}
 		if(username.length > 15){
-			this.registerActions({"function": "registration_username_long"});
+			this.registerActions("registration_username_long");
 			return;
 		}
 		if(!username.test("^[a-zA-Z0-9_-]*$")){
-			this.registerActions({"function": "registration_username_invalid"});
+			this.registerActions("registration_username_invalid");
 			return;
 		}
-
+		
+		// Password validation.
 		if(pass.length < 8){
-			this.registerActions({"function": "registration_password_short"});
+			this.registerActions("registration_password_short");
 			return;
 		}
 		if(pass != repass){
@@ -278,7 +327,7 @@ var main = {
 		}
 		
 		if(!email.test(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i)){
-			this.registerActions({"function": "registration_email_invalid"});
+			this.registerActions("registration_email_invalid");
 			return;
 		}
 
@@ -294,75 +343,97 @@ var main = {
 		})
 	},
 
-	registerActions: function(data){
-		if(data["function"] == "registration_username_long"){
-			BumpBar.pushNew("Username provided was too long.  Please enter a username that is between 3 and 15 characters.", "red");
-			this.$el.register_username.focus();
-
-		}else if(data["function"] == "registration_username_short"){
-			BumpBar.pushNew("Username provided was too short.  Please enter a username that is between 3 and 15 characters.", "red");
-			this.$el.register_username.focus();
-
-		}else if(data["function"] == "registration_username_invalid"){
-			BumpBar.pushNew("Username contains invalid characters.  You are only allowed to use alphanumeric characters, underscore and the dash.", "red");
-			this.$el.register_username.focus();
-
-		}else if(data["function"] == "registration_password_short"){
-			BumpBar.pushNew("Password provided was too short.  Please enter a password that is at least 8 characters.", "red");
-			this.$el.register_password.focus();
-
-		}else if(data["function"] == "registration_email_invalid"){
-			BumpBar.pushNew("Email entered was invalid.", "red");
-			this.$el.register_email.focus();
-
-		}else if(data["function"] == "registration_username_existing"){
-			BumpBar.pushNew("Username already exists.", "red");
-			this.$el.register_username.focus();
-
-		}else if(data["function"] == "registration_email_existing"){
-			BumpBar.pushNew("Email already in use on another account.", "red");
-			this.$el.register_email.focus();
-
-		}else if(data["function"] == "registration_success_activated"){
-			BumpBar.pushNew("Account created and activated.  Please login.", "green");
-			this.$el.button_cancel_register.fireEvent("click");
-			this.$el.input_username.focus();
-
-		}else if(data["function"] == "registration_failure_server"){
-			BumpBar.pushNew("There was a registration error on the server.  Please contact support about this error.", "red");
-
-		}else if(data["function"] == "request_failure"){
-			BumpBar.pushNew("Can not connect to the server at this time.", "red");
-
-		}else{
-			BumpBar.pushNew("Something has gone horribly wrong.  Please try reloading the page.", "red");
+	/**
+	 * All possible actions to execute for the associated request.
+	 */
+	registerActions: function(method, data){
+		switch(method){
+			case "registration_username_long":
+				BumpBar.pushNew("Username provided was too long.  Please enter a username that is between 3 and 15 characters.", "red");
+				this.$el.register_username.focus();
+				break;
+				
+			case "registration_username_short":
+				BumpBar.pushNew("Username provided was too short.  Please enter a username that is between 3 and 15 characters.", "red");
+				this.$el.register_username.focus();
+				break;
+				
+			case "registration_username_invalid":
+				BumpBar.pushNew("Username contains invalid characters.  You are only allowed to use alphanumeric characters, underscore and the dash.", "red");
+				this.$el.register_username.focus();
+				break;
+				
+			case "registration_password_short":
+				BumpBar.pushNew("Password provided was too short.  Please enter a password that is at least 8 characters.", "red");
+				this.$el.register_password.focus();
+				break;
+				
+			case "registration_email_invalid":
+				BumpBar.pushNew("Email entered was invalid.", "red");
+				this.$el.register_email.focus();
+				break;
+				
+			case "registration_username_existing":
+				BumpBar.pushNew("Username already exists.", "red");
+				this.$el.register_username.focus();
+				break;
+				
+			case "registration_email_existing":
+				BumpBar.pushNew("Email already in use on another account.", "red");
+				this.$el.register_email.focus();
+				break;
+				
+			case "registration_success_activated":
+				BumpBar.pushNew("Account created and activated.  Please login.", "green");
+				this.$el.button_cancel_register.fireEvent("click");
+				this.$el.input_username.focus();
+				break;
+				
+			case "registration_failure_server":
+				BumpBar.pushNew("There was a registration error on the server.  Please contact support about this error.", "red");
+				break;
+				
+			default: this.defaultActions(method); break;
 		}
 	},
 
+	/**
+	 * Display the requested page of files to the user.
+	 *
+	 * @param page Page to display.
+	 */
 	loadFiles: function(page){
 		if(page == null) page = 0;
 		this.$el.uploaded_files_inject.empty();
 
 		this.loadFilesRequest.get({
 			"action": "files:listFiles",
-			"page": page
+			"args": [page]
 		});
 	},
 
-	loadFilesActions: function(data){
-		if(data["function"] == "files_uploaded_quick"){
-			this.displayFiles(data.data)
-
-		}else if(data["function"] == "files_uploaded_no_files"){
-
-		}else if(data["function"] == "request_failure"){
-			BumpBar.pushNew("Can not connect to the server at this time.", "red");
-
-		}else{
-			BumpBar.pushNew("Something has gone horribly wrong.  Please try reloading the page.", "red");
+	/**
+	 * All possible actions to execute for the associated request.
+	 */
+	loadFilesActions: function(method, data){
+		switch(method){
+			case "files_uploaded_quick":
+				this.displayFiles(data)
+				break;
+				
+			case "files_uploaded_no_files":
+				break;
+				
+			default: this.defaultActions(method); break;
 		}
+		
 	},
 
+	/**
+	 * Displays all the file information requested to the file container.
+	 * 
+	 * @param file_data Associative array that contains all the requested file information to display.
+	 */
 	displayFiles: function(file_data){
 		var self = this;
 		this.$el.uploaded_files_inject.empty();
@@ -394,6 +465,12 @@ var main = {
 		}, this);
 	},
 	
+	/**
+	 * ececute an action on a specific file.
+	 * 
+	 * @param fid File ID.  URL ID.
+	 * @param action Action to perform on the file. List: [delete].
+	 */
 	fileAction: function(fid, action){
 		if(action == "delete"){
 			this.fileActionRequest.get({
@@ -403,31 +480,40 @@ var main = {
 		}
 	},
 
-	fileActionActions: function(data){
-		if(data["function"] == "file_delete_confirmation"){
-			BumpBar.pushNew("File deleted. Reloading files.", "green");
-			this.loadFiles(this.page);
-
-		}else if(data["function"] == "file_delete_failure"){
-			BumpBar.pushNew("Unable to delete file.  Please contact support.", "red");
-
-		}else if(data["function"] == "request_failure"){
-			BumpBar.pushNew("Can not connect to the server at this time.", "red");
-
-		}else{
-			BumpBar.pushNew("Something has gone horribly wrong.  Please try reloading the page.", "red");
+	/**
+	 * All possible actions to execute for the associated request.
+	 */
+	fileActionActions: function(method, data){
+		switch(method){
+			case "file_delete_confirmation":
+				BumpBar.pushNew("File deleted. Reloading files.", "green");
+				this.loadFiles(this.page);
+				break;
+				
+			case "file_delete_failure":
+				BumpBar.pushNew("Unable to delete file.  Please contact support.", "red");
+				break;
+				
+			default: this.defaultActions(method); break;
 		}
 	},
-
+	
+	/**
+	 * Requests all the connected user's information.
+	 */
 	loadUserInfo: function(){
 		this.loadUserInfoRequest.get({
 			"action": "user:info"
 		});
 	},
 
-	loadUserInfoActions: function(data){
-		if(data["function"] == "user_info"){
-			var info = data.data;
+	/**
+	 * All possible actions to execute for the associated request.
+	 */
+	loadUserInfoActions: function(method, data){
+		switch(method){
+			case "user_info":
+			var info = data;
 
 			this.options.upload_base_url = info.upload_base_url;
 			this.$el.user_info_link.innerHTML = info.username;
@@ -436,45 +522,50 @@ var main = {
 			this.$el.info_max_upload_size.innerHTML = info.max_upload_size + "KB";
 
 			this.loadFiles(0);
-
-		}else if(data["function"] == "request_failure"){
-			BumpBar.pushNew("Can not connect to the server at this time.", "red");
-
-		}else{
-			BumpBar.pushNew("Something has gone horribly wrong.  Please try reloading the page.", "red");
+			break;
+			
+			default: this.defaultActions(method); break;
 		}
+		
 	},
-
+	
+	/**
+	 * Displays the file container.
+	 */
 	displayFileInterface: function(){
 		this.loadUserInfo();
 
 		this.$el.user_info_link.innerHTML = ""
 		this.$el.files_container.setStyle("display", "block");
 	},
-
+	
+	/**
+	 * Forces the current user to logout and the server to delete the current session.
+	 */
 	logout:function(){
 		this.logoutRequest.get({
 			"action": "user:logout"
 		});
 	},
 	
-	logoutActions: function(data){
-		if(data["function"] == "logout_successful"){
-			Cookie.dispose("session_key");
-			this.$el.files_container.setStyle("display", "none");
-			this.$el.login_div.tween("opacity", 1);
-			BumpBar.pushNew("Logged out.", "green");
-
-		}else if(data["function"] == "logout_failed"){
-			BumpBar.pushNew("Unable to log you out from the server.  Please contact support.", "red");
-
-		}else if(data["function"] == "request_failure"){
-			BumpBar.pushNew("Can not connect to the server at this time.", "red");
-
-		}else{
-			BumpBar.pushNew("Something has gone horribly wrong.  Please try reloading the page.", "red");
+	/**
+	 * All possible actions to execute for the associated request.
+	 */
+	logoutActions: function(method, data){
+		switch(method){
+			case "logout_successful":
+				Cookie.dispose("session_key");
+				this.$el.files_container.setStyle("display", "none");
+				this.$el.login_div.tween("opacity", 1);
+				BumpBar.pushNew("Logged out.", "green");
+				break;
+				
+			case "logout_failed":
+				BumpBar.pushNew("Unable to log you out from the server.  Please contact support.", "red");
+				break;
+			
+			default: this.defaultActions(method); break;
 		}
-
 	}
 
 };
@@ -492,8 +583,15 @@ var BumpBar = {
 			this.$el.bar_container = $("BumpBar");
 		}
 	},
-
-	pushNew: function(text, color){
+	
+	/**
+	 * Displays a new bar on the screen.
+	 * 
+	 * @param text The text to display on the bar.  Accepts HTML
+	 * @param color Hex color or text color.
+	 * @param permanent True if the user must click on the bar to clear its text.
+	 */
+	pushNew: function(text, color, permanent){
 		switch(color){
 			case "red":color = "#ad0000";break;
 			case "green":color = "#00ad01";break;
@@ -533,8 +631,10 @@ var BumpBar = {
 			"opacity": 1,
 			"bottom": 0
 		});
-
-		destroy_bar.delay(self.options.screen_time);
+		
+		// If the bar is meant to stay on the screen for good, do not have the bar be auto destroyed.
+		if(!permanent)
+			destroy_bar.delay(self.options.screen_time);
 	}
 }
 

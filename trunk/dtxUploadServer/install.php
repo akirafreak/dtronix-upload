@@ -30,10 +30,10 @@ if(key_exists("action", $_GET) == false){
 	continueIfTrue(connectToDb());
 	continueIfTrue(continuePrompt());
 	continueIfTrue(upgradeTo_0_2_101());
-
+	require("install.info.php")
 ?>
 <input type="hidden" name="delete_installation_files" value="true" />
-<span style="font-size: 18px; color: green;">Upgrade to Complete!</span><br/><?php
+<span style="font-size: 18px; color: green;">Upgrade to Version <?= $_INSTALL_INFO["version"] ?> Complete!</span><br/><?php
 	foot("Delete Installaion Files");
 
 }else if($_GET["action"] == "install"){
@@ -124,10 +124,10 @@ function checkForInstallationFiles(){
 					if(!isset($_GET["force_download"])){
 						writeInfo("red", "Required installation files do not exist.");
 					}
-					if(!saveUrl($download_server ."dtxUpload.php?action=install_file_data", "install.data.php")){
+					if(!saveUrl($download_server ."dtxUpload.php?action=installer:fileDataDownload", "install.data.php")){
 						$continue_installation = false;
 					}
-					if(!saveUrl($download_server ."dtxUpload.php?action=install_file_info", "install.info.php")){
+					if(!saveUrl($download_server ."dtxUpload.php?action=installer:fileInfoDownload", "install.info.php")){
 						$continue_installation = false;
 					}
 				}
@@ -176,6 +176,7 @@ function checkForInstallationFiles(){
 					}else{
 						if(mkdir($base_dir . $dir, 0777, true)){
 							writeInfo("green", "Created folder \"". $base_dir . $dir ."\"");
+							$continue_installation = false;
 
 						}else{
 							writeInfo("red", "Failed creating folder \"". $base_dir . $dir ."\"");
@@ -188,6 +189,7 @@ function checkForInstallationFiles(){
 					$file = base64_decode($base64_file);
 					if(file_put_contents($base_dir . $file_name, $file) === false){
 						writeInfo("red", "Failed creating file \"". $file_name ."\"");
+						$continue_installation = false;
 
 					}else{
 						writeInfo("green", "Created file \"". $file_name ."\"");
@@ -315,17 +317,22 @@ function basicConfigurations(){
 				<td><?php writeInputText("basic_serverName", ""); ?></td>
 			</tr>
 			<tr>
+				<td>Server Timezone <a href="http://en.wikipedia.org/wiki/Time_zone">(+- From UTC)</a>:</td>
+				<td><?php writeInputText("basic_serverTimezone", "-5"); ?></td>
+			</tr>
+			<tr>
 				<td>Server Email:</td>
 				<td><?php writeInputText("basic_serverEmail", ""); ?></td>
 			</tr>
 		</tbody>
+
 	</table>
 <?php
 	// Require this again when the files are just uncompressed.
 	if(file_exists("functions.php")) require_once("functions.php");
 	
 	// Do not continue untill all the required information is filled in.
-	if(!array_keys_exists($_POST, array("basic_baseUrl", "basic_baseDir"), false)){
+	if(!array_keys_exists($_POST, array("basic_baseUrl", "basic_baseDir", "basic_serverTimezone"), false)){
 		return false;
 	}
 	return $continue_installation;
@@ -508,6 +515,7 @@ function configFileCreation(){
 	$_CONFIG["server_name"] = $_POST["basic_serverName"];
 	$_CONFIG["server_email"] = $_POST["basic_serverEmail"];
 	$_CONFIG["server_logo"] = false;
+	$_CONFIG["server_timezone"] = $_POST["basic_serverTimezone"];
 
 	$_CONFIG["html_theme"] = "kiss";
 
@@ -682,7 +690,7 @@ function saveUrl($url, $file_name){
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_HEADER, false);
-	//curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip,deflate'));
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip,deflate'));
 	curl_setopt($curl, CURLOPT_ENCODING, 1);
 
 
@@ -733,7 +741,7 @@ function upgradeTo_0_2_101(){
 
 	$continue_installation = true; ?>
 <br />
-<span style="font-size: 18px;">Upgrading To Version 0.2.100</span>
+<span style="font-size: 18px;">Upgrading To Version 0.2.101</span>
 <table>
 	<tbody valign="top">
 		<tr>
