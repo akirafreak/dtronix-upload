@@ -9,7 +9,7 @@ class Installer extends SectionBase{
 	public function fileInfoDownload(){
 		$this->isBroadcasting();
 		
-		die(file_get_contents($this->_CONFIG["dir"] . "install.info.php"));
+		die(file_get_contents($this->CONFIG["dir"] . "install.info.php"));
 	}
 
 	/**
@@ -21,7 +21,7 @@ class Installer extends SectionBase{
 		// Turn off the default gzip ob since the install.data is already GZ compressed.
 		ob_end_clean();
 		header("Content-Encoding: gzip");
-		die(file_get_contents($this->_CONFIG["dir"] . "install.data"));
+		die(file_get_contents($this->CONFIG["dir"] . "install.data"));
 	}
 
 	/**
@@ -30,7 +30,7 @@ class Installer extends SectionBase{
 	public function version(){
 		$this->isBroadcasting();
 		
-		include($this->_CONFIG["dir"] . "install.info.php");
+		include($this->CONFIG["dir"] . "install.info.php");
 		die($_INSTALL_INFO["version"]);
 	}
 	
@@ -38,7 +38,7 @@ class Installer extends SectionBase{
 	 * 
 	 */
 	private function isBroadcasting(){
-		if(!$this->_CONFIG["update_broadcast"]) die("10|Server does not broadcast updates.");
+		if(!$this->CONFIG["update_broadcast"]) die("10|Server does not broadcast updates.");
 	}
 }
 

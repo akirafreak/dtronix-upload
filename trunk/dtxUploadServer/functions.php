@@ -1,14 +1,35 @@
 <?php
 
+function performRuntimeChecks(){
+	
+	// This removes the slashes in the request stream that PHP put in.
+	// TODO: Figure out a way to let the user know that this needs to be configured properly.
+	if(get_magic_quotes_gpc()){
+		$process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
+		while (list($key, $val) = each($process)) {
+			foreach ($val as $k => $v) {
+				unset($process[$key][$k]);
+				if (is_array($v)) {
+					$process[$key][stripslashes($k)] = $v;
+					$process[] = &$process[$key][stripslashes($k)];
+				} else {
+					$process[$key][stripslashes($k)] = stripslashes($v);
+				}
+			}
+		}
+		unset($process);
+	}
+}
+
 /**
  * Function to handle the sending of data to the connected client.
  *
- * @global array $_USER Variable that contains all the current user information.
+ * @global array $USER Variable that contains all the current user information.
  * @param string $client_method Method to call on the connected client.
  * @param mixed $send_data Data to be sent to the client.
  */
-function callClientMethod($client_method, $send_data = null){
-	global $_USER;
+function returnClientData($client_method, $send_data = false){
+	global $USER;
 	header("Call-Client-Method: ". $client_method);
 	die(json_encode($send_data));
 }
@@ -17,6 +38,7 @@ function callClientMethod($client_method, $send_data = null){
  * Error handler to send the error to the connected client.
  *
  * @param int $number PHP error number
+ * 
  * @param string $text Text of the exact error.
  * @param string $file File the error occured in.
  * @param string $line Line number that the error occured on.
@@ -26,7 +48,7 @@ function callClientMethod($client_method, $send_data = null){
 function errorHandler($number, $text, $file, $line, $raw_error = null){
 		//if($errno == E_STRICT) return false;
 		//if($errno == E_WARNING) return false;
-		callClientMethod("error_server", array(
+		returnClientData("server_error", array(
 			"error_type" => $number,
 			"error_info" => $text,
 			"error_file" => $file,
@@ -42,12 +64,12 @@ function errorHandler($number, $text, $file, $line, $raw_error = null){
  *
  * Will also handle fatal errors and encode them in JSON format and send them to the client.
  *
- * @global array $_USER Variable that contains all the current user information.
+ * @global array $USER Variable that contains all the current user information.
  */
 function shutdownFunction(){
-	global $_USER;
+	global $USER;
 	
-	if($_USER["client"] == 1){
+	if($USER["client"] == 1){
 		if(($error = error_get_last())){
 			// Make sure that we are not erasing anything important...
 			$raw = ob_get_contents();

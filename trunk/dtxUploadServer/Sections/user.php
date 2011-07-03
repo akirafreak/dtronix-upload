@@ -11,9 +11,9 @@ class User extends SectionBase{
 	 * Validate that the user is logged in.
 	 */
 	public function verify(){
-		$this->validateUser();
+		$this->validateConnection();
 		
-		callClientMethod("validation_successful");
+		returnClientData("validation_successful");
 	}
 
 	
@@ -25,23 +25,23 @@ class User extends SectionBase{
 	 * @param string $email User email address.
 	 */
 	public function register($username, $password, $email){
-		if(!count($this->_QUERY) == 3)
-			callClientMethod("registration_failure_server");
+		if($username == null || $password == null || $email == null)
+			returnClientData("registration_failure_server");
 
 		if(strlen($username) < 3)
-			callClientMethod("registration_username_short");
+			returnClientData("registration_username_short");
 
 		if(strlen($username) > 15)
-			callClientMethod("registration_username_long");
+			returnClientData("registration_username_long");
 		
 		if(!preg_match("/^[a-zA-Z0-9_-]*$/", $username))
-			callClientMethod("registration_username_invalid");
+			returnClientData("registration_username_invalid");
 		
 		if(!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i", $email))
-			callClientMethod("registration_email_invalid");
+			returnClientData("registration_email_invalid");
 
 		// Check to see if the user is the first user registered.  If so, make him an admin.
-		$is_registered_users = $this->_SQL->queryHasRows("SELECT `id`
+		$is_registered_users = $this->SQL->hasRows("SELECT `id`
 			FROM `users`
 			LIMIT 1;");
 
@@ -61,7 +61,7 @@ class User extends SectionBase{
 	 * @param int $uid User ID of the account to modify.  The current user must have the `manage_users` permission.
 	 */
 	public function setSetting($name, $value, $uid = false){
-		$this->validateUser();
+		$this->validateConnection();
 		$settings = array();
 		$account = $this->getAccount($uid);
 
@@ -73,16 +73,16 @@ class User extends SectionBase{
 		$settings[$name] = $value;
 		$json_string = json_encode($settings);
 		
-		$successful = $this->_SQL->updateSafe("users", array(
+		$successful = $this->SQL->update("users", array(
 			"settings" => $json_string
 		), "WHERE `id` = '%s'", array(
 			$account["id"]
 		));
 
 		if($successful){
-			callClientMethod("user_setting_set_successful");
+			returnClientData("user_setting_set_successful");
 		}else{
-			callClientMethod("user_setting_set_failure");
+			returnClientData("user_setting_set_failure");
 		}
 	}
 	
@@ -93,7 +93,7 @@ class User extends SectionBase{
 	 * @param int $uid User ID of the account to modify.  The current user must have the `manage_users` permission.
 	 */
 	public function getSetting($name, $uid = false){
-		$this->validateUser();
+		$this->validateConnection();
 		$settings = array();
 		$account = $this->getAccount($uid);
 
@@ -103,9 +103,9 @@ class User extends SectionBase{
 		}
 
 		if($successful){
-			callClientMethod("user_setting_get_successful", array($name, $settings[$name]));
+			returnClientData("user_setting_get_successful", array($name, $settings[$name]));
 		}else{
-			callClientMethod("user_setting_get_failure");
+			returnClientData("user_setting_get_failure");
 		}
 	}
 	
@@ -116,22 +116,22 @@ class User extends SectionBase{
 	 * @param int $uid User ID of the account to modify.  The current user must have the `manage_users` permission.
 	 */
 	public function changePassword($new_password, $uid = false){
-		$this->validateUser();
+		$this->validateConnection();
 		$settings = array();
 		$account = $this->getAccount($uid);
 		if(strlen($new_password) < 16)
-			callClientMethod("invalid_request");
+			returnClientData("invalid_request");
 		
-		$successful = $this->_SQL->updateSafe("users", array(
+		$successful = $this->SQL->update("users", array(
 			"password" => md5($new_password)
 		), "WHERE `id` = '%s'", array(
 			$account["id"]
 		));
 		
 		if($successful){
-			callClientMethod("user_change_password_successful", array($name, $settings[$name]));
+			returnClientData("user_change_password_successful", array($name, $settings[$name]));
 		}else{
-			callClientMethod("user_change_password_failure");
+			returnClientData("user_change_password_failure");
 		}
 	}
 	
@@ -141,7 +141,7 @@ class User extends SectionBase{
 	 * @param int $uid User ID of the account to modify.  The current user must have the `manage_users` permission if deleting another account.
 	 */
 	public function deleteAccount($uid = false){
-		callClientMethod("method_not_implemented", array(__CLASS__, __FUNCTION__));
+		returnClientData("method_not_implemented", array(__CLASS__, __FUNCTION__));
 	}
 	
 	/**
@@ -151,7 +151,7 @@ class User extends SectionBase{
 	 * @param int $uid User ID of the account to modify.  The current user must have the `manage_users` permission.
 	 */
 	public function banAccount($length, $uid = false){
-		callClientMethod("method_not_implemented", array(__CLASS__, __FUNCTION__));
+		returnClientData("method_not_implemented", array(__CLASS__, __FUNCTION__));
 	}
 
 	/**
@@ -163,21 +163,21 @@ class User extends SectionBase{
 	 * @param int $uid User ID of the account to retrieve the info of.  The current user must have the `manage_users` permission.
 	 */
 	public function info($uid = false){
-		$this->validateUser();
+		$this->validateConnection();
 		
 		// Retrieve the requested user's account information.
 		$account = $this->getAccount($uid);
 
-		callClientMethod("user_info", array(
+		returnClientData("user_info", array(
 			"id" => $account["id"],
 			"username" => $account["username"],
 			"registration_date" => $account["registration_date"],
-			"email" => $this->_USER["email"],
+			"email" => $this->USER["email"],
 			"total_files_uploaded" => $account["total_files_uploaded"],
 			"total_uploaded_filesizes" => $account["total_uploaded_filesizes"],
 			"max_upload_space" => $this->getPermission("max_upload_space", $account["id"]),
 			"max_upload_size" => $this->getPermission("max_upload_size", $account["id"]),
-			"upload_base_url" => $this->_CONFIG["upload_base_url"]
+			"upload_base_url" => $this->CONFIG["upload_base_url"]
 		));
 	}
 	
@@ -185,16 +185,16 @@ class User extends SectionBase{
 	 * Method to logout the current user and remove the session from the active session list.
 	 */
 	public function logout(){
-		$this->validateUser();
+		$this->validateConnection();
 		
-		$logged_out = $this->_SQL->querySuccessful("DELETE FROM `sessions`
+		$logged_out = $this->SQL->successful("DELETE FROM `sessions`
 			WHERE `session` = '%s'
-			LIMIT 1;", array($this->_USER["session"]));
+			LIMIT 1;", array($this->USER["session"]));
 
 		if($logged_out){
-			callClientMethod("logout_successful");
+			returnClientData("logout_successful");
 		}else{
-			callClientMethod("logout_failed");
+			returnClientData("logout_failed");
 		}
 	}
 	
@@ -212,36 +212,36 @@ class User extends SectionBase{
 	 */
 	private function create($username, $password, $email, $permissions = 1){
 
-		$existing_user = $this->_SQL->queryHasRows("SELECT * FROM `users`
+		$existing_user = $this->SQL->hasRows("SELECT * FROM `users`
 			WHERE `username` = '%s'
 			LIMIT 1;", array($username));
 
 		if($existing_user != false){
-			callClientMethod("registration_username_existing");
+			returnClientData("registration_username_existing");
 		}
 
-		$existing_email = $this->_SQL->queryHasRows("SELECT * FROM `users`
+		$existing_email = $this->SQL->hasRows("SELECT * FROM `users`
 			WHERE `email` = '%s'
 			LIMIT 1;", array($email));
 
 		if($existing_email != false){
-			callClientMethod("registration_email_existing");
+			returnClientData("registration_email_existing");
 		}
 
-		$successful = $this->_SQL->insert("users", array(
+		$successful = $this->SQL->insert("users", array(
 			"id" => null,
 			"username" => $username,
 			"password" => md5($password),
-			"registration_date" => MySQL::func("CURDATE()"),
+			"registration_date" => time(),
 			"email" => $email,
 			"permissions" => $permissions
 		));
 
 		if($successful == 1){
-			callClientMethod("registration_success_activated");
+			returnClientData("registration_success_activated");
 
 		}else{
-			callClientMethod("registration_failure_server");
+			returnClientData("registration_failure_server");
 		}
 	}
 	
@@ -254,14 +254,14 @@ class User extends SectionBase{
 	 * @param int $uid false to retrieve the current user's account.
 	 */
 	private function getAccount($uid){
-		if($uid == false || $this->_USER["id"] == $uid){
-			$user_lookup = $this->_USER;
+		if($uid == false || $this->USER["id"] == $uid){
+			$user_lookup = $this->USER;
 			
 		}else{
 			if(!$this->getPermission("manage_users"))
-				callClientMethod("validation_manage_users");
+				returnClientData("validation_manage_users");
 					
-			$user_lookup = $this->_SQL->queryFetchRow("SELECT * 
+			$user_lookup = $this->SQL->fetchRow("SELECT * 
 				FROM `users` 
 				WHERE `id` = '%s' 
 				LIMIT 1;", array(
@@ -269,7 +269,7 @@ class User extends SectionBase{
 				));
 			
 			if($user_lookup == false)
-				callClientMethod("user_info_invalid_user");
+				returnClientData("user_info_invalid_user");
 		}
 		
 		return $user_lookup;

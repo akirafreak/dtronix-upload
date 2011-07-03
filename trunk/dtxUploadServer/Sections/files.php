@@ -16,10 +16,10 @@ class Files extends SectionBase{
 	 * @return bool True if file exists, otherwise false.
 	 */
 	public function exist($url_id){
-		$this->validateUser(true);
+		$this->validateConnection(true);
 
 		// TODO: Add any checks to see if the file is visible?
-		return file_exists($this->_CONFIG["upload_dir"] . $url_id);
+		return file_exists($this->CONFIG["upload_dir"] . $url_id);
 	}
 
 
@@ -36,17 +36,17 @@ class Files extends SectionBase{
 	 * @todo Limit the ammount of files that can be queried this way.
 	 */
 	public function listDirectory($directory){
-		$this->validateUser();
+		$this->validateConnection();
 
-		$files = $this->_SQL->queryFetchRows("SELECT `file_name`, `upload_date`, `file_size`, `last_accessed`, `url_id`, `directory`
+		$files = $this->SQL->fetchRows("SELECT `file_name`, `upload_date`, `file_size`, `last_accessed`, `url_id`, `directory`
 			FROM `files`
 			WHERE `owner_id` = '%s'
 			AND `directory` = '%s'", array(
-				$this->_USER["id"],
+				$this->USER["id"],
 				$directory
 			));
 
-		callClientMethod("directory_contents", $files);
+		returnClientData("directory_contents", $files);
 	}
 
 	/**
@@ -64,21 +64,21 @@ class Files extends SectionBase{
 	 * </code>
 	 */
 	public function renameDirectory($directory, $new_directory){
-		$this->validateUser();
+		$this->validateConnection();
 
 		$this->validateDirectoryName($new_directory);
 
-		$successful = $this->_SQL->updateSafe("files", array(
+		$successful = $this->SQL->update("files", array(
 			"directory" => $new_directory
 		), "WHERE `owner_id` = '%s' AND `directory` = '%s'", array(
-			$this->_USER["id"],
+			$this->USER["id"],
 			$directory
 		));
 
 		if($successful){
-			callClientMethod("directory_rename_confirmation", array($directory, $new_directory));
+			returnClientData("directory_rename_confirmation", array($directory, $new_directory));
 		}else{
-			callClientMethod("directory_rename_failure", "Could not rename directory.");
+			returnClientData("directory_rename_failure", "Could not rename directory.");
 		}
 	}
 
@@ -97,21 +97,21 @@ class Files extends SectionBase{
 	 * </code>
 	 */
 	public function move($url_id, $new_directory){
-		$this->validateUser();
+		$this->validateConnection();
 		
 		$this->validateDirectoryName($new_directory);
 
-		$successful = $this->_SQL->updateSafe("files", array(
+		$successful = $this->SQL->update("files", array(
 			"directory" => $new_directory
 		), "WHERE `owner_id` = '%s' AND `url_id` = '%s'", array(
-			$this->_USER["id"],
+			$this->USER["id"],
 			$url_id
 		));
 
 		if($successful){
-			callClientMethod("file_move_confirmation", array($url_id, $new_directoryy));
+			returnClientData("file_move_confirmation", array($url_id, $new_directoryy));
 		}else{
-			callClientMethod("file_move_failure", "Could not move file.  Most likely your permissions have been revoked for this file.");
+			returnClientData("file_move_failure", "Could not move file.  Most likely your permissions have been revoked for this file.");
 		}
 	}
 	
@@ -128,10 +128,10 @@ class Files extends SectionBase{
 	 */
 	private function validateDirectoryName($directory){
 		if(preg_match("/[^A-Za-z0-9\s_-]/", $directory) == true)
-			callClientMethod("directory_invalid_name", "You are only allowed to use Space, A-Z, 0-9, Underscore and dash.");
+			returnClientData("directory_invalid_name", "You are only allowed to use Space, A-Z, 0-9, Underscore and dash.");
 
 		if(strlen($directory) > 64)
-			callClientMethod("directory_too_long", "The total combined directory length depth is too long.  Max 64 characters including \"/\".");
+			returnClientData("directory_too_long", "The total combined directory length depth is too long.  Max 64 characters including \"/\".");
 	}
 
 
@@ -147,18 +147,18 @@ class Files extends SectionBase{
 	 * </code>
 	 */
 	public function info($url_id){
-		$this->validateUser();
+		$this->validateConnection();
 
-		$file = $this->_SQL->queryFetchRow("SELECT `file_name`, `upload_date`, `file_size`, `last_accessed`, `url_id`
+		$file = $this->SQL->fetchRow("SELECT `file_name`, `upload_date`, `file_size`, `last_accessed`, `url_id`
 			FROM `files`
 			WHERE `owner_id` = '%s'
 			AND `url_id` LIKE BINARY '%s'
 			LIMIT 1;", array(
-				$this->_USER["id"],
+				$this->USER["id"],
 				$url_id
 			));
 
-		callClientMethod("file_info", $file);
+		returnClientData("file_info", $file);
 	}
 
 	/**
@@ -173,26 +173,26 @@ class Files extends SectionBase{
 	 * </code>
 	 */
 	public function listFiles($start){
-		$this->validateUser();
+		$this->validateConnection();
 
 		// The total pages into the list to go.
 		$files_per_page = 60;
 
-		$files = $this->_SQL->queryFetchRows("SELECT `url_id`, `upload_date`, `file_name`
+		$files = $this->SQL->fetchRows("SELECT `url_id`, `upload_date`, `file_name`, `file_size`
 			FROM `files`
 			WHERE `owner_id` = '%s' AND `is_visible` = '1'
 			ORDER BY `upload_date` DESC
 			LIMIT %s , %s", array(
-				$this->_USER["id"],
+				$this->USER["id"],
 				$start * $files_per_page,
 				($start * $files_per_page) + $files_per_page
 			));
 
 		if($files != false){
-			callClientMethod("files_uploaded_quick", $files);
+			returnClientData("files_uploaded_quick", $files);
 
 		}else{
-			callClientMethod("files_uploaded_no_files");
+			returnClientData("files_uploaded_no_files");
 		}
 	}
 
@@ -209,54 +209,55 @@ class Files extends SectionBase{
 	 * </code>
 	 */
 	public function delete($url_ids){
-		$this->validateUser();
+		$this->validateConnection();
 		$delete_list = explode(";", $url_ids);
 		$build_inner_query = "";
 		$query_array = array();
 
 		// Check for file ownership
 		$owner_files = $this->isOwner($delete_list);
+		
+		
 
 		// Start building the query to delete all rows associated with the file.
 		foreach($owner_files as $url_id => $is_owner){
 			if(!$is_owner)
-				callClientMethod("file_delete_failure_owner", $url_id);
+				returnClientData("file_delete_failure_owner", $url_id);
 
 			$query_array[] = $url_id;
-			$build_inner_query += "`url_id` LIKE BINARY '%s' OR ";
+			$build_inner_query .= "`url_id` LIKE BINARY '%s' OR ";
 
-			if(file_exists($this->_CONFIG["upload_dir"] . $url_id))
-				unlink($this->_CONFIG["upload_dir"] . $url_id);
+			if(file_exists($this->CONFIG["upload_dir"] . $url_id))
+				unlink($this->CONFIG["upload_dir"] . $url_id);
 		}
 
 		// Truncate the late "OR " off the end of the string.
 		$build_inner_query = substr($build_inner_query, 0, -3);
-
-		$deleted = $this->_SQL->querySuccessful("DELETE FROM `files`
+		$deleted = $this->SQL->successful("DELETE FROM `files`
 			WHERE ". $build_inner_query,
 			$query_array);
 		
 		// Get the user's current file info.
-		$update_user_info = $this->_SQL->queryFetchResult("sum(`file_size`), count(`file_size`)
+		$update_user_info = $this->SQL->fetchResult("SELECT sum(`file_size`), count(`file_size`)
 			FROM `files`
 			WHERE `owner_id` = '%s'",
 			array(
-				$this->_USER["id"]
+				$this->USER["id"]
 			));
 
 		// Ensure that the query successfully deleted the associated rows.
 		if(!$deleted)
-			callClientMethod("file_delete_failure");
+			returnClientData("file_delete_failure");
 
 		// Update the user's stats.
-		$this->_SQL->updateSafe("users", array(
+		$this->SQL->update("users", array(
 			"total_uploaded_filesizes" => $update_user_info[0],
 			"total_files_uploaded" => $update_user_info[1]),
 			"WHERE `id` = '%s'", array(
-				$this->_USER["id"]
+				$this->USER["id"]
 			));
 
-		callClientMethod("file_delete_confirmation");
+		returnClientData("file_delete_confirmation");
 	}
 
 	/**
@@ -271,32 +272,32 @@ class Files extends SectionBase{
 	 * </code>
 	 */
 	public function upload(){
-		$this->validateUser();
+		$this->validateConnection();
 		
 		//callClientMethod("error", $_FILES);
 		// Check to see if this file exceeds the maximum size alotted.
-		$total_used_space = $this->_USER["total_uploaded_filesizes"] + $_FILES["file"]["size"];
-		if($total_used_space > getPermission("max_upload_space")){
-			callClientMethod("upload_failed_exceeded_toal_used_space", array( $total_used_space, getPermission("max_upload_space")));
+		$total_used_space = $this->USER["total_uploaded_filesizes"] + $_FILES["file"]["size"];
+		if($total_used_space > $this->getPermission("max_upload_space")){
+			returnClientData("upload_failed_exceeded_toal_used_space", array( $total_used_space, $this->getPermission("max_upload_space")));
 		}
 
-		if($_FILES["file"]["size"] > getPermission("max_upload_size")){
-			callClientMethod("upload_failed_exceeded_file_size");
+		if($_FILES["file"]["size"] > $this->getPermission("max_upload_size")){
+			returnClientData("upload_failed_exceeded_file_size");
 		}
 
 		$url_id = $this->createNewId();
-
-		if(move_uploaded_file($_FILES["file"]["tmp_name"], $this->_CONFIG["upload_dir"] . $url_id))
-			callClientMethod("upload_failed_could_not_handle_file");
+		
+		if(!move_uploaded_file($_FILES["file"]["tmp_name"], $this->CONFIG["upload_dir"] . $url_id))
+			returnClientData("upload_failed_could_not_handle_file");
 
 		$file_parts = explode(".", $_FILES["file"]["name"]);
 		$file_extention = strtolower($file_parts[count($file_parts) - 1]);
-		$file_mime = (array_key_exists($file_extention, $this->_MIMES))? $this->_MIMES[$file_extention] : $_FILES["file"]["type"];
+		$file_mime = (array_key_exists($file_extention, $this->MIMES))? $this->MIMES[$file_extention] : $_FILES["file"]["type"];
 
-		$inserted = $this->_SQL->insert("files", array(
-			"owner_id" => $this->_USER["id"],
+		$inserted = $this->SQL->insert("files", array(
+			"owner_id" => $this->USER["id"],
 			"url_id" => $url_id,
-			"upload_date" => MySQL::func("NOW()"),
+			"upload_date" => time(),
 			"is_public" => 1,
 			"is_public" => 1,
 			"is_visible" => 1,
@@ -309,16 +310,16 @@ class Files extends SectionBase{
 		));
 
 		if(!$inserted)
-			callClientMethod("upload_failed_db_error");
+			returnClientData("upload_failed_db_error");
 
-		$this->_SQL->updateSafe("users", array(
+		$this->SQL->update("users", array(
 			"total_uploaded_filesizes" => $total_used_space,
-			"total_files_uploaded" => $this->_USER["total_files_uploaded"] + 1
+			"total_files_uploaded" => $this->USER["total_files_uploaded"] + 1
 		), "WHERE `id` = '%s'", array(
-			$this->_USER["id"]
+			$this->USER["id"]
 		));
 
-		callClientMethod("upload_successful", array(
+		returnClientData("upload_successful", array(
 			"url_id" => $url_id,
 			"is_visible" => true,
 			"file_status" => 2
@@ -334,7 +335,7 @@ class Files extends SectionBase{
 	 */
 	public function view($url_id){
 
-		$file = $this->_SQL->queryFetchRow("SELECT * FROM `files`
+		$file = $this->SQL->fetchRow("SELECT * FROM `files`
 			WHERE `url_id` LIKE BINARY '%s'
 			LIMIT 1", array($url_id));
 
@@ -343,15 +344,15 @@ class Files extends SectionBase{
 			die("File does not exist.");
 
 		// Update the stats for the file.
-		$this->_SQL->updateSafe("files", array(
-			"last_accessed" => MySQL::func("NOW()"),
+		$this->SQL->update("files", array(
+			"last_accessed" => time(),
 			"total_views" => $file["total_views"] + 1
 		), "WHERE `id` LIKE BINARY '%s'", array(
 			$file["id"]
 		));
 
 		// Determine if the file exists on the file system.
-		if(!file_exists($this->_CONFIG["upload_dir"] . $file["url_id"]))
+		if(!file_exists($this->CONFIG["upload_dir"] . $file["url_id"]))
 			die("File does not exist.");
 
 		// Set the mime type.
@@ -361,7 +362,7 @@ class Files extends SectionBase{
 		if(strpos($file["file_mime"], "image") === false && strpos($file["file_mime"], "text/plain") === false){
 			header("Content-Transfer-Encoding: binary");
 
-			$this->outputFile($this->_CONFIG["upload_dir"] . $url_id, basename($file["file_name"]), $file["file_mime"], true);
+			$this->outputFile($this->CONFIG["upload_dir"] . $url_id, basename($file["file_name"]), $file["file_mime"], true);
 			die();
 		}
 
@@ -383,7 +384,7 @@ class Files extends SectionBase{
 		header("ETag: ". substr($etag, 16));
 
 
-		$this->outputFile($this->_CONFIG["upload_dir"] . $url_id, basename($file["file_name"]), $file["file_mime"], false);
+		$this->outputFile($this->CONFIG["upload_dir"] . $url_id, basename($file["file_name"]), $file["file_mime"], false);
 		die();
 
 	}
@@ -470,10 +471,12 @@ class Files extends SectionBase{
 	 * @return mixed Assositive array. Array("url_id" => (Ownership true|false))
 	 */
 	private function isOwner($file_ids){
-		$this->validateUser();
-		$query_array = array($this->_USER["id"]);
+		$this->validateConnection();
+		$query_array = array($this->USER["id"]);
 		$owner_checks = array();
 		$build_inner_query = "";
+		
+		
 
 		if(!is_array($file_ids)){
 			$id = $file_ids;
@@ -483,11 +486,11 @@ class Files extends SectionBase{
 		foreach($file_ids as $file_id){
 			$owner_checks[$file_id] = false;
 			$query_array[] = $file_id;
-			$build_inner_query += "`url_id` LIKE BINARY '%s' OR ";
+			$build_inner_query .= "`url_id` LIKE BINARY '%s' OR ";
 		}
 		$build_inner_query = substr($build_inner_query, 0, -3);
 
-		$result = $this->_SQL->queryFetchRows("SELECT `id`, `url_id`
+		$result = $this->SQL->fetchRows("SELECT `id`, `url_id`
 			FROM `files`
 			WHERE `owner_id` = '%s' AND (". $build_inner_query .")",
 			$query_array);
@@ -505,7 +508,7 @@ class Files extends SectionBase{
 	 * @todo Modify method to account for multiple simultanious uploads.  Currently it can generate the same ID for two files if they are uploaded at the same time.
 	 */
 	private function createNewId(){
-		$last_entry = $this->_SQL->queryFetchRow("SELECT `url_id`
+		$last_entry = $this->SQL->fetchRow("SELECT `url_id`
 			FROM `files`
 			ORDER BY `id` DESC
 			LIMIT 1;");
@@ -607,7 +610,7 @@ class Files extends SectionBase{
 	/**
 	 * @var mixed Lots of common mime types.
 	 */
-	private $_MIMES = array(
+	private $MIMES = array(
 	"323" => "text/h323",
 	"7z" => "application/x-7z-compressed",
 	"acx" => "application/internet-property-stream",
