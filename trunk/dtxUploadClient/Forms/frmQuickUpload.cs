@@ -16,6 +16,7 @@ namespace dtxUpload {
 		private List<UploadFileItem> uploading_itmes = new List<UploadFileItem>();
 		private List<UploadFileItem> selected_upload_items = new List<UploadFileItem>();
 		private EncoderParameters encoder_params_jpg = new EncoderParameters(1);
+		private string[] pending_upload_files = null;
 		private ImageCodecInfo codec_jpeg;
 		private Tween drop_files_tween;
 		
@@ -35,6 +36,7 @@ namespace dtxUpload {
 			InitializeComponent();
 
 			_panDropUpload.Height = 0;
+			_panDropUpload.Visible = true;
 			
 			// Immediately hide the confirmation row.
 			_tlpUploadTable.RowStyles[1].Height = 0;
@@ -356,76 +358,30 @@ namespace dtxUpload {
 			});
 		}
 
-
-		private void _btnDropUploadFile_DragEnter(object sender, DragEventArgs e) {
-			if(e.Data.GetDataPresent(DataFormats.FileDrop, false) == true) {
-				e.Effect = DragDropEffects.All;
-			}
-		}
-
-		private bool is_dragging = false;
-		private bool is_drop_window_open = false;
-
-		private void _btnDropUploadFile_DragDrop(object sender, DragEventArgs e) {
-			drop_files_tween.start(0);
-			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-			foreach(string file in files) {
-				uploadFile(file);
-			}
-		}
-
-
-		private void _btnDropZip_DragDrop(object sender, DragEventArgs e) {
-			drop_files_tween.start(0);
-			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-			foreach(string file in files) {
-				uploadZipFile(file);
-			}
-		}
-
-		private void _panFileItemContainer_DragLeave(object sender, EventArgs e) {
-			drop_files_tween.start(0);
-		}
-
-		private void _panDropUpload_DragEnter(object sender, DragEventArgs e) {
-			_panFileItemContainer_DragEnter(sender, e);
-		}
-
 		private void _panFileItemContainer_DragEnter(object sender, DragEventArgs e) {
 			e.Effect = DragDropEffects.All;
 			//drop_files_tween.start(74);
 		}
 
-		private void _panDropUpload_DragDrop(object sender, DragEventArgs e) {
-			_panFileItemContainer_DragLeave(null, null);
-		}
-
-		private void _btnDropZip_DragEnter(object sender, DragEventArgs e) {
-			_panFileItemContainer_DragEnter(null, null);
-		}
-
-		private void _btnDropPrivate_DragEnter(object sender, DragEventArgs e) {
-			_panFileItemContainer_DragEnter(null, null);
-		}
-
-		private void _btnDropEncrypt_DragEnter(object sender, DragEventArgs e) {
-			_panFileItemContainer_DragEnter(null, null);
-		}
-
 		private void _panFileItemContainer_DragDrop(object sender, DragEventArgs e) {
-			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-			foreach(string file in files) {
-				uploadFile(file);
-				//uploadZipFile(file);
-			}
+			pending_upload_files = null;
+			pending_upload_files = (string[])e.Data.GetData(DataFormats.FileDrop);
+			drop_files_tween.start(187);
 		}
 
 		private void _btnDropUploadFile_Click(object sender, EventArgs e) {
-
+			drop_files_tween.start(0);
+			foreach(string file in pending_upload_files) {
+				uploadFile(file);
+			}
 		}
+
+
+		private void _btnDropCancel_Click(object sender, EventArgs e) {
+			drop_files_tween.start(0);
+			pending_upload_files = null;
+		}
+
 
 		private void _uploadItemContext_Popup(object sender, EventArgs e) {
 			bool is_uploading = false; // Check to see if we have any uploading items.
@@ -479,6 +435,11 @@ namespace dtxUpload {
 			foreach(UploadFileItem item in selected_upload_items) {
 				item.cancelUpload();
 			}
+		}
+
+		private void _btnDropUploadFolder_Click(object sender, EventArgs e) {
+			new frmUploadInFolder(pending_upload_files).Show();
+			drop_files_tween.start(0);
 		}
 
 

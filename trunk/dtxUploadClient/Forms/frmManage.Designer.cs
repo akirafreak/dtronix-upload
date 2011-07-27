@@ -26,11 +26,10 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmManage));
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-			this._barStatusProgress = new System.Windows.Forms.ToolStripProgressBar();
 			this._lblStatusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-			this._treFolders = new System.Windows.Forms.TreeView();
-			this._imlFolders = new System.Windows.Forms.ImageList(this.components);
+			this._treDirectories = new System.Windows.Forms.TreeView();
+			this._imlDirectories = new System.Windows.Forms.ImageList(this.components);
 			this._lstFiles = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -40,28 +39,26 @@
 			this._imlFiles = new System.Windows.Forms.ImageList(this.components);
 			this.mainMenu1 = new System.Windows.Forms.MainMenu(this.components);
 			this.menuItem1 = new System.Windows.Forms.MenuItem();
-			this.menuItem7 = new System.Windows.Forms.MenuItem();
-			this.menuItem8 = new System.Windows.Forms.MenuItem();
+			this._miNewDirectory = new System.Windows.Forms.MenuItem();
+			this._miRefreshDirectories = new System.Windows.Forms.MenuItem();
 			this.menuItem9 = new System.Windows.Forms.MenuItem();
-			this.menuItem3 = new System.Windows.Forms.MenuItem();
-			this.menuItem2 = new System.Windows.Forms.MenuItem();
-			this.menuItem5 = new System.Windows.Forms.MenuItem();
-			this.menuItem4 = new System.Windows.Forms.MenuItem();
-			this._contextMenuFolders = new System.Windows.Forms.ContextMenu();
-			this.menuItem6 = new System.Windows.Forms.MenuItem();
-			this.menuItem11 = new System.Windows.Forms.MenuItem();
-			this.menuItem10 = new System.Windows.Forms.MenuItem();
-			this.menuItem16 = new System.Windows.Forms.MenuItem();
-			this.menuItem12 = new System.Windows.Forms.MenuItem();
-			this.menuItem13 = new System.Windows.Forms.MenuItem();
-			this.menuItem14 = new System.Windows.Forms.MenuItem();
-			this.menuItem15 = new System.Windows.Forms.MenuItem();
-			this.vistaMenu = new dtxCore.Controls.VistaMenu(this.components);
+			this._miMainMenuClose = new System.Windows.Forms.MenuItem();
+			this._contextMenuDirectory = new System.Windows.Forms.ContextMenu();
+			this._cmiDirectoryCopyDirectoryUrl = new System.Windows.Forms.MenuItem();
+			this._cmiDirectoryRename = new System.Windows.Forms.MenuItem();
+			this._cmiDirectoryDelete = new System.Windows.Forms.MenuItem();
+			this._cmiDirectoryBreak1 = new System.Windows.Forms.MenuItem();
+			this._cmiDirectoryMakePrivate = new System.Windows.Forms.MenuItem();
+			this._cmiDirectoryMakePublic = new System.Windows.Forms.MenuItem();
+			this._cmiCreateDirectory = new System.Windows.Forms.MenuItem();
 			this._contextMenuFiles = new System.Windows.Forms.ContextMenu();
-			this.menuItem17 = new System.Windows.Forms.MenuItem();
-			this.menuItem18 = new System.Windows.Forms.MenuItem();
-			this.menuItem19 = new System.Windows.Forms.MenuItem();
-			this.menuItem20 = new System.Windows.Forms.MenuItem();
+			this._cmiFilesOpenLinks = new System.Windows.Forms.MenuItem();
+			this._cmiFilesCopyLinks = new System.Windows.Forms.MenuItem();
+			this._cmiDeleteFiles = new System.Windows.Forms.MenuItem();
+			this.vistaMenu = new dtxCore.Controls.VistaMenu(this.components);
+			this._cmiOpenDirectory = new System.Windows.Forms.MenuItem();
+			this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+			this._lblTotalFiles = new System.Windows.Forms.ToolStripStatusLabel();
 			this.statusStrip1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
@@ -72,23 +69,19 @@
 			// statusStrip1
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this._barStatusProgress,
-            this._lblStatusText});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 455);
+            this._lblStatusText,
+            this.toolStripStatusLabel1,
+            this._lblTotalFiles});
+			this.statusStrip1.Location = new System.Drawing.Point(0, 425);
 			this.statusStrip1.Name = "statusStrip1";
-			this.statusStrip1.Size = new System.Drawing.Size(747, 22);
+			this.statusStrip1.Size = new System.Drawing.Size(766, 22);
 			this.statusStrip1.TabIndex = 1;
 			this.statusStrip1.Text = "statusStrip1";
-			// 
-			// _barStatusProgress
-			// 
-			this._barStatusProgress.Name = "_barStatusProgress";
-			this._barStatusProgress.Size = new System.Drawing.Size(100, 16);
 			// 
 			// _lblStatusText
 			// 
 			this._lblStatusText.Name = "_lblStatusText";
-			this._lblStatusText.Size = new System.Drawing.Size(44, 17);
+			this._lblStatusText.Size = new System.Drawing.Size(50, 17);
 			this._lblStatusText.Text = "Loading";
 			// 
 			// splitContainer1
@@ -100,32 +93,41 @@
 			// 
 			// splitContainer1.Panel1
 			// 
-			this.splitContainer1.Panel1.Controls.Add(this._treFolders);
+			this.splitContainer1.Panel1.Controls.Add(this._treDirectories);
 			// 
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this._lstFiles);
-			this.splitContainer1.Size = new System.Drawing.Size(747, 455);
+			this.splitContainer1.Size = new System.Drawing.Size(766, 425);
 			this.splitContainer1.SplitterDistance = 198;
 			this.splitContainer1.TabIndex = 2;
 			// 
-			// _treFolders
+			// _treDirectories
 			// 
-			this._treFolders.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._treFolders.ImageIndex = 0;
-			this._treFolders.ImageList = this._imlFolders;
-			this._treFolders.Location = new System.Drawing.Point(0, 0);
-			this._treFolders.Name = "_treFolders";
-			this._treFolders.SelectedImageIndex = 0;
-			this._treFolders.Size = new System.Drawing.Size(198, 455);
-			this._treFolders.TabIndex = 0;
-			this._treFolders.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this._treFolders_NodeMouseClick);
+			this._treDirectories.AllowDrop = true;
+			this._treDirectories.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._treDirectories.HideSelection = false;
+			this._treDirectories.ImageIndex = 0;
+			this._treDirectories.ImageList = this._imlDirectories;
+			this._treDirectories.LabelEdit = true;
+			this._treDirectories.Location = new System.Drawing.Point(0, 0);
+			this._treDirectories.Name = "_treDirectories";
+			this._treDirectories.SelectedImageIndex = 0;
+			this._treDirectories.Size = new System.Drawing.Size(198, 425);
+			this._treDirectories.TabIndex = 0;
+			this._treDirectories.BeforeLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this._treDirectories_BeforeLabelEdit);
+			this._treDirectories.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this._treDirectories_AfterLabelEdit);
+			this._treDirectories.NodeMouseHover += new System.Windows.Forms.TreeNodeMouseHoverEventHandler(this._treDirectories_NodeMouseHover);
+			this._treDirectories.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this._treDirectories_AfterSelect);
+			this._treDirectories.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this._treDirectories_NodeMouseClick);
+			this._treDirectories.DragDrop += new System.Windows.Forms.DragEventHandler(this._treDirectories_DragDrop);
+			this._treDirectories.DragEnter += new System.Windows.Forms.DragEventHandler(this._treDirectories_DragEnter);
 			// 
-			// _imlFolders
+			// _imlDirectories
 			// 
-			this._imlFolders.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
-			this._imlFolders.ImageSize = new System.Drawing.Size(16, 16);
-			this._imlFolders.TransparentColor = System.Drawing.Color.Transparent;
+			this._imlDirectories.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
+			this._imlDirectories.ImageSize = new System.Drawing.Size(16, 16);
+			this._imlDirectories.TransparentColor = System.Drawing.Color.Transparent;
 			// 
 			// _lstFiles
 			// 
@@ -138,11 +140,13 @@
 			this._lstFiles.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._lstFiles.Location = new System.Drawing.Point(0, 0);
 			this._lstFiles.Name = "_lstFiles";
-			this._lstFiles.Size = new System.Drawing.Size(545, 455);
+			this._lstFiles.Size = new System.Drawing.Size(564, 425);
 			this._lstFiles.SmallImageList = this._imlFiles;
 			this._lstFiles.TabIndex = 0;
 			this._lstFiles.UseCompatibleStateImageBehavior = false;
 			this._lstFiles.View = System.Windows.Forms.View.Details;
+			this._lstFiles.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this._lstFiles_ItemDrag);
+			this._lstFiles.KeyDown += new System.Windows.Forms.KeyEventHandler(this._lstFiles_KeyDown);
 			// 
 			// columnHeader1
 			// 
@@ -178,152 +182,152 @@
 			// mainMenu1
 			// 
 			this.mainMenu1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem1,
-            this.menuItem2});
+            this.menuItem1});
 			// 
 			// menuItem1
 			// 
 			this.menuItem1.Index = 0;
 			this.menuItem1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem7,
-            this.menuItem8,
+            this._miNewDirectory,
+            this._miRefreshDirectories,
             this.menuItem9,
-            this.menuItem3});
+            this._miMainMenuClose});
 			this.menuItem1.Text = "File";
 			// 
-			// menuItem7
+			// _miNewDirectory
 			// 
-			this.menuItem7.Index = 0;
-			this.menuItem7.Text = "Open Selection";
+			this._miNewDirectory.Index = 0;
+			this._miNewDirectory.Text = "New Directory";
+			this._miNewDirectory.Click += new System.EventHandler(this._miNewDirectory_Click);
 			// 
-			// menuItem8
+			// _miRefreshDirectories
 			// 
-			this.menuItem8.Index = 1;
-			this.menuItem8.Text = "Copy Selection";
+			this._miRefreshDirectories.Index = 1;
+			this._miRefreshDirectories.Text = "Refresh Directories";
+			this._miRefreshDirectories.Click += new System.EventHandler(this._miRefreshDirectories_Click);
 			// 
 			// menuItem9
 			// 
 			this.menuItem9.Index = 2;
 			this.menuItem9.Text = "-";
 			// 
-			// menuItem3
+			// _miMainMenuClose
 			// 
-			this.menuItem3.Index = 3;
-			this.menuItem3.Text = "Close";
+			this._miMainMenuClose.Index = 3;
+			this._miMainMenuClose.Text = "Close";
+			this._miMainMenuClose.Click += new System.EventHandler(this._miMainMenuClose_Click);
 			// 
-			// menuItem2
+			// _contextMenuDirectory
 			// 
-			this.menuItem2.Index = 1;
-			this.menuItem2.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem5,
-            this.menuItem4});
-			this.menuItem2.Text = "Edit";
+			this._contextMenuDirectory.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this._cmiOpenDirectory,
+            this._cmiDirectoryCopyDirectoryUrl,
+            this._cmiDirectoryRename,
+            this._cmiDirectoryDelete,
+            this._cmiDirectoryBreak1,
+            this._cmiDirectoryMakePrivate,
+            this._cmiDirectoryMakePublic,
+            this._cmiCreateDirectory});
+			this._contextMenuDirectory.Popup += new System.EventHandler(this._contextMenuDirectory_Popup);
 			// 
-			// menuItem5
+			// _cmiDirectoryCopyDirectoryUrl
 			// 
-			this.menuItem5.Index = 0;
-			this.menuItem5.Text = "Move";
+			this._cmiDirectoryCopyDirectoryUrl.Index = 1;
+			this._cmiDirectoryCopyDirectoryUrl.Text = "Copy Directory Url";
+			this._cmiDirectoryCopyDirectoryUrl.Click += new System.EventHandler(this._cmiDirectoryCopyDirectoryUrl_Click);
 			// 
-			// menuItem4
+			// _cmiDirectoryRename
 			// 
-			this.menuItem4.Index = 1;
-			this.menuItem4.Text = "Delete";
+			this._cmiDirectoryRename.Index = 2;
+			this._cmiDirectoryRename.Text = "Rename";
+			this._cmiDirectoryRename.Click += new System.EventHandler(this._cmiDirectoryRename_Click);
 			// 
-			// _contextMenuFolders
+			// _cmiDirectoryDelete
 			// 
-			this._contextMenuFolders.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem6,
-            this.menuItem11,
-            this.menuItem10,
-            this.menuItem16,
-            this.menuItem12,
-            this.menuItem13,
-            this.menuItem14,
-            this.menuItem15});
+			this._cmiDirectoryDelete.Index = 3;
+			this._cmiDirectoryDelete.Text = "Delete";
+			this._cmiDirectoryDelete.Click += new System.EventHandler(this._cmiDirectoryDelete_Click);
 			// 
-			// menuItem6
+			// _cmiDirectoryBreak1
 			// 
-			this.menuItem6.Index = 0;
-			this.menuItem6.Text = "Copy Folder Url";
+			this._cmiDirectoryBreak1.Index = 4;
+			this._cmiDirectoryBreak1.Text = "-";
 			// 
-			// menuItem11
+			// _cmiDirectoryMakePrivate
 			// 
-			this.menuItem11.Index = 1;
-			this.menuItem11.Text = "Rename";
+			this._cmiDirectoryMakePrivate.Index = 5;
+			this._cmiDirectoryMakePrivate.Text = "Make Directory Private";
+			this._cmiDirectoryMakePrivate.Click += new System.EventHandler(this._cmiDirectoryMakePrivate_Click);
 			// 
-			// menuItem10
+			// _cmiDirectoryMakePublic
 			// 
-			this.menuItem10.Index = 2;
-			this.menuItem10.Text = "Delete";
+			this._cmiDirectoryMakePublic.Index = 6;
+			this._cmiDirectoryMakePublic.Text = "Make Directory Public";
+			this._cmiDirectoryMakePublic.Visible = false;
+			this._cmiDirectoryMakePublic.Click += new System.EventHandler(this._cmiDirectoryMakePublic_Click);
 			// 
-			// menuItem16
+			// _cmiCreateDirectory
 			// 
-			this.menuItem16.Index = 3;
-			this.menuItem16.Text = "-";
+			this._cmiCreateDirectory.Index = 7;
+			this._cmiCreateDirectory.Text = "Create Directory";
+			this._cmiCreateDirectory.Click += new System.EventHandler(this._cmiCreateDirectory_Click);
 			// 
-			// menuItem12
+			// _contextMenuFiles
 			// 
-			this.menuItem12.Index = 4;
-			this.menuItem12.Text = "Make Folder Private";
+			this._contextMenuFiles.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this._cmiFilesOpenLinks,
+            this._cmiFilesCopyLinks,
+            this._cmiDeleteFiles});
 			// 
-			// menuItem13
+			// _cmiFilesOpenLinks
 			// 
-			this.menuItem13.Index = 5;
-			this.menuItem13.Text = "Make Folder Public";
-			this.menuItem13.Visible = false;
+			this._cmiFilesOpenLinks.Index = 0;
+			this._cmiFilesOpenLinks.Text = "Open Link(s)";
+			this._cmiFilesOpenLinks.Click += new System.EventHandler(this._cmiFilesOpenLinks_Click);
 			// 
-			// menuItem14
+			// _cmiFilesCopyLinks
 			// 
-			this.menuItem14.Index = 6;
-			this.menuItem14.Text = "Share Folder";
+			this._cmiFilesCopyLinks.Index = 1;
+			this._cmiFilesCopyLinks.Text = "Copy Link(s)";
+			this._cmiFilesCopyLinks.Click += new System.EventHandler(this._cmiFilesCopyLinks_Click);
 			// 
-			// menuItem15
+			// _cmiDeleteFiles
 			// 
-			this.menuItem15.Index = 7;
-			this.menuItem15.Text = "Remove Folder Share";
-			this.menuItem15.Visible = false;
+			this._cmiDeleteFiles.Index = 2;
+			this._cmiDeleteFiles.Text = "Delete";
+			this._cmiDeleteFiles.Click += new System.EventHandler(this._cmiDeleteFiles_Click);
 			// 
 			// vistaMenu
 			// 
 			this.vistaMenu.ContainerControl = this;
 			// 
-			// _contextMenuFiles
+			// _cmiOpenDirectory
 			// 
-			this._contextMenuFiles.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem20,
-            this.menuItem19,
-            this.menuItem17,
-            this.menuItem18});
+			this._cmiOpenDirectory.Index = 0;
+			this._cmiOpenDirectory.Text = "Open Directory";
+			this._cmiOpenDirectory.Click += new System.EventHandler(this._cmiOpenDirectory_Click);
 			// 
-			// menuItem17
+			// toolStripStatusLabel1
 			// 
-			this.menuItem17.Index = 2;
-			this.menuItem17.Text = "Move";
+			this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+			this.toolStripStatusLabel1.Size = new System.Drawing.Size(22, 17);
+			this.toolStripStatusLabel1.Text = "  |  ";
 			// 
-			// menuItem18
+			// _lblTotalFiles
 			// 
-			this.menuItem18.Index = 3;
-			this.menuItem18.Text = "Delete";
-			// 
-			// menuItem19
-			// 
-			this.menuItem19.Index = 1;
-			this.menuItem19.Text = "Copy Link(s)";
-			// 
-			// menuItem20
-			// 
-			this.menuItem20.Index = 0;
-			this.menuItem20.Text = "Open Link(s)";
+			this._lblTotalFiles.Name = "_lblTotalFiles";
+			this._lblTotalFiles.Size = new System.Drawing.Size(0, 17);
 			// 
 			// frmManage
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(747, 477);
+			this.ClientSize = new System.Drawing.Size(766, 447);
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.statusStrip1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Menu = this.mainMenu1;
+			this.MinimumSize = new System.Drawing.Size(400, 300);
 			this.Name = "frmManage";
 			this.Text = "Manage Uploaded Files";
 			this.Load += new System.EventHandler(this.frmManage_Load);
@@ -342,7 +346,7 @@
 
 		private System.Windows.Forms.StatusStrip statusStrip1;
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private System.Windows.Forms.TreeView _treFolders;
+		private System.Windows.Forms.TreeView _treDirectories;
 		private System.Windows.Forms.ListView _lstFiles;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
@@ -350,33 +354,31 @@
 		private System.Windows.Forms.ColumnHeader columnHeader4;
 		private System.Windows.Forms.MainMenu mainMenu1;
 		private System.Windows.Forms.MenuItem menuItem1;
-		private System.Windows.Forms.MenuItem menuItem7;
-		private System.Windows.Forms.MenuItem menuItem8;
 		private System.Windows.Forms.MenuItem menuItem9;
-		private System.Windows.Forms.MenuItem menuItem3;
-		private System.Windows.Forms.MenuItem menuItem2;
-		private System.Windows.Forms.MenuItem menuItem5;
-		private System.Windows.Forms.MenuItem menuItem4;
+		private System.Windows.Forms.MenuItem _miMainMenuClose;
 		private System.Windows.Forms.ColumnHeader columnHeader5;
-		private System.Windows.Forms.ImageList _imlFolders;
+		private System.Windows.Forms.ImageList _imlDirectories;
 		private System.Windows.Forms.ImageList _imlFiles;
-		private System.Windows.Forms.ContextMenu _contextMenuFolders;
-		private System.Windows.Forms.MenuItem menuItem10;
-		private System.Windows.Forms.MenuItem menuItem11;
-		private System.Windows.Forms.MenuItem menuItem12;
-		private System.Windows.Forms.MenuItem menuItem13;
-		private System.Windows.Forms.MenuItem menuItem14;
-		private System.Windows.Forms.MenuItem menuItem15;
+		private System.Windows.Forms.ContextMenu _contextMenuDirectory;
+		private System.Windows.Forms.MenuItem _cmiDirectoryDelete;
+		private System.Windows.Forms.MenuItem _cmiDirectoryRename;
+		private System.Windows.Forms.MenuItem _cmiDirectoryMakePrivate;
+		private System.Windows.Forms.MenuItem _cmiDirectoryMakePublic;
 		private dtxCore.Controls.VistaMenu vistaMenu;
-		private System.Windows.Forms.ToolStripProgressBar _barStatusProgress;
 		private System.Windows.Forms.ToolStripStatusLabel _lblStatusText;
-		private System.Windows.Forms.MenuItem menuItem6;
-		private System.Windows.Forms.MenuItem menuItem16;
+		private System.Windows.Forms.MenuItem _cmiDirectoryCopyDirectoryUrl;
+		private System.Windows.Forms.MenuItem _cmiDirectoryBreak1;
 		private System.Windows.Forms.ContextMenu _contextMenuFiles;
-		private System.Windows.Forms.MenuItem menuItem17;
-		private System.Windows.Forms.MenuItem menuItem18;
-		private System.Windows.Forms.MenuItem menuItem19;
-		private System.Windows.Forms.MenuItem menuItem20;
+		private System.Windows.Forms.MenuItem _cmiFilesDelete;
+		private System.Windows.Forms.MenuItem _cmiFilesCopyLinks;
+		private System.Windows.Forms.MenuItem _cmiFilesOpenLinks;
+		private System.Windows.Forms.MenuItem _miNewDirectory;
+		private System.Windows.Forms.MenuItem _cmiCreateDirectory;
+		private System.Windows.Forms.MenuItem _cmiDeleteFiles;
+		private System.Windows.Forms.MenuItem _miRefreshDirectories;
+		private System.Windows.Forms.MenuItem _cmiOpenDirectory;
+		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+		private System.Windows.Forms.ToolStripStatusLabel _lblTotalFiles;
 
 	}
 }

@@ -12,19 +12,15 @@ using System.Reflection;
 
 namespace dtxUpload {
 	public partial class frmLogin : Form {
+		private ServerConnector connector = new ServerConnector();
 
+		private List<DC_Server> server_list;
 		public DateTime last_ping_time;
 
-		private ServerConnector connector = new ServerConnector();
-		private List<DC_Server> server_list;
-
 		private Tween tween_image_height;
-		private Tween tween_form_width;
-		private Tween tween_form_position = new Tween(dtxCore.EasingEquations.expoEaseOut);
 		private Timer ping_timer = new Timer();
 
 		private BackgroundWorker loadLogoWorker = new BackgroundWorker();
-
 
 		// Hides the resize on the window.
 		protected override void WndProc(ref Message m) {
@@ -37,9 +33,9 @@ namespace dtxUpload {
 
 		public frmLogin() {
 			Client.form_Login = this;
+
 			InitializeComponent();
 
-			tween_form_width = new Tween(this, "Width", dtxCore.EasingEquations.expoEaseOut);
 			tween_image_height = new Tween(_picLogo, "Height", dtxCore.EasingEquations.expoEaseOut);
 			_picLogo.LoadCompleted += new AsyncCompletedEventHandler(_picLogo_LoadCompleted);
 
@@ -156,7 +152,7 @@ namespace dtxUpload {
 
 
 		void ping_timer_Tick(object sender, EventArgs e) {
-			connector.callServerMethod("ping");
+			connector.callServerMethod("Server:ping");
 		}
 
 		private void _btnLogin_Click(object sender, EventArgs e) {
@@ -176,7 +172,7 @@ namespace dtxUpload {
 			} else {
 				// CHANGE?  If a user's password is exactly 32 characters, then it will never be hashed when sent to the server. Lets just hope nobody has a password an exact width of 32 characters.
 				if(_itxtPassword.Value.Length != 32) {
-					_itxtPassword.Value = dtxCore.Utilities.md5Sum(_itxtPassword.Value);
+					_itxtPassword.Value = dtxCore.Utilities.md5Hash(_itxtPassword.Value);
 				}
 
 				_btnLogin.Enabled = false;
@@ -201,7 +197,7 @@ namespace dtxUpload {
 
 
 		private void _cmbServer_Leave(object sender, EventArgs e) {
-			if(Client.server_info.server_url != null && !Client.server_info.server_url.Contains(_cmbServer.Text)) {
+			if(Client.server_info.server_url == null || !Client.server_info.server_url.Contains(_cmbServer.Text)) {
 				_cmbServer_SelectedIndexChanged(sender, e);
 			}
 		}
@@ -215,7 +211,7 @@ namespace dtxUpload {
 			try {
 				new Uri(protocol + _cmbServer.Text);
 			} catch {
-				invalidServer();
+				serverInvalid();
 				return;
 			}
 
@@ -250,7 +246,7 @@ namespace dtxUpload {
 			_itxtUsername.Focus();
 		}
 
-		public void invalidServer() {
+		public void serverInvalid() {
 			if(this.WindowState != FormWindowState.Normal) this.ShowDialog();
 
 			_btnLogin.Enabled = true;
@@ -430,24 +426,7 @@ namespace dtxUpload {
 
 
 		private void _btnSettings_Click(object sender, EventArgs e) {
-			if(tween_form_width.is_working) return;
-			int original_point = Location.X;
-
-			if(this.MaximumSize.Width == this.Width) {
-
-				tween_form_width.start(this.MinimumSize.Width);
-				tween_form_position.start(original_point, original_point + this.MinimumSize.Width, delegate(int current) {
-					Location = new Point(current, Location.Y);
-				});
-
-			} else {
-				tween_form_width.start(this.MaximumSize.Width);
-				tween_form_position.start(original_point, original_point - this.MinimumSize.Width, delegate(int current) {
-					Location = new Point(current, Location.Y);
-				});
-				
-			}
-			
+			throw new NotImplementedException("TODO: Implement settings.");
 		}
 
 		private void _btnConfigDone_Click(object sender, EventArgs e) {
@@ -565,7 +544,6 @@ namespace dtxUpload {
 		}
 
 		private void frmLogin_FormClosing(object sender, FormClosingEventArgs e) {
-
 			// Make sure we unmount the drive if it is mounted.
 			if(Client.drive_mount_thread != null) {
 				Client.drive_mount_thread.Abort();

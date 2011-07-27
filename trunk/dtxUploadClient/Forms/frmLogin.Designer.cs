@@ -135,7 +135,7 @@
 			this._panButtons.Controls.Add(this._btnCancel);
 			this._panButtons.Controls.Add(this._btnLogin);
 			this._panButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this._panButtons.Location = new System.Drawing.Point(0, 278);
+			this._panButtons.Location = new System.Drawing.Point(0, 270);
 			this._panButtons.Name = "_panButtons";
 			this._panButtons.Size = new System.Drawing.Size(242, 32);
 			this._panButtons.TabIndex = 9;
@@ -249,7 +249,7 @@
 			this._cmbScreenshotQuality.Size = new System.Drawing.Size(63, 21);
 			this._cmbScreenshotQuality.TabIndex = 15;
 			this._tipDefault.SetToolTip(this._cmbScreenshotQuality, "Quality of the compression used for JPEG images.  Higher is better quality and bi" +
-					"gger file sizes.");
+        "gger file sizes.");
 			this._cmbScreenshotQuality.SelectedIndexChanged += new System.EventHandler(this._cmbScreenshotQuality_SelectedIndexChanged);
 			// 
 			// _panLoginInputs
@@ -438,7 +438,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.White;
 			this.CancelButton = this._btnCancel;
-			this.ClientSize = new System.Drawing.Size(242, 310);
+			this.ClientSize = new System.Drawing.Size(242, 302);
 			this.ControlBox = false;
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this._panLoginInputs);

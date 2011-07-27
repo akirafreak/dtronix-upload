@@ -2,26 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel;
+using System.Net;
 
 namespace dtxUpload {
-	public class DC_ServerInformation {
-		public string server_name;
-		public string server_url;
-		public string upload_base_url;
-		public string server_logo;
-		
-		public int max_upload_filesize;
-		public string allowed_filetypes;
-		public bool maintenance_mode;
-
-		public bool is_registration_allowed;
-		public bool is_key_required;
-
-		public bool is_connected;
-		public bool is_connecting;
-		public bool is_key_valid;
-	}
-
 	public class DC_Server {
 		public string name;
 		public string url;
@@ -34,36 +17,16 @@ namespace dtxUpload {
 	}
 
 
-	public class DC_UserInformation {
-		public string id;
-		public string session_key;
-		public string username;
-		public string password;
-		public string password_md5;
-		public string registration_date;
-
-		// Stats
-		public ulong total_uploaded_filesizes;
-		public int total_files_uploaded;
-		public ulong max_upload_space;
-		public ulong max_upload_size;
-
-		// Permissions
-		public bool can_upload;
-		public bool can_connect;
-
-	}
-
-
 	public class DC_FileInformation {
 		public string url;
 		public string url_id;
 		public string local_file_location;
+
+		public string total_views;
 		public string tag;
 		public string file_name;
 		public long file_size;
 		public string upload_date;
-		public int hits;
 		public string upload_id;
 		public string last_accessed;
 		public string directory;
@@ -71,11 +34,37 @@ namespace dtxUpload {
 		public DC_FileInformationStatus status = DC_FileInformationStatus.UnknownStatus;
 
 		// Permissions
-		public bool is_public;
-		public bool is_visible;
-		public bool is_shared;
 		public bool is_disabled;
-		public string[] shared_ids;
+	}
+	public class DC_DirectoryInformation {
+		public string id;
+		public string url_id;
+		public string name;
+		public string owner_id;
+		public string files;
+		public string permissions;
+		public string password;
+
+		// Permissions.
+		public string is_public = "0";
+		public string is_locked = "0";
+
+		public bool bool_public {
+			get {
+				return (is_public == "1") ? true : false;
+			}
+			set {
+				is_public = (value) ? "1" : "0";
+			}
+		}
+		public bool bool_locked {
+			get {
+				return (is_locked == "1") ? true : false;
+			}
+			set {
+				is_locked = (value) ? "1" : "0";
+			}
+		}
 	}
 
 	public enum DC_FileInformationStatus {
@@ -140,17 +129,4 @@ namespace dtxUpload {
 		public string source;
 		public string message;
 	}
-
-	public class DC_CacheRequest {
-		public DateTime request_time;
-		public object data;
-	}
-
-	public class DC_UploadProgressChangedEventArgs{
-		public long bytes_received = 0;
-		public long bytes_sent = 0;
-		public long total_byes_to_receive = 0;
-		public long total_bytes_to_send = 0;
-	}
-
 }

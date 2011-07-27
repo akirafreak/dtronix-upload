@@ -36,7 +36,8 @@
 			this._picClipboardType = new System.Windows.Forms.PictureBox();
 			this._lblClipboardUpload = new System.Windows.Forms.Label();
 			this._panDropUpload = new System.Windows.Forms.Panel();
-			this._btnDropEncrypt = new System.Windows.Forms.Button();
+			this._btnDropUploadFolder = new System.Windows.Forms.Button();
+			this._btnDropCancel = new System.Windows.Forms.Button();
 			this._btnDropPrivate = new System.Windows.Forms.Button();
 			this._btnDropUploadFile = new System.Windows.Forms.Button();
 			this._btnDropZip = new System.Windows.Forms.Button();
@@ -60,7 +61,7 @@
 			this.panel1.Location = new System.Drawing.Point(0, 379);
 			this.panel1.Margin = new System.Windows.Forms.Padding(0);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(278, 33);
+			this.panel1.Size = new System.Drawing.Size(270, 33);
 			this.panel1.TabIndex = 2;
 			// 
 			// _btnUploadClipboard
@@ -92,11 +93,10 @@
 			this._panFileItemContainer.Location = new System.Drawing.Point(0, 0);
 			this._panFileItemContainer.Margin = new System.Windows.Forms.Padding(0);
 			this._panFileItemContainer.Name = "_panFileItemContainer";
-			this._panFileItemContainer.Size = new System.Drawing.Size(278, 349);
+			this._panFileItemContainer.Size = new System.Drawing.Size(270, 349);
 			this._panFileItemContainer.TabIndex = 3;
 			this._panFileItemContainer.DragDrop += new System.Windows.Forms.DragEventHandler(this._panFileItemContainer_DragDrop);
 			this._panFileItemContainer.DragEnter += new System.Windows.Forms.DragEventHandler(this._panFileItemContainer_DragEnter);
-			this._panFileItemContainer.DragLeave += new System.EventHandler(this._panFileItemContainer_DragLeave);
 			// 
 			// _tlpUploadTable
 			// 
@@ -112,7 +112,7 @@
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
 			this._tlpUploadTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
-			this._tlpUploadTable.Size = new System.Drawing.Size(278, 412);
+			this._tlpUploadTable.Size = new System.Drawing.Size(270, 412);
 			this._tlpUploadTable.TabIndex = 4;
 			// 
 			// _panConfirmUpload
@@ -127,7 +127,7 @@
 			this._panConfirmUpload.Location = new System.Drawing.Point(0, 349);
 			this._panConfirmUpload.Margin = new System.Windows.Forms.Padding(0);
 			this._panConfirmUpload.Name = "_panConfirmUpload";
-			this._panConfirmUpload.Size = new System.Drawing.Size(278, 30);
+			this._panConfirmUpload.Size = new System.Drawing.Size(270, 30);
 			this._panConfirmUpload.TabIndex = 4;
 			// 
 			// _btnConfirmClipboardUpload
@@ -183,44 +183,55 @@
 			// 
 			this._panDropUpload.AllowDrop = true;
 			this._panDropUpload.BackColor = System.Drawing.Color.White;
-			this._panDropUpload.Controls.Add(this._btnDropEncrypt);
+			this._panDropUpload.Controls.Add(this._btnDropUploadFolder);
+			this._panDropUpload.Controls.Add(this._btnDropCancel);
 			this._panDropUpload.Controls.Add(this._btnDropPrivate);
 			this._panDropUpload.Controls.Add(this._btnDropUploadFile);
 			this._panDropUpload.Controls.Add(this._btnDropZip);
 			this._panDropUpload.Dock = System.Windows.Forms.DockStyle.Top;
 			this._panDropUpload.Location = new System.Drawing.Point(0, 0);
 			this._panDropUpload.Name = "_panDropUpload";
-			this._panDropUpload.Size = new System.Drawing.Size(278, 75);
+			this._panDropUpload.Size = new System.Drawing.Size(270, 187);
 			this._panDropUpload.TabIndex = 5;
 			this._panDropUpload.Visible = false;
-			this._panDropUpload.DragDrop += new System.Windows.Forms.DragEventHandler(this._panDropUpload_DragDrop);
-			this._panDropUpload.DragEnter += new System.Windows.Forms.DragEventHandler(this._panDropUpload_DragEnter);
 			// 
-			// _btnDropEncrypt
+			// _btnDropUploadFolder
 			// 
-			this._btnDropEncrypt.AllowDrop = true;
-			this._btnDropEncrypt.Image = global::dtxUpload.Properties.Resources.asset_blue_24;
-			this._btnDropEncrypt.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._btnDropEncrypt.Location = new System.Drawing.Point(4, 111);
-			this._btnDropEncrypt.Name = "_btnDropEncrypt";
-			this._btnDropEncrypt.Size = new System.Drawing.Size(262, 35);
-			this._btnDropEncrypt.TabIndex = 3;
-			this._btnDropEncrypt.Text = "Encrypt file(s) then upload";
-			this._btnDropEncrypt.UseVisualStyleBackColor = true;
-			this._btnDropEncrypt.DragEnter += new System.Windows.Forms.DragEventHandler(this._btnDropEncrypt_DragEnter);
+			this._btnDropUploadFolder.AllowDrop = true;
+			this._btnDropUploadFolder.Image = global::dtxUpload.Properties.Resources.asset_blue_24;
+			this._btnDropUploadFolder.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this._btnDropUploadFolder.Location = new System.Drawing.Point(5, 75);
+			this._btnDropUploadFolder.Name = "_btnDropUploadFolder";
+			this._btnDropUploadFolder.Size = new System.Drawing.Size(262, 35);
+			this._btnDropUploadFolder.TabIndex = 5;
+			this._btnDropUploadFolder.Text = "Upload into folder";
+			this._btnDropUploadFolder.UseVisualStyleBackColor = true;
+			this._btnDropUploadFolder.Click += new System.EventHandler(this._btnDropUploadFolder_Click);
+			// 
+			// _btnDropCancel
+			// 
+			this._btnDropCancel.AllowDrop = true;
+			this._btnDropCancel.Image = global::dtxUpload.Properties.Resources.icon_24_em_cross;
+			this._btnDropCancel.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this._btnDropCancel.Location = new System.Drawing.Point(4, 147);
+			this._btnDropCancel.Name = "_btnDropCancel";
+			this._btnDropCancel.Size = new System.Drawing.Size(262, 35);
+			this._btnDropCancel.TabIndex = 4;
+			this._btnDropCancel.Text = "Cancel Upload";
+			this._btnDropCancel.UseVisualStyleBackColor = true;
+			this._btnDropCancel.Click += new System.EventHandler(this._btnDropCancel_Click);
 			// 
 			// _btnDropPrivate
 			// 
 			this._btnDropPrivate.AllowDrop = true;
 			this._btnDropPrivate.Image = global::dtxUpload.Properties.Resources.clipboard_eye_24;
 			this._btnDropPrivate.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this._btnDropPrivate.Location = new System.Drawing.Point(4, 75);
+			this._btnDropPrivate.Location = new System.Drawing.Point(5, 111);
 			this._btnDropPrivate.Name = "_btnDropPrivate";
 			this._btnDropPrivate.Size = new System.Drawing.Size(262, 35);
 			this._btnDropPrivate.TabIndex = 2;
 			this._btnDropPrivate.Text = "Upload private file(s)";
 			this._btnDropPrivate.UseVisualStyleBackColor = true;
-			this._btnDropPrivate.DragEnter += new System.Windows.Forms.DragEventHandler(this._btnDropPrivate_DragEnter);
 			// 
 			// _btnDropUploadFile
 			// 
@@ -234,8 +245,6 @@
 			this._btnDropUploadFile.Text = "Upload file(s)";
 			this._btnDropUploadFile.UseVisualStyleBackColor = true;
 			this._btnDropUploadFile.Click += new System.EventHandler(this._btnDropUploadFile_Click);
-			this._btnDropUploadFile.DragDrop += new System.Windows.Forms.DragEventHandler(this._btnDropUploadFile_DragDrop);
-			this._btnDropUploadFile.DragEnter += new System.Windows.Forms.DragEventHandler(this._btnDropUploadFile_DragEnter);
 			// 
 			// _btnDropZip
 			// 
@@ -248,8 +257,6 @@
 			this._btnDropZip.TabIndex = 0;
 			this._btnDropZip.Text = "Zip file(s) then upload";
 			this._btnDropZip.UseVisualStyleBackColor = true;
-			this._btnDropZip.DragDrop += new System.Windows.Forms.DragEventHandler(this._btnDropZip_DragDrop);
-			this._btnDropZip.DragEnter += new System.Windows.Forms.DragEventHandler(this._btnDropZip_DragEnter);
 			// 
 			// _uploadItemContext
 			// 
@@ -288,7 +295,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(278, 412);
+			this.ClientSize = new System.Drawing.Size(270, 412);
 			this.Controls.Add(this._panDropUpload);
 			this.Controls.Add(this._tlpUploadTable);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -328,11 +335,12 @@
 		private System.Windows.Forms.Button _btnDropUploadFile;
 		private System.Windows.Forms.Button _btnDropZip;
 		private System.Windows.Forms.Button _btnDropPrivate;
-		private System.Windows.Forms.Button _btnDropEncrypt;
 		private System.Windows.Forms.ContextMenu _uploadItemContext;
 		private System.Windows.Forms.MenuItem _mItemOpenLinks;
 		private System.Windows.Forms.MenuItem _mItemCopyLinks;
 		private System.Windows.Forms.MenuItem _mItemDelete;
 		private System.Windows.Forms.MenuItem _mItemCancel;
+		private System.Windows.Forms.Button _btnDropCancel;
+		private System.Windows.Forms.Button _btnDropUploadFolder;
 	}
 }

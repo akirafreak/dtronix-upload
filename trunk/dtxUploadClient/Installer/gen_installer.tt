@@ -68,7 +68,7 @@ SetOutPath "$INSTDIR"
 SetOverwrite ifnewer
 File "..\dtxUpload.exe"
 CreateDirectory "$SMPROGRAMS\Dtronix Upload"
-CreateShortCut "$SMPROGRAMS\Dtronix Upload\dtxUpload.lnk" "$INSTDIR\dtxUpload.exe"
+CreateShortCut "$SMPROGRAMS\Dtronix Upload\Dtronix Upload.lnk" "$INSTDIR\dtxUpload.exe"
 File "..\dtxCore.dll"
 File "..\dtxCrashReporter.exe"
 File "..\7zr.exe"
@@ -118,7 +118,7 @@ Delete "$INSTDIR\settings.dcf"
 
 
 Delete "$SMPROGRAMS\Dtronix Upload\Uninstall.lnk"
-Delete "$SMPROGRAMS\Dtronix Upload\dtxUpload.lnk"
+Delete "$SMPROGRAMS\Dtronix Upload\Dtronix Upload.lnk"
 
 RMDir "$SMPROGRAMS\Dtronix Upload"
 RMDir "$INSTDIR"
