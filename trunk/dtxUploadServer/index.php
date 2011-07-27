@@ -10,6 +10,7 @@ $USER = array();
 require_once("config.php");
 require_once("functions.php");
 require_once("Classes/SQL.class.php");
+require_once("Classes/ReturnData.class.php");
 require_once("Classes/SectionBase.class.php");
 require_once("Classes/ThemeBase.class.php");
 
@@ -36,19 +37,18 @@ if($CONFIG["sql_server_select"] == "postgresql"){
 }
 
 // Check to see what kind of client is trying to connect.
-if(strpos($_SERVER["HTTP_USER_AGENT"], "dtxManageClient") !== false){
-	// dtxManageClient Program.
-	$USER["client"] = 1;
+if(strpos($_SERVER["HTTP_USER_AGENT"], "dtxClient") !== false){
+	$USER["client"] = 1; // dtxManageClient Program.
 
 }else{
-	// Regular web request.
-	$USER["client"] = 2;
+	$USER["client"] = 2; // Regular web request.
 }
 
 // Make sure we have an entire valid call.
 if(array_key_exists("action", $_GET) && strpos($_GET["action"], ":") === false){
 	returnClientData("error_client", array(
-		"error" => "Unknown method called."
+		"error" => "Unknown method called.",
+		"method" => $_GET["action"]
 	));
 }
 
@@ -64,7 +64,8 @@ $requested_file = "Sections/" . $call_class. ".php";
 // We don't want somebody accessing a file in another directory now do we?
 if(strpos($call_class, ".") !== false){
 	returnClientData("error_client", array(
-		"error" => "Invalid Request."
+		"error" => "Invalid Request.",
+		"method" => $_GET["action"]
 	));
 }
 
@@ -108,6 +109,10 @@ if(!file_exists($requested_file)){
 	}
 	
 	// Finally, call the requested method in the new class instance.
-	call_user_func_array(array($called_class, $call_method), $args);
+	$result = call_user_func_array(array($called_class, $call_method), $args);
+	
+	if($result instanceof ReturnData){
+		$result->sendClientInfo();
+	}
 }
 ?>

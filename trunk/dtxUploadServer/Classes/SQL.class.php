@@ -113,9 +113,67 @@ Class SQL{
 	public static function func($function) {
 		return array("sql_function", $function);
 	}
+	
+	
+	/**
+	 * Used to generate a individual " column_name IN($values)".  Also escapes all the values.
+	 * 
+	 * @param string $column Column 
+	 * @param mixed $values Array or string to imput into the IN() section.
+	 * @return string Created WHERE IN string.
+	 * 
+	 * <b>Example:</b><br />
+	 * <code>
+	 * $where = SQL->whereIn("user_name", array(
+	 *   "Do'c",
+	 *   "Sum",
+	 *   "Ns",
+	 *   "Who?"
+	 * ));
+	 * 
+	 * $where = " user_name IN('Do\'c', 'Sum', 'Ns', 'Who?') ";
+	 * </code>
+	 * 
+	 */
+	public function whereIn($column, $values){
+		if(!is_array($values)){
+			$values = array($values);
+		}
+		
+		$string_builder = array();
+		$string_builder[] = " ";
+		$string_builder[] = $column;
+		$string_builder[] = " IN(";
+		
+		for($i = 0; $i < count($values); $i++){
+			$string_builder[] = "'%s'";
+			$string_builder[] = ", ";
+		}
+		
+		array_pop($string_builder);
+		
+		$string_builder[] = ") ";
+		$output = implode("", $string_builder);
+		$this->formatSql($output, $values);
+		
+		return $output;
+	}
+	
+	/**
+	 * Take a full or partial query and apply the $values to the query via sprintf.
+	 *
+	 * @param string $query String that contains the query to execute.
+	 * @param mixed $values Values to be inserted into the query via sprintf.
+	 * @return string Formatted and escaped SQL statement.
+	 */
+	public function formatString($sql, $values){
+		$this->formatSql($sql, $values);
+		return $sql;
+	}
 
 	/**
-	 * Execute a buffered query on the MySQL server.
+	 * Execute a buffered query on the MySQL server.  Multiple queries seperated by a ";" are supported.
+	 * NOTE: Multiple queries on a MySQL database will only return the result for the last query.
 	 *
 	 * @param string $query String that contains the query to execute.
 	 * @param mixed $values Values to be inserted into the query via sprintf.
@@ -139,9 +197,6 @@ Class SQL{
 		$this->formatSql($query, $values);
 		if($this->verbose)
 			$this->log("QUERY PARSED: <code>{$query}</code>");
-
-		// Increment the total number of queries.
-		$this->query_count++;
 		
 		if($this->sql_type == "pgsql"){
 			$result = pg_query($this->sql_connection, $query);
@@ -149,12 +204,26 @@ Class SQL{
 			if($this->verbose && $error != false)
 				$this->log("POSTGRESQL ERROR: ". $error);
 			
+			$this->query_count++;
+			
 		}elseif($this->sql_type == "mysql"){
-			$result = mysql_query($query, $this->sql_connection);
-			if($this->verbose && mysql_errno($this->sql_connection) !== 0)
-				$this->log("MYSQL ERROR[". mysql_errno($this->sql_connection) ."]: ". mysql_error($this->sql_connection));
+			// Check to see if multiple queries are being executed in this one statement.
+			$split_query = preg_split("/;+(?=([^'|^\\\']*['|\\\'][^'|^\\\']*['|\\\'])*[^'|^\\\']*[^'|^\\\']$)/", $query);
+			
+			foreach($split_query as $inner_query){
+				// Check to see if the query is empty
+				$inner_query = trim($inner_query);
+				if($inner_query == "")
+					continue;
+				
+				$result = mysql_query($query, $this->sql_connection);
+				if($this->verbose && mysql_errno($this->sql_connection) !== 0)
+					$this->log("MYSQL ERROR[". mysql_errno($this->sql_connection) ."]: ". mysql_error($this->sql_connection));
+				
+				$this->query_count++;
+			}
 		}else{
-			die("SQL is not connected to a server.");
+			die("SQL class is not connected to a server.");
 		}
 		return $result;
 	}
@@ -166,7 +235,8 @@ Class SQL{
 	 * @param string $table table to insert a new row in.
 	 * @param mixed $name_values array(Column Name => Value) to be inserted into.
 	 *
-	 * @return bool True on a successful insert, false on a failure.
+	 * @return mixed false on failure, Int with the new item's "id" value<BR>
+	 * The auto_incremented value must be in the rable row "id" in a PG database.
 	 *
 	 * <b>Example:</b><br />
 	 * <code>
@@ -181,7 +251,28 @@ Class SQL{
 			return false;
 		
 		$query = $this->buildInsert($table, $name_values);
-		return $this->successful($query);
+		if($this->sql_type == "pgsql"){
+			// Add the second query to retieve the new ID
+			$query .= ";SELECT currval(pg_get_serial_sequence('{$table}', 'id'));";
+			
+			// Return the new ID.
+			$result = $this->fetchResult($query);
+			if($result !== false){
+				return $result[0];
+			}else{
+				return false;
+			}
+			
+		}elseif($this->sql_type == "mysql"){
+			$this->query($query);
+			$id = mysql_insert_id($this->sql_connection);
+			if($id === 0 || $id === false){
+				return false;
+			}else{
+				return $id;
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -204,7 +295,7 @@ Class SQL{
 	 * ));
 	 * </code>
 	 */
-	public function update($table, $name_values, $where, $values){
+	public function update($table, $name_values, $where, $values = null){
 		if($name_values == null)
 			return false;
 		$this->formatSql($where, $values);
@@ -212,7 +303,7 @@ Class SQL{
 		$query = $this->buildUpdate($table, $name_values, $where);
 		return $this->successful($query);
 	}
-	
+
 	/**
 	 * Execute a buffered query on the MySQL server and return the first result.
 	 *
@@ -297,12 +388,12 @@ Class SQL{
 		
 		$return = array();
 		if($this->sql_type == "pgsql"){
-			while($row = pg_fetch_array($result, "PGSQL_NUM")){
+			while($row = pg_fetch_row($result)){
 				$return[] = $row;
 			}
 			
 		}elseif($this->sql_type == "mysql"){
-			while($row = mysql_fetch_array($result, "MYSQL_NUM")){
+			while($row = mysql_fetch_row($result)){
 				$return[] = $row;
 			}
 		}
@@ -386,20 +477,26 @@ Class SQL{
 	/**
 	 * Escape all injection attempts in the input array.
 	 *
-	 * @param array $array Array input that contains objects to be escaped.
+	 * @param mixed $array Array, string, float or int input that contains objects to be escaped.
 	 */
 	private function escapeAll(&$array){
-		// If we are dealing with a string, then encapsulate it in an array.
-		if(is_string($array))
+		// If we are dealing with something we can parse, then encapsulate it in an array.
+		if(is_string($array) || is_int($array) || is_float($array) || is_bool($array))
 			$array = array($array);
 		
 		if($this->sql_type == "pgsql"){
 			foreach($array as &$value){
+				if(is_resource($value) || is_object($value))
+					$this->log("escapeAll| Unescapable variable [". gettype($value) . "] :". var_export($value));
+				
 				$value = pg_escape_string($this->sql_connection, $value);
 			}
 			
 		}elseif($this->sql_type == "mysql"){
 			foreach($array as &$value){
+				if(is_resource($value) || is_object($value))
+					$this->log("escapeAll| Unescapable variable [". gettype($value) . "] :". var_export($value));
+				
 				$value = mysql_real_escape_string($value, $this->sql_connection);
 			}
 		}
@@ -536,7 +633,7 @@ Class SQL{
 	 * @return void
 	 */
 	private function log($data){
-		if(!$this->verbose)
+		if($this->verbose == false)
 			return;
 		
 		// If the data is an array, then put it in JSON format so that we can see it.

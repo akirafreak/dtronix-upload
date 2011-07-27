@@ -55,10 +55,21 @@ Class SectionBase{
 	 *
 	 * @param bool $required True if the script should halt on user not being logged in. <BR>
 	 * False if the script should continue even if the user is not logged in.
+	 * @return ReturnData <code>
+	 * "validation_invalid_username"
+	 * "validation_invalid_password"
+	 * "maintenance_mode"
+	 * "validation_successful"
+	 * "validation_invalid_user_session"
+	 * "validation_expired_user_session"
+	 * "validation_failed_no_login"
+	 * "validation_account_dissabled"
+	 * "validation_user_connection_dissabled"
+	 * </code>
 	 */
 	protected function validateConnection($required = true){
 		if(array_key_exists("session", $this->USER))
-			return true;
+			return new ReturnData(true);
 		
 		if(isset($_COOKIE["client_username"]) && isset($_COOKIE["client_password"])){
 			// User is tring to login.
@@ -78,8 +89,6 @@ Class SectionBase{
 			if($pass1 != $pass2)
 				returnClientData("validation_invalid_password");
 			
-			
-
 			$session_key = createHash(32, true);
 
 			// Limit the total number of logins on one account to 5.
@@ -118,7 +127,7 @@ Class SectionBase{
 				returnClientData("maintenance_mode");
 
 			}else{
-				// Return the current session
+				// Return the current session key.
 				returnClientData("validation_successful", $session_key);
 			}
 			
@@ -127,12 +136,7 @@ Class SectionBase{
 			// User is attempting to use an exsiting session.
 			if(empty($_COOKIE["session_key"])){
 				$this->deleteCookies();
-				if($required){
-					returnClientData("validation_invalid_user_session");
-
-				}else{
-					return false;
-				}
+				returnClientData("validation_invalid_user_session");
 			}
 			
 			$user_session = $this->SQL->fetchRow("SELECT *
@@ -141,12 +145,7 @@ Class SectionBase{
 			
 			if($user_session == false){
 				$this->deleteCookies();
-				if($required){
-					returnClientData("validation_invalid_user_session");
-
-				}else{
-					return false;
-				} 
+				returnClientData("validation_invalid_user_session");
 			}
 
 			// Check to see if the session has expired
@@ -155,12 +154,7 @@ Class SectionBase{
 					WHERE session = '%s'", array($_COOKIE["session_key"]));
 
 				$this->deleteCookies();
-				if($required){
-					returnClientData("validation_expired_user_session");
-
-				}else{
-					return false;
-				}
+				returnClientData("validation_expired_user_session");
 			}
 			
 
@@ -186,20 +180,22 @@ Class SectionBase{
 			}
 			
 			// Ensure the user is not banned and other connection verifications.
-			$this->checkConnectionPermissions();
-		}else{
+			$validate = $this->checkConnectionPermissions();
+			if($validate->successful == false)
+				return $validate;
 			
-			if($required){
+			// Session is valid.
+			return new ReturnData(true);
+			
+		}else{
+			if($required)
 				returnClientData("validation_failed_no_login");
-
-			}else{
-				return false;
-			}
 		}
 	}
 	
 	/**
 	 * Removes all server created cookies on the client.
+	 * @return void
 	 */
 	private function deleteCookies(){
 		setcookie("client_username", "", time() - 60 * 60 * 24);
@@ -209,17 +205,25 @@ Class SectionBase{
 	
 	/**
 	 * Private method to ensure the client is allowed to connect.
+	 * @return ReturnData <code>
+	 * "validation_user_connection_dissabled"
+	 * "validation_account_dissabled"
+	 * </code>
 	 */
 	private function checkConnectionPermissions(){
-		if(!$this->getPermission("can_connect")){
+		$can_connect = $this->getPermission("can_connect");
+		if($can_connect->successful == false || $can_connect->data == false){
 			$this->deleteCookies();
 			returnClientData("validation_user_connection_dissabled");
 		}
 		
-		if($this->getPermission("is_disabled")){
+		$is_disabled = $this->getPermission("is_disabled");
+		if($is_disabled->successful == false || $is_disabled->data == true){
 			$this->deleteCookies();
 			returnClientData("validation_account_dissabled");
 		}
+		
+		return new ReturnData(true);
 	}
 
 	/**
@@ -231,7 +235,11 @@ Class SectionBase{
 	 *
 	 * @param string $permission_check Permission to verify.
 	 * @param int $uid User ID of the account to check the permission of.
-	 * @return mixed True if the permission is set to 1, false if it is set to 0, mixed for all other values.
+	 * @return ReturnData <code>
+	 * "validation_manage_users"
+	 * "validation_error"
+	 * null: True if the permission is set to 1, false if it is set to 0, mixed for all other values.
+	 * </code>
 	 */
 	protected function getPermission($permission_check, $uid = false){
 		$this->validateConnection();
@@ -240,7 +248,7 @@ Class SectionBase{
 		if($uid != false && $this->USER["id"] != $uid){
 			//Verify that the connected user can manage other peoples info.
 			if(!$this->getPermission("manage_users"))
-				returnClientData("validation_manage_users");
+				return new ReturnData(false, "validation_manage_users");
 			
 			$permission_level = $this->SQL->fetchRow("SELECT permissions
 				FROM users
@@ -263,21 +271,21 @@ Class SectionBase{
 				));
 
 			if($this->PERMISSIONS[$uid] == false)
-				returnClientData("validation_error");
+				return new ReturnData(false, "validation_error");
 		}
 		
 		if(isset($this->PERMISSIONS[$uid][$permission_check])){
 			if($this->PERMISSIONS[$uid][$permission_check] == 1){
-				return true;
+				return new ReturnData(true, null, true);
 
 			}else if($this->PERMISSIONS[$uid][$permission_check] == 0){
-				return false;
+				return new ReturnData(true, null, false);
 
 			}else{
-				return $this->PERMISSIONS[$uid][$permission_check];
+				return new ReturnData(true, null, $this->PERMISSIONS[$uid][$permission_check]);
 			}
 		}
-		return null;
+		return new ReturnData(true);
 	}
 	
 	/**
@@ -316,6 +324,7 @@ Class SectionBase{
 	 * @param string $type Notification type that tells the client how to handle this notification.
 	 * @param string $user_id User ID of the person to send the notification to.
 	 * @param mixed $data Data to send to the client that pertains to the notification.
+	 * @return void
 	 */
 	protected function saveNotification($type, $user_id, $data){
 		$this->SQL->insert("notifications", array(
@@ -324,6 +333,104 @@ Class SectionBase{
 			"data" => json_encode($data),
 			"time" => time()
 		));
+	}
+	
+	/**
+	 * Method to save settins server-side in a JSON array.
+	 * 
+	 * @param string $name Key of the name value pairing.
+	 * @param string $value Value to set for the name.
+	 * @param int $uid User ID of the account to modify.  The current user must have the manage_users permission.
+	 * @return ReturnData <code>
+	 * "user_setting_set_successful"
+	 * "user_setting_set_failure"
+	 * </code>
+	 */
+	protected function setVariable($name, $value, $uid = false){
+		$this->validateConnection();
+		$settings = array();
+		$account = $this->getAccount($uid);
+
+		// Ensure that the data is not empty.
+		if(!empty($account["settings"])){
+			$settings = json_decode($account["settings"]);
+		}
+		
+		$settings[$name] = $value;
+		$json_string = json_encode($settings);
+		
+		$successful = $this->SQL->update("users", array(
+			"settings" => $json_string
+		), "WHERE id = '%s'", array(
+			$account["id"]
+		));
+
+		if($successful){
+			return new ReturnData(true, "user_setting_set_successful");
+		}else{
+			return new ReturnData(false, "user_setting_set_failure");
+		}
+	}
+	
+	/**
+	 * Retrieve a user setting saved in a JSON array.
+	 * 
+	 * @param string $name Key of the value to retrieve.
+	 * @param int $uid User ID of the account to modify.  The current user must have the manage_users permission.
+	 * @return ReturnData <code>
+	 * "user_setting_get_successful": array($name, Setting Value)
+	 * "user_setting_get_failure"
+	 * </code>
+	 */
+	protected function getVariable($name, $uid = false){
+		$this->validateConnection();
+		$settings = array();
+		$account = $this->getAccount($uid);
+
+		// Ensure that the data is not empty.
+		if(!empty($account["settings"])){
+			$settings = json_decode($account["settings"]);
+		}
+
+		if($successful){
+			return new ReturnData(true, "user_setting_get_successful", array($name, $settings[$name]));
+		}else{
+			return new ReturnData(false, "user_setting_get_failure");
+		}
+	}
+	
+		
+	/**
+	 * Internal method that retrieves the account that is associated with the User ID.
+	 * 
+	 * Checks permissions if the current user is attempting to access another user's account.
+	 * User must have the manage_users permission set to true.
+	 * 
+	 * @param int $uid false to retrieve the current user's account.
+	 * @return ReturnData <code>
+	 * "validation_manage_users"
+	 * "user_info_invalid_user"
+	 * </code>
+	 */
+	private function getAccount($uid){
+		if($uid == false || $this->USER["id"] == $uid){
+			$user_lookup = $this->USER;
+			
+		}else{
+			if(!$this->getPermission("manage_users"))
+				return new ReturnData(false, "validation_manage_users");
+					
+			$user_lookup = $this->SQL->fetchRow("SELECT * 
+				FROM users 
+				WHERE id = '%s'", array(
+					$uid
+				));
+			
+			if($user_lookup == false)
+				return new ReturnData(false, "user_info_invalid_user");
+		}
+		
+		return new ReturnData(false, null, $user_lookup);
 	}
 }
 ?>

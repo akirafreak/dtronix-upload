@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Checks for the most basic of settings that required.
+ */
 function performRuntimeChecks(){
 	
 	// This removes the slashes in the request stream that PHP put in.
@@ -29,9 +32,9 @@ function performRuntimeChecks(){
  * @param mixed $send_data Data to be sent to the client.
  */
 function returnClientData($client_method, $send_data = false){
-	global $USER;
 	header("Call-Client-Method: ". $client_method);
-	die(json_encode($send_data));
+	echo json_encode($send_data);
+	die();
 }
 
 /**
@@ -46,15 +49,15 @@ function returnClientData($client_method, $send_data = false){
  * @return bool true on successful handling of the error.
  */
 function errorHandler($number, $text, $file, $line, $raw_error = null){
-		//if($errno == E_STRICT) return false;
-		//if($errno == E_WARNING) return false;
-		returnClientData("server_error", array(
-			"error_type" => $number,
-			"error_info" => $text,
-			"error_file" => $file,
-			"error_line" => $line,
-			"raw_error" => $raw_error
-		));
+	//if($errno == E_STRICT) return false;
+	//if($errno == E_WARNING) return false;
+	returnClientData("server_error", array(
+		"error_type" => $number,
+		"error_info" => $text,
+		"error_file" => $file,
+		"error_line" => $line,
+		"raw_error" => $raw_error
+	));
 
     return true;
 }
@@ -148,6 +151,16 @@ function createHash($length, $uppercase = false){
 	}
 	
 	return $hash_buffer;
+}
+
+/**
+ * Determines if input array is associative or enumerated.
+ * 
+ * @param type $arr Input array to test.
+ * @return bool True if the array is assodiative false otherwise
+ */
+function is_assoc($arr){
+	return !((array) $arr !== $arr);
 }
 
 ?>
