@@ -169,6 +169,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Readme.txt" />
+    <Content Include="Installer\DotNetChecker.nsh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Installer\nsProcess.nsh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Resources\lightening-16-ns.png" />
     <None Include="DtronixKeyFile.pfx" />
     <None Include="Resources\square-green-16-ns.png" />
