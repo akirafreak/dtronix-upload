@@ -1,4 +1,0 @@
-suPHP_ConfigPath  /
-RewriteEngine On
-RewriteRule ^([a-zA-Z0-9_-]+)$ index.php?action=Files:view&args[]=$1
-AddHandler application/x-httpd-php5 .php
