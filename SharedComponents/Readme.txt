@@ -1,0 +1,1 @@
+You will need to manually build a release of the Dtronix Core and place it in here.  You can get that project at http://code.google.com/p/dtronix-core/

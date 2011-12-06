@@ -1,0 +1,1 @@
+Fixed issue with files not giving their total length when not downloading in multi-part mode.

@@ -1,0 +1,111 @@
+*{
+	font-family: "Tahoma";
+	font-size: 12px;
+	color: #ffffff;
+}
+body{
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	background-color: #303030;
+}
+a:hover{
+	text-decoration: underline;
+}
+
+a{
+	text-decoration: none;
+}
+
+.center_div{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin:-150px auto auto -150px;
+}
+
+.header_text{
+	color: #535252;
+	font-size: 80px;
+}
+
+#form_table{
+	position: relative;
+	top: 0px;
+	left: 40px;
+}
+
+.login_inputs{
+	border: 0;
+	background-color: #303030;
+	border-bottom: 2px dashed #535252;
+	width: 200px;
+}
+
+#register_div{
+	display: none;
+}
+
+#files_container{
+	position: absolute;
+	width: 800px;
+	top: 10px;
+	bottom: 10px;
+	margin-left: -408px;
+	left: 50%;
+	background-color: #4a5961;
+	border: 2px dashed #ffffff;
+	padding: 5px;
+	overflow: auto;
+	display: none;
+}
+
+#uploaded_files{
+	position: absolute;
+	left: 0px;
+	right: 4px;
+}
+.uploaded_file:hover{
+	background-color: #646565;
+}
+
+.uploaded_file{
+	font-size: 14px;
+	display: none;
+}
+
+.file_option_links{
+	position: absolute;
+	right: 0px;
+	width: 200px;
+}
+
+
+#user_info_link{
+	color: #69757c;
+	font-size: 40px
+}
+
+#BumpBar{
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+}
+
+.BumpBarNotification{
+	position: relative;
+	left: 0px;
+	right: 0px;
+	bottom: -17px;
+	height: 20px;
+	font-size: 16px;
+	border-top: 1px solid #ffffff;
+	font-weight: bold;
+	text-indent: 30px;
+	overflow: hidden;
+}
+
+#info_used_space, #info_total_files, #info_max_upload_size{
+	font-weight: bold;
+}
