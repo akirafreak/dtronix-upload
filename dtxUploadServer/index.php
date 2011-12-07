@@ -1,121 +1,205 @@
 <?php
-//Start Date:Sat, 01 Jan 2011 00:00:00 GMT
-//Version:0.4
 
-// Determine if the output should be gzcompressed.
-if(key_exists("gzc", $_GET) && $_GET["gzc"] = "false"){
-	ob_start();
-}else{
-	ob_start("ob_gzhandler");
-}
-define("requireParrent", true);
+/*
+ *---------------------------------------------------------------
+ * APPLICATION ENVIRONMENT
+ *---------------------------------------------------------------
+ *
+ * You can load different configurations depending on your
+ * current environment. Setting the environment also influences
+ * things like logging and error reporting.
+ *
+ * This can be set to anything, but default usage is:
+ *
+ *     development
+ *     testing
+ *     production
+ *
+ * NOTE: If you change these, also change the error_reporting() code below
+ *
+ */
+	define('ENVIRONMENT', 'development');
+/*
+ *---------------------------------------------------------------
+ * ERROR REPORTING
+ *---------------------------------------------------------------
+ *
+ * Different environments will require different levels of error reporting.
+ * By default development will show errors but testing and live will hide them.
+ */
 
-$USER = array();
-
-require_once("config.php");
-require_once("functions.php");
-require_once("Classes/SQL.class.php");
-require_once("Classes/ReturnData.class.php");
-require_once("Classes/SectionBase.class.php");
-require_once("Classes/ThemeBase.class.php");
-
-performRuntimeChecks();
-
-if(!array_key_exists("server_timezone", $CONFIG))
-	$CONFIG["server_timezone"] = "America/New_York";
-
-date_default_timezone_set($CONFIG["server_timezone"]);
-register_shutdown_function("shutdownFunction");
-set_error_handler("errorHandler", E_ALL);
-
-// Start a new instance of the SQL class to handle queries.
-$SQL = new SQL();
-
-// Determine which type of database to connect to.
-if($CONFIG["sql_server_select"] == "postgresql"){
-	$SQL->pgsqlConnect($CONFIG["pgsql_server"], $CONFIG["pgsql_server_port"], $CONFIG["pgsql_database"], $CONFIG["pgsql_user"], $CONFIG["pgsql_password"]);
-
-}elseif($CONFIG["sql_server_select"] == "mysql"){
-	$SQL->mysqlConnect($CONFIG["mysql_server"], $CONFIG["mysql_database"], $CONFIG["mysql_user"], $CONFIG["mysql_password"]);
-}
-
-// Check to see what kind of client is trying to connect.
-if(strpos($_SERVER["HTTP_USER_AGENT"], "dtxClient") !== false){
-	$USER["client"] = 1; // dtxManageClient Program.
-
-}else{
-	$USER["client"] = 2; // Regular web request.
-}
-
-// Make sure we have an entire valid call.
-if(array_key_exists("action", $_GET) && strpos($_GET["action"], ":") === false){
-	returnClientData("error_client", array(
-		"error" => "Unknown method called.",
-		"method" => $_GET["action"]
-	));
-}
-
-// If the user did not pass an action, then use the Main default.
-if(!array_key_exists("action", $_GET))
-	$_GET["action"] = "Main:mainDefault";
-
-// Parse the request.
-list($call_class, $call_method) = explode(":", $_GET["action"]);
-
-$requested_file = "Sections/" . $call_class. ".php";
-
-// We don't want somebody accessing a file in another directory now do we?
-if(strpos($call_class, ".") !== false){
-	returnClientData("error_client", array(
-		"error" => "Invalid Request.",
-		"method" => $_GET["action"]
-	));
-}
-
-// Check to see if the requested file actually exists.
-if(!file_exists($requested_file)){
-	if($USER["client"] == 1){
-		returnClientData("error_client", array(
-			"error" => "Unknown action called.",
-			"unknown_action" => $call_class
-		));
-
-	}else{
-		die("Unknown method requested.");
-	}
-
-}else{
-	require_once($requested_file);
-	//returnClientData("asf", $call_class);
-	$called_class = new $call_class();
-	$called_class->setVariables($USER, $CONFIG, $SQL);
+if (defined('ENVIRONMENT'))
+{
+	switch (ENVIRONMENT)
+	{
+		case 'development':
+			error_reporting(E_ALL);
+		break;
 	
-	// Check to see if the class contains the method requested and that it is not private or protected..
-	if(is_callable(array($called_class, $call_method)) == false){
-		returnClientData("error_client", array(
-			"error" => "Unknown method called.",
-			"unknown_method" => $call_method
-		));
-	}
-	
-	$args = array();
-	if(array_key_exists("args", $_POST)){ // If GET & POST arguemnts are passed, the GET will be ignored.
-		$args = json_decode($_POST["args"], true);
-		if($args == null)
-			errorHandler(0, "Unreadable JSON: ". $_POST["args"], __FILE__, __LINE__);
-	
-	}else if(array_key_exists("args", $_GET)){ // Check to see if GET arguemtns were passed.
-		$args = $_GET["args"];
-		
-	}else{ // The user did not pass any arguments.
-		$args = array();
-	}
-	
-	// Finally, call the requested method in the new class instance.
-	$result = call_user_func_array(array($called_class, $call_method), $args);
-	
-	if($result instanceof ReturnData){
-		$result->sendClientInfo();
+		case 'testing':
+		case 'production':
+			error_reporting(0);
+		break;
+
+		default:
+			exit('The application environment is not set correctly.');
 	}
 }
-?>
+
+/*
+ *---------------------------------------------------------------
+ * SYSTEM FOLDER NAME
+ *---------------------------------------------------------------
+ *
+ * This variable must contain the name of your "system" folder.
+ * Include the path if the folder is not in the same  directory
+ * as this file.
+ *
+ */
+	$system_path = 'system';
+
+/*
+ *---------------------------------------------------------------
+ * APPLICATION FOLDER NAME
+ *---------------------------------------------------------------
+ *
+ * If you want this front controller to use a different "application"
+ * folder then the default one you can set its name here. The folder
+ * can also be renamed or relocated anywhere on your server.  If
+ * you do, use a full server path. For more info please see the user guide:
+ * http://codeigniter.com/user_guide/general/managing_apps.html
+ *
+ * NO TRAILING SLASH!
+ *
+ */
+	$application_folder = 'DtxUpload-0.4';
+
+/*
+ * --------------------------------------------------------------------
+ * DEFAULT CONTROLLER
+ * --------------------------------------------------------------------
+ *
+ * Normally you will set your default controller in the routes.php file.
+ * You can, however, force a custom routing by hard-coding a
+ * specific controller class/function here.  For most applications, you
+ * WILL NOT set your routing here, but it's an option for those
+ * special instances where you might want to override the standard
+ * routing in a specific front controller that shares a common CI installation.
+ *
+ * IMPORTANT:  If you set the routing here, NO OTHER controller will be
+ * callable. In essence, this preference limits your application to ONE
+ * specific controller.  Leave the function name blank if you need
+ * to call functions dynamically via the URI.
+ *
+ * Un-comment the $routing array below to use this feature
+ *
+ */
+	// The directory name, relative to the "controllers" folder.  Leave blank
+	// if your controller is not in a sub-folder within the "controllers" folder
+	// $routing['directory'] = '';
+
+	// The controller class file name.  Example:  Mycontroller
+	// $routing['controller'] = '';
+
+	// The controller function you wish to be called.
+	// $routing['function']	= '';
+
+
+/*
+ * -------------------------------------------------------------------
+ *  CUSTOM CONFIG VALUES
+ * -------------------------------------------------------------------
+ *
+ * The $assign_to_config array below will be passed dynamically to the
+ * config class when initialized. This allows you to set custom config
+ * items or override any default config values found in the config.php file.
+ * This can be handy as it permits you to share one application between
+ * multiple front controller files, with each file containing different
+ * config values.
+ *
+ * Un-comment the $assign_to_config array below to use this feature
+ *
+ */
+	// $assign_to_config['name_of_config_item'] = 'value of config item';
+
+
+
+// --------------------------------------------------------------------
+// END OF USER CONFIGURABLE SETTINGS.  DO NOT EDIT BELOW THIS LINE
+// --------------------------------------------------------------------
+
+/*
+ * ---------------------------------------------------------------
+ *  Resolve the system path for increased reliability
+ * ---------------------------------------------------------------
+ */
+
+	// Set the current directory correctly for CLI requests
+	if (defined('STDIN'))
+	{
+		chdir(dirname(__FILE__));
+	}
+
+	if (realpath($system_path) !== FALSE)
+	{
+		$system_path = realpath($system_path).'/';
+	}
+
+	// ensure there's a trailing slash
+	$system_path = rtrim($system_path, '/').'/';
+
+	// Is the system path correct?
+	if ( ! is_dir($system_path))
+	{
+		exit("Your system folder path does not appear to be set correctly. Please open the following file and correct this: ".pathinfo(__FILE__, PATHINFO_BASENAME));
+	}
+
+/*
+ * -------------------------------------------------------------------
+ *  Now that we know the path, set the main path constants
+ * -------------------------------------------------------------------
+ */
+	// The name of THIS file
+	define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
+
+	// The PHP file extension
+	// this global constant is deprecated.
+	define('EXT', '.php');
+
+	// Path to the system folder
+	define('BASEPATH', str_replace("\\", "/", $system_path));
+
+	// Path to the front controller (this file)
+	define('FCPATH', str_replace(SELF, '', __FILE__));
+
+	// Name of the "system folder"
+	define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
+
+
+	// The path to the "application" folder
+	if (is_dir($application_folder))
+	{
+		define('APPPATH', $application_folder.'/');
+	}
+	else
+	{
+		if ( ! is_dir(BASEPATH.$application_folder.'/'))
+		{
+			exit("Your application folder path does not appear to be set correctly. Please open the following file and correct this: ".SELF);
+		}
+
+		define('APPPATH', BASEPATH.$application_folder.'/');
+	}
+
+/*
+ * --------------------------------------------------------------------
+ * LOAD THE BOOTSTRAP FILE
+ * --------------------------------------------------------------------
+ *
+ * And away we go...
+ *
+ */
+require_once BASEPATH.'core/CodeIgniter.php';
+
+/* End of file index.php */
+/* Location: ./index.php */
